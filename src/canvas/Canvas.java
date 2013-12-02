@@ -67,6 +67,7 @@ public class Canvas extends JPanel {
         drawingBuffer = createImage(getWidth(), getHeight());
         fillWithWhite();
         drawSmile();
+        
     }
     
     /*

@@ -25,7 +25,7 @@ public class Stroke implements Drawing {
 	 * 
 	 */
 	public void clear()  {
-		this.color = Color.WHITE;
+		this.color = new Color(0,0,0,0); //Sets the color to be transparent. 
 	}
 
 	/**
