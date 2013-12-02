@@ -18,5 +18,5 @@ public interface Drawing {
 	 *   Returns associated Java Graphics image associated with this
 	 *   Drawing.  This represents the bridge from the ADT to the GUI.
 	 **/ 
-	public Image updateImage(Image background);
+	public void updateImage(Image background);
 }
