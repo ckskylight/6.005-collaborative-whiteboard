@@ -39,11 +39,10 @@ public class Stroke implements Drawing {
 	}
 }
 
-class EmptyStroke implements Drawing{
-	public EmptyStroke()  {
+class EmptyStroke extends Stroke {
+
+	public EmptyStroke(Point startPoint, Point endPoint, float pixels) {
+		super(startPoint, endPoint, new Color(0,0,0,0), pixels);
 	}
 
-	public void clear() {}
-
-	public void updateImage(Image background) {}
 }
