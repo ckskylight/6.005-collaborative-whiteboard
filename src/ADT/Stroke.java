@@ -31,11 +31,12 @@ public class Stroke implements Drawing {
 	/**
 	 * 
 	 */
-	public void updateImage(Image background) {
+	public Image getImage(Image background) {
 		Graphics2D g = (Graphics2D) background.getGraphics();
 		g.setColor(color);
 		g.setStroke(new BasicStroke(thickness));
 		g.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y);	
+		return background;
 	}
 }
 
