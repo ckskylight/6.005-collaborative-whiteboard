@@ -4,13 +4,13 @@ import java.awt.Image;
 
 /**
  * Drawing represents the contents of whiteboard. Classes that implement 
- * drawing are stroke, path and sketch. 
+ * drawing are Stroke, Custom and Sketch. 
  *
  */
 public interface Drawing {
 
 	/**
-	 *   Deletes all components from the Drawing.
+	 *   Erase the entire drawing.
 	 **/
 	public void clear();
 

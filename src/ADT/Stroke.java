@@ -6,6 +6,12 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 
+/**
+ * Stroke represents an atomic drawing. Strokes can be composed into 
+ * Sketches and serve as a method of passing updates to the server when
+ * free hand drawing. 
+ *
+ */
 public class Stroke implements Drawing {
 
 	private Color color;
@@ -22,15 +28,20 @@ public class Stroke implements Drawing {
 	}
 
 	/**
-	 * 
+	 * Erases all drawings from the Whiteboard. 
+	 * This is done by the setting the color of the stroke to be
+	 * Transparent. 
 	 */
 	public void clear()  {
 		this.color = new Color(0,0,0,0); //Sets the color to be transparent. 
 	}
 
+
 	/**
-	 * 
-	 */
+	 *   Imprints this Drawing on the Image passed in.
+	 *   This method mutates background. 
+	 *   Returns the mutated background. 
+	 */ 	 
 	public Image getImage(Image background) {
 		Graphics2D g = (Graphics2D) background.getGraphics();
 		g.setColor(color);
@@ -40,10 +51,3 @@ public class Stroke implements Drawing {
 	}
 }
 
-class EmptyStroke extends Stroke {
-
-	public EmptyStroke(Point startPoint, Point endPoint, float pixels) {
-		super(startPoint, endPoint, new Color(0,0,0,0), pixels);
-	}
-
-}
