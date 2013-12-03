@@ -3,6 +3,7 @@ package GUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -18,6 +19,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+
+import ADT.Sketch;
 
 public class WhiteboardGUI extends JFrame {
 	
@@ -37,7 +40,7 @@ public class WhiteboardGUI extends JFrame {
 	private final JComboBox weightDropdown;
 	
 	// Main canvas
-	private final JLabel canvas;
+	private final Canvas canvas;
 	
 	// JPanels
 	private final JPanel topPanel;
@@ -45,19 +48,22 @@ public class WhiteboardGUI extends JFrame {
 	private final JPanel buttonsPanel;
 	private final JPanel bottomPanel;
 
+	// Brush
+	//Brush brush = new Brush();
+	
+	// Model
+	Sketch board = new Sketch();
 	
 	
 	// ------- CONSTRUCTOR --------
 	public WhiteboardGUI() {
 		
-		
-		
 		// ----- INITIALIZE GUI ELEMENTS ------
 		
 		// *Note: Initializing everything with paintbrush temporarily 
-		drawButton = new CustomButton(loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
-		clearButton = new CustomButton(loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
-		eraseButton = new CustomButton(loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
+		drawButton = new CustomButton(/*brush,*/ "draw", this, loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
+		clearButton = new CustomButton(/*brush,*/ "clear", this, loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
+		eraseButton = new CustomButton(/*brush,*/ "erase", this, loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
 		
 		colorTextBox = new JTextArea();
 		weightDropdown = new JComboBox();
@@ -67,24 +73,22 @@ public class WhiteboardGUI extends JFrame {
 		buttonsPanel = new JPanel();
 		bottomPanel = new JPanel();
 		
-		canvas = new JLabel();
+		canvas = new Canvas(WhiteBoardGUIConstants.CANVAS_WIDTH, WhiteBoardGUIConstants.CANVAS_HEIGHT);
 
 		
 		// ----- PUT GUI LAYOUT TOGETHER ----- 
-		
-		// create the canvas
-		ImageIcon canvasIcon = new ImageIcon(loadImage("src/GUI/images/800x600.gif"));
-		canvas.setIcon(canvasIcon);
 		
 		// Assemble the main panel
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, 1));
 		
 		buttonsPanel.add(drawButton);
 		buttonsPanel.add(clearButton);
+		buttonsPanel.add(eraseButton);
 		buttonsPanel.setBackground(Color.BLUE);
-		buttonsPanel.setSize(WhiteBoardGUIConstants.SIDEBAR_WIDTH, WhiteBoardGUIConstants.CANVAS_HEIGHT);
+		buttonsPanel.setSize(WhiteBoardGUIConstants.SIDEBAR_WIDTH, WhiteBoardGUIConstants.CANVAS_WIDTH);
 		
-		mainPanel.setLayout(new BorderLayout());
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+		buttonsPanel.setAlignmentY(TOP_ALIGNMENT);
 		
 		mainPanel.setBackground(Color.YELLOW);
 		mainPanel.add(buttonsPanel);
@@ -93,7 +97,8 @@ public class WhiteboardGUI extends JFrame {
 		
 		colorTextBox.setPreferredSize(new Dimension(100, 20));
 		bottomPanel.setBackground(Color.GREEN);
-		bottomPanel.setAlignmentX(RIGHT_ALIGNMENT);
+		bottomPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+
 		bottomPanel.add(colorTextBox);
 		bottomPanel.add(weightDropdown);
 		
@@ -115,8 +120,18 @@ public class WhiteboardGUI extends JFrame {
 		return image;
 	}
 	
+	public int getWeight() {
+		return Integer.parseInt(weightDropdown.toString());
+	}
+	
+	public void clear() {
+		board.clear();
+	}
+	
 	
 	// ------- BRUSH CONTROLS -------
+	
+	
 	
 	// ------- MAIN METHOD ---------
 	public static void main(final String[] args) {

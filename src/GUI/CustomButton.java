@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -18,32 +19,51 @@ public class CustomButton extends JComponent implements MouseListener {
 	private Image icon;
 	private int height;
 	private int width;
+	//private Brush brush;
+	private String action;
+	private WhiteboardGUI whiteboard;
 	
-	public CustomButton(Image icon) {
+	public CustomButton(/*Brush brush,*/ String action, WhiteboardGUI whiteboard, Image icon) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
 		this.icon = icon;
 		height = icon.getHeight(null);
 		width = icon.getWidth(null);
+		//this.brush = brush;
+		this.action = action;
+		this.whiteboard = whiteboard;
 	}
 	
-	public CustomButton(Image icon, int dimension) {
+	/**
+	 * 
+	 * @param brush
+	 * @param action one of: "draw", "erase", "clear"
+	 * @param icon
+	 * @param dimension
+	 */
+	public CustomButton(/*Brush brush,*/ String action, WhiteboardGUI whiteboard, Image icon, int dimension) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
 		this.icon = icon;
 		height = dimension;
 		width = dimension;
+		//this.brush = brush;
+		this.action = action;
+		this.whiteboard = whiteboard;
 	}
 	
-	public CustomButton(Image icon, int h, int w) {
+	public CustomButton(/*Brush brush,*/ String action, WhiteboardGUI whiteboard, Image icon, int h, int w) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
 		this.icon = icon;
 		height = h;
 		width = w;
+		//this.brush = brush;
+		this.action = action;
+		this.whiteboard = whiteboard;
 	}
 	
 	@Override
@@ -96,7 +116,20 @@ public class CustomButton extends JComponent implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
+		if (action.equals("draw")) {
+			//brush.setWeight(whiteboard.getWeight());
+			//brush.setColor( new Color(0,0,0) );
+			System.out.println("draw");
+		}
+		else if (action.equals("erase")) {
+			//brush.setColor( new Color(255,255,255) );
+			System.out.println("erase");
+		}
+		else if (action.equals("clear")) {
+			whiteboard.clear();
+			System.out.println("clear");
+
+		}
 		
 	}
 
