@@ -22,6 +22,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import ADT.Sketch;
+import ADT.Stroke;
+
 /**
  * Canvas represents a drawing surface that allows the user to draw
  * on it freehand, with the mouse.
@@ -30,6 +33,8 @@ public class Canvas extends JPanel {
     // image where the user's drawing is stored
     private Image drawingBuffer;
     private Color currentColor;
+    // Instantiate the ADT
+    private Sketch whiteboard = new Sketch();
     
     
     /**
@@ -185,6 +190,13 @@ public class Canvas extends JPanel {
             int x = e.getX();
             int y = e.getY();
             drawLineSegment(lastX, lastY, x, y);
+            
+            // Here store info in the ADT
+            Point startPoint = new Point(lastX, lastY);
+            Point endPoint = new Point(x, y);
+            whiteboard.connect(new Stroke(startPoint, endPoint, new Color(0,0,0), 2));
+            System.out.println(whiteboard.getSketchSize());
+            
             lastX = x;
             lastY = y;
         }

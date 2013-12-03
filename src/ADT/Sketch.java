@@ -47,6 +47,13 @@ public class Sketch implements Drawing {
 			drawing.clear();
 		}
 	}
+	
+	/**
+	 * @return the size of the sketch (number of strokes)
+	 */
+	public int getSketchSize() {
+		return sketch.size();
+	}
 
 	/**
 	 *   Returns associated Java Graphics image associated with this
