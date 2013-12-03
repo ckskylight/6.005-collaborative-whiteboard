@@ -49,5 +49,42 @@ public class Stroke implements Drawing {
 		g.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y);	
 		return background;
 	}
+	
+	/**
+	 * The following methods are observers for Strokes instance variables.
+	 * These are only used to test for equality. 
+	 */
+	public Color getColor()  {
+		return this.color;
+	}
+	
+	public Point getStartPoint()  {
+		return this.startPoint;
+	}
+	
+	public Point getEndPoint()  {
+		return this.endPoint;
+	}
+	
+	public float getThickness()  {
+		return this.thickness;
+	}
+	
+	/**
+	 * Returns true if two Strokes are behaviorally equal. False otherwise. 
+	 */
+	@Override
+	public boolean equals(Object other)  {
+		if(!(other instanceof Stroke))
+			return false;
+		Stroke otherStroke = (Stroke) other;
+		return getColor().equals(otherStroke.getColor()) && getThickness() == otherStroke.getThickness()
+				&&  getStartPoint().equals(otherStroke.getStartPoint()) && getEndPoint().equals(otherStroke.getEndPoint());
+	}
+	
+	@Override
+	public int hashCode()  {
+		return color.hashCode() + startPoint.hashCode() + endPoint.hashCode() + (int) thickness;
+	}
 }
 
