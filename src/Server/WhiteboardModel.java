@@ -10,7 +10,7 @@ public class WhiteboardModel {
 	private ArrayList<String> subscribers;
 	private final String boardID;
 	private String boardName;
-	private Sketch drawing;
+	private Drawing drawing;
 	
 	public WhiteboardModel(String boardName, String boardID)  {
 		this.drawing = new Sketch();

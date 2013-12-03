@@ -33,6 +33,7 @@ public class Sketch implements Drawing {
 	/**
 	 *   This adds a new drawing to the Sketch.
 	 *   <Sketch, Drawing> --> <Sketch>
+	 *   
 	 **/ 
 	public void connect(Drawing drawing)  {
 		sketch.add(drawing);
