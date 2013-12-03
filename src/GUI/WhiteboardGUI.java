@@ -1,11 +1,16 @@
 package GUI;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -26,7 +31,6 @@ public class WhiteboardGUI extends JFrame {
 	
 	// Color picker
 	private final JTextArea colorTextBox;
-	private final JPanel colorPanel;
 	// add buttons of different default colors to the colorPanel
 	
 	// Stroke weight picker
@@ -34,6 +38,13 @@ public class WhiteboardGUI extends JFrame {
 	
 	// Main canvas
 	private final JLabel canvas;
+	
+	// JPanels
+	private final JPanel topPanel;
+	private final JPanel mainPanel;
+	private final JPanel buttonsPanel;
+	private final JPanel bottomPanel;
+
 	
 	
 	// ------- CONSTRUCTOR --------
@@ -44,21 +55,52 @@ public class WhiteboardGUI extends JFrame {
 		// ----- INITIALIZE GUI ELEMENTS ------
 		
 		// *Note: Initializing everything with paintbrush temporarily 
-		drawButton = new CustomButton(loadImage("src/GUI/images/paintbrush.png"), 60);
-		clearButton = new CustomButton(loadImage("src/GUI/images/paintbrush.png"), 60);
-		eraseButton = new CustomButton(loadImage("src/GUI/images/paintbrush.png"), 60);
+		drawButton = new CustomButton(loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
+		clearButton = new CustomButton(loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
+		eraseButton = new CustomButton(loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
 		
 		colorTextBox = new JTextArea();
-		colorPanel = new JPanel();
 		weightDropdown = new JComboBox();
+		
+		topPanel = new JPanel();
+		mainPanel = new JPanel();
+		buttonsPanel = new JPanel();
+		bottomPanel = new JPanel();
 		
 		canvas = new JLabel();
 
 		
 		// ----- PUT GUI LAYOUT TOGETHER ----- 
 		
-		this.getContentPane().add(drawButton);
-
+		// create the canvas
+		ImageIcon canvasIcon = new ImageIcon(loadImage("src/GUI/images/800x600.gif"));
+		canvas.setIcon(canvasIcon);
+		
+		// Assemble the main panel
+		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, 1));
+		
+		buttonsPanel.add(drawButton);
+		buttonsPanel.add(clearButton);
+		buttonsPanel.setBackground(Color.BLUE);
+		buttonsPanel.setSize(WhiteBoardGUIConstants.SIDEBAR_WIDTH, WhiteBoardGUIConstants.CANVAS_HEIGHT);
+		
+		mainPanel.setLayout(new BorderLayout());
+		
+		mainPanel.setBackground(Color.YELLOW);
+		mainPanel.add(buttonsPanel);
+		mainPanel.add(canvas);
+		
+		
+		colorTextBox.setPreferredSize(new Dimension(100, 20));
+		bottomPanel.setBackground(Color.GREEN);
+		bottomPanel.setAlignmentX(RIGHT_ALIGNMENT);
+		bottomPanel.add(colorTextBox);
+		bottomPanel.add(weightDropdown);
+		
+		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), 1));
+		this.getContentPane().add(topPanel);
+		this.getContentPane().add(mainPanel);
+		this.getContentPane().add(bottomPanel);
 		
 	}
 	
