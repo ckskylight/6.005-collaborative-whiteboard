@@ -20,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import ADT.Sketch;
@@ -35,7 +36,7 @@ public class WhiteboardGUI extends JFrame {
 	private final CustomButton eraseButton;
 	
 	// Color picker
-	private final JTextArea colorTextBox;
+	private final JTextField colorTextBox;
 	// add buttons of different default colors to the colorPanel
 	
 	// Stroke weight picker
@@ -68,7 +69,7 @@ public class WhiteboardGUI extends JFrame {
 		clearButton = new CustomButton(/*brush,*/ "clear", this, loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
 		eraseButton = new CustomButton(/*brush,*/ "erase", this, loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
 		
-		colorTextBox = new JTextArea();
+		colorTextBox = new JTextField();
 		weightDropdown = new JComboBox(weightChoices);
 		
 		topPanel = new JPanel();
@@ -86,6 +87,10 @@ public class WhiteboardGUI extends JFrame {
 		weightDropdown.setSelectedIndex(1);
 		weightDropdown.addActionListener(new WeightListener());
 		
+		// Set up the hex color box
+		colorTextBox.setPreferredSize(new Dimension(100, 20));
+		colorTextBox.addActionListener(new ColorListener());
+		
 		
 		// Assemble the main panel
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, 1));
@@ -102,7 +107,6 @@ public class WhiteboardGUI extends JFrame {
 		mainPanel.add(canvas);
 		
 		
-		colorTextBox.setPreferredSize(new Dimension(100, 20));
 		bottomPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
 
 		bottomPanel.add(colorTextBox);
@@ -145,7 +149,8 @@ public class WhiteboardGUI extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			
+			System.out.println(e.getActionCommand());
+			System.out.println(((JComboBox) e.getSource()).getSelectedItem());
 		}
 		
 	}
@@ -157,7 +162,7 @@ public class WhiteboardGUI extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			
+			System.out.println(e.getActionCommand());
 		}
 		
 	}
