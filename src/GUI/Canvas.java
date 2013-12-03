@@ -42,6 +42,7 @@ public class Canvas extends JPanel {
      * @param width width in pixels
      * @param height height in pixels
      */
+    //TODO: When brush is available, take in a brush so it could be modified
     public Canvas(int width, int height) {
         this.setPreferredSize(new Dimension(width, height));
         addDrawingController();

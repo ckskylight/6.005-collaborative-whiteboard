@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +40,7 @@ public class WhiteboardGUI extends JFrame {
 	
 	// Stroke weight picker
 	private final JComboBox weightDropdown;
+	private String[] weightChoices = new String[] {"1","2","4","6","10","20"};
 	
 	// Main canvas
 	private final Canvas canvas;
@@ -66,17 +69,23 @@ public class WhiteboardGUI extends JFrame {
 		eraseButton = new CustomButton(/*brush,*/ "erase", this, loadImage("src/GUI/images/paintbrush.png"), WhiteBoardGUIConstants.SIDEBAR_WIDTH);
 		
 		colorTextBox = new JTextArea();
-		weightDropdown = new JComboBox();
+		weightDropdown = new JComboBox(weightChoices);
 		
 		topPanel = new JPanel();
 		mainPanel = new JPanel();
 		buttonsPanel = new JPanel();
 		bottomPanel = new JPanel();
 		
+		// TODO: Pass in a brush when it's available
 		canvas = new Canvas(WhiteBoardGUIConstants.CANVAS_WIDTH, WhiteBoardGUIConstants.CANVAS_HEIGHT);
 
 		
 		// ----- PUT GUI LAYOUT TOGETHER ----- 
+		
+		// Set up the weight combo box
+		weightDropdown.setSelectedIndex(1);
+		weightDropdown.addActionListener(new WeightListener());
+		
 		
 		// Assemble the main panel
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, 1));
@@ -84,19 +93,16 @@ public class WhiteboardGUI extends JFrame {
 		buttonsPanel.add(drawButton);
 		buttonsPanel.add(clearButton);
 		buttonsPanel.add(eraseButton);
-		buttonsPanel.setBackground(Color.BLUE);
 		buttonsPanel.setSize(WhiteBoardGUIConstants.SIDEBAR_WIDTH, WhiteBoardGUIConstants.CANVAS_WIDTH);
 		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
 		buttonsPanel.setAlignmentY(TOP_ALIGNMENT);
 		
-		mainPanel.setBackground(Color.YELLOW);
 		mainPanel.add(buttonsPanel);
 		mainPanel.add(canvas);
 		
 		
 		colorTextBox.setPreferredSize(new Dimension(100, 20));
-		bottomPanel.setBackground(Color.GREEN);
 		bottomPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
 
 		bottomPanel.add(colorTextBox);
@@ -131,6 +137,30 @@ public class WhiteboardGUI extends JFrame {
 	
 	// ------- BRUSH CONTROLS -------
 	
+	// ------- LISTENERS -------
+	class WeightListener implements ActionListener {
+		
+		//TODO: When brush is available, change the weight of the brush
+		// when number in dropdown changes
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+		}
+		
+	}
+	
+	class ColorListener implements ActionListener {
+		
+		//TODO: When brush is available, change color of brush when
+		// user hits enter. Nothing happens if hex is invalid
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+		}
+		
+	}
 	
 	
 	// ------- MAIN METHOD ---------
