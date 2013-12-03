@@ -10,17 +10,30 @@ import java.awt.Point;
  * Stroke represents an atomic drawing. Strokes can be composed into 
  * Sketches and serve as a method of passing updates to the server when
  * free hand drawing. 
+ * 
+ * Abstraction Function: This maps straight lines to an Image representing that straight 
+ * line.
+ * 
+ * Representation Invariant:
+ * Thickness must be >= 1
+ * 
+ * Thread Safety Argument:
+ * Since this class is only mutated from a single thread, (server when clear is called)
+ * this class is thread-safe. 
  *
  */
 public class Stroke implements Drawing {
 
 	private Color color;
-	private float thickness;
-	private Point startPoint;
-	private Point endPoint;
+	private final float thickness;
+	private final Point startPoint;
+	private final Point endPoint;
 
 
 	public Stroke(Point startPoint, Point endPoint, Color c, float pixels){
+		if(pixels < 1)  {
+			throw new IllegalArgumentException("Thickness must be minimum 1 pixel wide!");
+		}
 		this.startPoint = startPoint;
 		this.endPoint = endPoint;
 		this.color = c;

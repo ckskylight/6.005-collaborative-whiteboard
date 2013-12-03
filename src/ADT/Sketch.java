@@ -6,6 +6,17 @@ import java.util.ArrayList;
 /**
  * Sketch is represents top level of our ADT, it is a composition of 
  * other drawings. 
+ * Pre-req: This class cannot not be mutated from the GUI!
+ * 
+ * Abstraction Function: 
+ * This maps free-hand drawings and custom images to an ArrayList of Strokes and Customs.
+ * 
+ * Representation Invariant:
+ * Drawings are never removed from a Sketch, only overwritten. 
+ * 
+ * Thread Safety Argument:
+ * Since this class is only modified from a single thread, (Server when connect or clear is called)
+ * this class is thread-safe. 
  *
  */
 public class Sketch implements Drawing {
