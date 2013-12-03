@@ -62,7 +62,7 @@ public class Canvas extends JPanel {
         }
         
         // Copy the drawing buffer to the screen.
-        g.drawImage(drawingBuffer, 0, 0, null);
+        g.drawImage(whiteboard.getImage(drawingBuffer), 0, 0, null);
     }
     
     /*
@@ -141,7 +141,7 @@ public class Canvas extends JPanel {
      * pixels relative to the upper-left corner of the drawing buffer.
      */
     private void drawLineSegment(int x1, int y1, int x2, int y2) {
-        Graphics2D g = (Graphics2D) drawingBuffer.getGraphics();
+        /*Graphics2D g = (Graphics2D) drawingBuffer.getGraphics();
         
         g.setColor(this.getDrawColor());
         if (this.getDrawColor() == Color.WHITE) {
@@ -153,7 +153,7 @@ public class Canvas extends JPanel {
         g.drawLine(x1, y1, x2, y2);
         
         // IMPORTANT!  every time we draw on the internal drawing buffer, we
-        // have to notify Swing to repaint this component on the screen.
+        // have to notify Swing to repaint this component on the screen.*/
         this.repaint();
     }
     
@@ -194,11 +194,12 @@ public class Canvas extends JPanel {
             // Here store info in the ADT
             Point startPoint = new Point(lastX, lastY);
             Point endPoint = new Point(x, y);
-            whiteboard.connect(new Stroke(startPoint, endPoint, new Color(0,0,0), 2));
+            whiteboard.connect(new Stroke(startPoint, endPoint, new Color(0,0,0), 6));
             System.out.println(whiteboard.getSketchSize());
             
             lastX = x;
             lastY = y;
+            
         }
 
         // Ignore all these other mouse events.
