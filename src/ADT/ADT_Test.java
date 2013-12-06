@@ -32,17 +32,10 @@ public class ADT_Test {
     }
     
     /**
-     * This tests creating a Stroke with negative values for thickness and for the coordinates of its
-     * start and end points.
+     * This tests creating a Stroke with negative values for thickness 
      */
     @Test
     public void testStrokeConstructorNegativeValues(){
-        try {
-            makeStroke(-10, 10, -100, 100, Color.GRAY, (float) 1.0);     
-            throw new RuntimeException("Accepted negative points!");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Negative points caught");
-        }
         
         try {
             makeStroke(10, 10, 10, 10, Color.GRAY, (float) -10);

@@ -1,7 +1,5 @@
 package server;
 
-import java.util.ArrayList;
-
 import com.google.gson.Gson;
 
 import ADT.Drawing;
@@ -9,7 +7,6 @@ import ADT.Sketch;
 
 public class WhiteboardModel {
 
-//	private ArrayList<String> subscribers;
 	// Implementation note: I changed the ID to an int, it's best practice.
 	private final int boardID;
 	private String boardName;
@@ -48,13 +45,5 @@ public class WhiteboardModel {
 	    this.drawing.connect(newDrawing);
 	}
 	
-//	public void addSubscriber(String user)  {
-//		subscribers.add(user);
-//	}
-//	
-//	public void removeSubscriber(String user)  {
-//		subscribers.remove(user);
-//	}
-//	
 	
 }
