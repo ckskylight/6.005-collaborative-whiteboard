@@ -35,7 +35,8 @@ public class Canvas extends JPanel {
     private Color currentColor;
     // Instantiate the ADT
     private Sketch whiteboard = new Sketch();
-    
+    // Instantiate the brush
+    private Brush brush;
     
     /**
      * Make a canvas.
@@ -43,7 +44,8 @@ public class Canvas extends JPanel {
      * @param height height in pixels
      */
     //TODO: When brush is available, take in a brush so it could be modified
-    public Canvas(int width, int height) {
+    public Canvas(int width, int height, Brush brush) {
+    	this.brush = brush;
         this.setPreferredSize(new Dimension(width, height));
         addDrawingController();
         // note: we can't call makeDrawingBuffer here, because it only
@@ -195,7 +197,7 @@ public class Canvas extends JPanel {
             // Here store info in the ADT
             Point startPoint = new Point(lastX, lastY);
             Point endPoint = new Point(x, y);
-            whiteboard.connect(new Stroke(startPoint, endPoint, new Color(0,0,0), 6));
+            whiteboard.connect(new Stroke(startPoint, endPoint, brush.getColor(), brush.getThickness()));
             System.out.println(whiteboard.getSketchSize());
             
             lastX = x;
@@ -231,35 +233,5 @@ public class Canvas extends JPanel {
         public void actionPerformed(ActionEvent event) {
             canvas.setDrawColor(Color.WHITE);
         }
-    }
-    
-    /*
-     * Main program. Make a window containing a Canvas.
-     */
-    public static void main(String[] args) {
-        // set up the UI (on the event-handling thread)
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                JFrame window = new JFrame("Freehand Canvas");
-                window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                window.setLayout(new BorderLayout());
-                Canvas canvas = new Canvas(800, 600);
-//                DrawingButtons drawButtons = canvas.new DrawingButtons(canvas, window.getContentPane());
-//                window.add(drawButtons, BorderLayout.EAST);
-                window.add(canvas, BorderLayout.CENTER);
-                
-                // Make draw/erase buttons
-                JButton draw = new JButton("Draw");
-                draw.setName("draw");
-                draw.addActionListener(canvas.new DrawBlack(canvas));
-                JButton erase = new JButton("Erase");
-                erase.setName("erase");
-                erase.addActionListener(canvas.new DrawWhite(canvas));
-                window.add(draw, BorderLayout.WEST);
-                window.add(erase, BorderLayout.EAST);
-                window.pack();
-                window.setVisible(true);
-            }
-        });
     }
 }

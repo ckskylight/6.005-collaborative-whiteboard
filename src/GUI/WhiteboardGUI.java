@@ -1,6 +1,5 @@
 package GUI;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -13,13 +12,9 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
@@ -53,7 +48,7 @@ public class WhiteboardGUI extends JFrame {
 	private final JPanel bottomPanel;
 
 	// Brush
-	//Brush brush = new Brush();
+	Brush brush = new Brush();
 	
 	// Model
 	Sketch board = new Sketch();
@@ -77,8 +72,7 @@ public class WhiteboardGUI extends JFrame {
 		buttonsPanel = new JPanel();
 		bottomPanel = new JPanel();
 		
-		// TODO: Pass in a brush when it's available
-		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT);
+		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush);
 
 		
 		// ----- PUT GUI LAYOUT TOGETHER ----- 
@@ -143,26 +137,20 @@ public class WhiteboardGUI extends JFrame {
 	
 	// ------- LISTENERS -------
 	class WeightListener implements ActionListener {
-		
-		//TODO: When brush is available, change the weight of the brush
-		// when number in dropdown changes
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println(e.getActionCommand());
-			System.out.println(((JComboBox) e.getSource()).getSelectedItem());
+			float newThickness = Float.parseFloat((String)((JComboBox) e.getSource()).getSelectedItem());
+			brush.setThickness(newThickness);
 		}
-		
 	}
 	
 	class ColorListener implements ActionListener {
 		
-		//TODO: When brush is available, change color of brush when
-		// user hits enter. Nothing happens if hex is invalid
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println(e.getActionCommand());
+			String newColor = e.getActionCommand();
+			brush.setColor(Color.decode(newColor));
 		}
 		
 	}
