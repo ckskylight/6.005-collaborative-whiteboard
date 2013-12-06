@@ -138,7 +138,9 @@ public class ADT_Test {
      */
     @Test
     public void testSketchConstruction(){
-        
+        Sketch testSketch = new Sketch();
+        int methodSize = testSketch.getSketchSize();
+        assert(methodSize == testSketch.getDrawings().size());
     }
     
     /**
@@ -146,6 +148,18 @@ public class ADT_Test {
      */
     @Test
     public void testSketchFirstConnection() {
+        Sketch testSketch = new Sketch();
+        Stroke testStroke = makeStroke(0,  0,  100,  100,  Color.GRAY,  5);
+        testSketch.connect(testStroke);
+        assert(testSketch.getSketchSize() == 1);
+        Sketch blankSketch = new Sketch();
+        testSketch.connect(blankSketch);
+        assert(testSketch.getSketchSize() == 2);
+        Sketch another = new Sketch();
+        Stroke anotherStroke = makeStroke(1, 1, 5, 5, Color.GRAY, 4);
+        another.connect(anotherStroke);
+        testSketch.connect(another);
+        assert(testSketch.getSketchSize() == 3);
         
     }
     
@@ -154,7 +168,15 @@ public class ADT_Test {
      */
     @Test
     public void testSketchMoreConnections() {
-        
+        Sketch testSketch = new Sketch();
+        for (int i = 0; i < 20; i++) {
+            testSketch.connect(makeStroke(i, 2* i, 3 * i, 4 * i, Color.GRAY, 3));
+        }
+        assert (testSketch.getSketchSize() == 20);
+        testSketch.connect(makeStroke(0, 0, 100, 100, Color.GRAY, 10));
+        assert(testSketch.getSketchSize() == 21);
+        testSketch.connect(new Sketch());
+        assert(testSketch.getSketchSize() == 22);
     }
     
     /**
@@ -162,6 +184,18 @@ public class ADT_Test {
      */
     @Test
     public void testSketchClearing() {
-        
+        Sketch testSketch = new Sketch();
+        for (int i = 0; i < 20; i++) {
+            testSketch.connect(makeStroke(i, 2* i, 3 * i, 4 * i, Color.GRAY, 3));
+        }
+        testSketch.clear();
+        BufferedImage background = new BufferedImage(100, 100, 5);
+        testSketch.getImage(background);
+        Color testColor = new Color(0, 0, 0, 0);
+        for (int i = 0; i < 100; i ++) {
+            for (int j = 0; j < 100; j++) {
+                assert(new Color(background.getRGB(i, j), true).equals(testColor));
+            }
+        }
     }
 }

@@ -8,18 +8,19 @@ import ADT.Sketch;
 public class WhiteboardModel {
 
 	private ArrayList<String> subscribers;
-	private final String boardID;
+	// Implementation note: I changed the ID to an int, it's best practice.
+	private final int boardID;
 	private String boardName;
 	private Drawing drawing;
 	
-	public WhiteboardModel(String boardName, String boardID)  {
+	public WhiteboardModel(String boardName, int boardID)  {
 		this.drawing = new Sketch();
 		this.subscribers = new ArrayList<String>();
 		this.boardID = boardID;
 		this.boardName = boardName;
 	}
 	
-	public String getBoardID(){
+	public int getBoardID(){
 		return boardID;
 	}
 	
