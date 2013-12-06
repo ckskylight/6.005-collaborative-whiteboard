@@ -14,23 +14,24 @@ import java.util.ArrayList;
 import javax.swing.JComponent;
 
 public class CustomButton extends JComponent implements MouseListener {
-	
-    private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+
+	private static final long serialVersionUID = 1L;
+	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 	private Image icon;
 	private int height;
 	private int width;
-	//private Brush brush;
+	private Brush brush;
 	private String action;
 	private WhiteboardGUI whiteboard;
 	
-	public CustomButton(/*Brush brush,*/ String action, WhiteboardGUI whiteboard, Image icon) {
+	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image icon) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
 		this.icon = icon;
 		height = icon.getHeight(null);
 		width = icon.getWidth(null);
-		//this.brush = brush;
+		this.brush = brush;
 		this.action = action;
 		this.whiteboard = whiteboard;
 	}
@@ -42,19 +43,19 @@ public class CustomButton extends JComponent implements MouseListener {
 	 * @param icon
 	 * @param dimension
 	 */
-	public CustomButton(/*Brush brush,*/ String action, WhiteboardGUI whiteboard, Image icon, int dimension) {
+	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image icon, int dimension) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
 		this.icon = icon;
 		height = dimension;
 		width = dimension;
-		//this.brush = brush;
+		this.brush = brush;
 		this.action = action;
 		this.whiteboard = whiteboard;
 	}
 	
-	public CustomButton(/*Brush brush,*/ String action, WhiteboardGUI whiteboard, Image icon, int h, int w) {
+	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image icon, int h, int w) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
@@ -117,12 +118,11 @@ public class CustomButton extends JComponent implements MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (action.equals("draw")) {
-			//brush.setWeight(whiteboard.getWeight());
-			//brush.setColor( new Color(0,0,0) );
+			brush.setColor( new Color(0,0,0) );
 			System.out.println("draw");
 		}
 		else if (action.equals("erase")) {
-			//brush.setColor( new Color(255,255,255) );
+			brush.setColor( new Color(255,255,255) );
 			System.out.println("erase");
 		}
 		else if (action.equals("clear")) {
@@ -132,28 +132,17 @@ public class CustomButton extends JComponent implements MouseListener {
 		}
 		
 	}
+	
+	//Ignore all other mouse events
+	@Override
+	public void mousePressed(MouseEvent e) {}
 
 	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseReleased(MouseEvent e) {}
 
 	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseEntered(MouseEvent e) {}
 
 	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseExited(MouseEvent e) {}
 }

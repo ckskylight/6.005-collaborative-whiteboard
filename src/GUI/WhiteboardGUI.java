@@ -60,9 +60,9 @@ public class WhiteboardGUI extends JFrame {
 		// ----- INITIALIZE GUI ELEMENTS ------
 		
 		// *Note: Initializing everything with paintbrush temporarily 
-		drawButton = new CustomButton(/*brush,*/ "draw", this, loadImage("src/GUI/images/paintbrush.png"), GUIConstants.SIDEBAR_WIDTH);
-		clearButton = new CustomButton(/*brush,*/ "clear", this, loadImage("src/GUI/images/paintbrush.png"), GUIConstants.SIDEBAR_WIDTH);
-		eraseButton = new CustomButton(/*brush,*/ "erase", this, loadImage("src/GUI/images/paintbrush.png"), GUIConstants.SIDEBAR_WIDTH);
+		drawButton = new CustomButton(brush, "draw", this, loadImage("src/GUI/images/paintbrush.png"), GUIConstants.SIDEBAR_WIDTH);
+		clearButton = new CustomButton(brush, "clear", this, loadImage("src/GUI/images/paintbrush.png"), GUIConstants.SIDEBAR_WIDTH);
+		eraseButton = new CustomButton(brush, "erase", this, loadImage("src/GUI/images/paintbrush.png"), GUIConstants.SIDEBAR_WIDTH);
 		
 		colorTextBox = new JTextField();
 		weightDropdown = new JComboBox(weightChoices);
@@ -72,7 +72,7 @@ public class WhiteboardGUI extends JFrame {
 		buttonsPanel = new JPanel();
 		bottomPanel = new JPanel();
 		
-		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush);
+		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board);
 
 		
 		// ----- PUT GUI LAYOUT TOGETHER ----- 
@@ -129,6 +129,7 @@ public class WhiteboardGUI extends JFrame {
 	}
 	
 	public void clear() {
+		System.out.println("Board size pre: " + board.getSketchSize());
 		board.clear();
 	}
 	

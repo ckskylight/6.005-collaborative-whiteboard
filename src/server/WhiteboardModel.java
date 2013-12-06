@@ -1,4 +1,4 @@
-package server;
+package Server;
 
 import java.util.ArrayList;
 
@@ -36,13 +36,6 @@ public class WhiteboardModel {
 		return drawing;
 	}
 	
-	public void addSubscriber(String user)  {
-		subscribers.add(user);
-	}
-	
-	public void removeSubscriber(String user)  {
-		subscribers.remove(user);
-	}
-	
+
 	
 }
