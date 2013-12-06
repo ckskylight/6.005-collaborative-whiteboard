@@ -34,9 +34,7 @@ public class Stroke implements Drawing {
 		if(pixels < 1)  {
 			throw new IllegalArgumentException("Thickness must be minimum 1 pixel wide!");
 		}
-		if (startPoint.x < 0 || startPoint.y < 0 || endPoint.x < 0 || endPoint.y < 0) {
-		    throw new IllegalArgumentException("Points must be in the positive coordinate plane!");
-		}
+
 		this.startPoint = startPoint;
 		this.endPoint = endPoint;
 		this.color = c;
