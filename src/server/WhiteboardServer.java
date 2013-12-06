@@ -43,12 +43,56 @@ public class WhiteboardServer {
         this.serverSocket = new ServerSocket(port);
     }
     
-    private String handleRequest(String input) {
-        return "";
+    public void serve() throws IOException {
+        while(true) {
+            Socket socket = serverSocket.accept();
+            int userID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
+            while (this.connections.containsKey(userID)) {
+                userID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
+            }
+            synchronized(this.connections) {
+                this.connections.put(userID, socket);
+            }
+            Thread newUser = new Thread(new WhiteboardUser(socket, this, userID));
+            newUser.start();
+        }
+    }
+    
+    private String handleRequest(String input, int userID) {
+        if (input.startsWith("createBoard")) {
+            String boardName = input.substring(12);
+            WhiteboardModel newBoard = this.createBoard(userID, boardName);
+            return (Integer.toString(newBoard.getBoardID())) + " " + newBoard.getJSON();
+        } else if (input.startsWith("getBoardList")) {
+            return this.getBoardList();
+        } else {
+            int boardID = Integer.parseInt(input.substring(0,  6));
+            input = input.substring(7);
+            if (input.startsWith("joinBoard")) {
+                joinBoard(boardID, userID);
+             return Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
+            } else if (input.startsWith("leaveBoard")) {
+                leaveBoard(boardID, userID);
+             return "You left Board #" + Integer.toString(boardID); 
+            } else if (input.startsWith("addDrawing")) {
+                String drawingJSON = input.substring(11);
+                connectStroke(boardID, drawingJSON);
+                return Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
+            } else if (input.startsWith("setBoardName")) {
+                String newName = input.substring(13);
+                changeBoardName(boardID, newName);
+                return Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
+            } else if (input.startsWith("getBoardName")) {
+                return Integer.toString(boardID) + " " + this.boards.get(boardID).getBoardName();
+            } else {
+                return null; // invalid request, this should cover all of 'em.
+            }
+        }
     }
     
     /**
      * Takes a board id and the JSON for a Stroke object to add to it, and adds it on.
+     * Also updates all members of the board, so that it doesn't have to be done elsewhere.
      * @param boardID
      * @param strokeJSON
      */
@@ -115,9 +159,9 @@ public class WhiteboardServer {
      * @param userID
      * @param boardName
      */
-    private synchronized void createBoard(int userID, String boardName) {
+    private synchronized WhiteboardModel createBoard(int userID, String boardName) {
         int newBoardID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
-        while (! this.boards.containsKey(newBoardID)) {
+        while (this.boards.containsKey(newBoardID)) {
             newBoardID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
         }
         WhiteboardModel newBoard = new WhiteboardModel(boardName, newBoardID);
@@ -128,6 +172,7 @@ public class WhiteboardServer {
             this.boardMembers.put(newBoardID, new ArrayList<Integer>());
             this.boardMembers.get(newBoardID).add(userID);
         }
+        return newBoard;
         }
     
     /**
@@ -169,7 +214,7 @@ public class WhiteboardServer {
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 try{
                     for (String line = in.readLine(); line != null; line = in.readLine()){
-                        String output = this.parentServer.handleRequest(line);
+                        String output = this.parentServer.handleRequest(line, userID);
                         out.println(output);
                         out.flush();
                             } 
