@@ -27,6 +27,7 @@ public class CustomButton extends JComponent implements MouseListener {
 	private Brush brush;
 	private String action;
 	private WhiteboardGUI whiteboard;
+	private Sidebar sidebar;
 	
 	/**
 	 * precondition: activeIcon, inactiveIcon and clickedIcon all have to be the same size
@@ -38,7 +39,7 @@ public class CustomButton extends JComponent implements MouseListener {
 	 * @param inactiveIcon
 	 * @param clickedIcon
 	 */
-	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image activeIcon, Image inactiveIcon, Image clickedIcon) {
+	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Sidebar sidebar, Image activeIcon, Image inactiveIcon, Image clickedIcon) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
@@ -50,6 +51,7 @@ public class CustomButton extends JComponent implements MouseListener {
 		this.brush = brush;
 		this.action = action;
 		this.whiteboard = whiteboard;
+		this.sidebar = sidebar;
 		if (action.equals("draw")) {
 			isActive = true;
 		}
@@ -65,7 +67,7 @@ public class CustomButton extends JComponent implements MouseListener {
 	 * @param icon
 	 * @param dimension
 	 */
-	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image activeIcon, Image inactiveIcon, Image clickedIcon, int dimension) {
+	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Sidebar sidebar, Image activeIcon, Image inactiveIcon, Image clickedIcon, int dimension) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
@@ -77,6 +79,7 @@ public class CustomButton extends JComponent implements MouseListener {
 		this.brush = brush;
 		this.action = action;
 		this.whiteboard = whiteboard;
+		this.sidebar = sidebar;
 		if (action.equals("draw")) {
 			isActive = true;
 		}
@@ -85,7 +88,7 @@ public class CustomButton extends JComponent implements MouseListener {
 		}
 	}
 	
-	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image activeIcon, Image inactiveIcon, Image clickedIcon, int h, int w) {
+	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Sidebar sidebar, Image activeIcon, Image inactiveIcon, Image clickedIcon, int h, int w) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
@@ -97,6 +100,7 @@ public class CustomButton extends JComponent implements MouseListener {
 		this.brush = brush;
 		this.action = action;
 		this.whiteboard = whiteboard;
+		this.sidebar = sidebar;
 		if (action.equals("draw")) {
 			isActive = true;
 		}
@@ -190,7 +194,10 @@ public class CustomButton extends JComponent implements MouseListener {
 		isMouseDown = false;
 		// If it's a toggle button (not "clear") switch between active and inactive
 		if (!action.equals("clear")) {
-			isActive = !isActive;
+			sidebar.inactivateExcept(action);
+			if (!isActive) {
+				isActive = !isActive;
+			}
 		}
 		this.repaint();
 	}
@@ -204,6 +211,11 @@ public class CustomButton extends JComponent implements MouseListener {
 	// ----------- GETTERS / SETTERS -----------
 	public void setStatus(boolean active) {
 		isActive = active;
+		this.repaint();
+	}
+	
+	public String getAction() {
+		return action;
 	}
 	
 }

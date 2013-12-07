@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
@@ -26,9 +28,9 @@ public class WhiteboardGUI extends JFrame {
 	
 	// Sidebar
 	// http://stackoverflow.com/questions/2158/creating-a-custom-button-in-java
-	private final CustomButton clearButton;
-	private final CustomButton drawButton;
-	private final CustomButton eraseButton;
+	private CustomButton clearButton;
+	private CustomButton drawButton;
+	private CustomButton eraseButton;
 	
 	// Color picker
 	private final JTextField colorTextBox;
@@ -58,20 +60,7 @@ public class WhiteboardGUI extends JFrame {
 	public WhiteboardGUI() {
 		
 		// ----- INITIALIZE GUI ELEMENTS ------
-		Image drawActive = loadImage("src/GUI/images/DrawActive.png");
-		Image drawInactive = loadImage("src/GUI/images/DrawInactive.png");
-		Image drawClicked = loadImage("src/GUI/images/DrawClicked.png");
-		
-		Image eraseActive = loadImage("src/GUI/images/EraseActive.png");
-		Image eraseInactive = loadImage("src/GUI/images/EraseInactive.png");
-		Image eraseClicked = loadImage("src/GUI/images/EraseClicked.png");
-		
-		Image clearClicked = loadImage("src/GUI/images/ClearActive.png");
-		Image clearInactive = loadImage("src/GUI/images/ClearInactive.png");
-		
-		drawButton = new CustomButton(brush, "draw", this, drawActive, drawInactive, drawClicked, GUIConstants.SIDEBAR_WIDTH);
-		clearButton = new CustomButton(brush, "clear", this, clearInactive, clearInactive, clearClicked, GUIConstants.SIDEBAR_WIDTH);
-		eraseButton = new CustomButton(brush, "erase", this, eraseActive, eraseInactive, eraseClicked, GUIConstants.SIDEBAR_WIDTH);
+
 		
 		colorTextBox = new JTextField();
 		weightDropdown = new JComboBox(weightChoices);
@@ -96,11 +85,9 @@ public class WhiteboardGUI extends JFrame {
 		
 		
 		// Assemble the main panel
+		Sidebar sidebar = new Sidebar(this);
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, 1));
-		
-		buttonsPanel.add(drawButton);
-		buttonsPanel.add(eraseButton);
-		buttonsPanel.add(clearButton);
+		sidebar.addSidebar(buttonsPanel);
 		buttonsPanel.setSize(GUIConstants.SIDEBAR_WIDTH, GUIConstants.CANVAS_WIDTH);
 		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
@@ -123,6 +110,8 @@ public class WhiteboardGUI extends JFrame {
 	}
 	
 	// ------- HELPER METHODS --------
+	
+
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
 		try {
@@ -135,6 +124,10 @@ public class WhiteboardGUI extends JFrame {
 	
 	public int getWeight() {
 		return Integer.parseInt(weightDropdown.toString());
+	}
+	
+	public Brush getBrush() {
+		return brush;
 	}
 	
 	public void clear() {
