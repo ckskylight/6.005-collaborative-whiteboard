@@ -17,23 +17,45 @@ public class CustomButton extends JComponent implements MouseListener {
 
 	private static final long serialVersionUID = 1L;
 	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
-	private Image icon;
+	private Image activeIcon;
+	private Image inactiveIcon;
+	private Image clickedIcon;
+	private boolean isMouseDown = false;
+	private boolean isActive;
 	private int height;
 	private int width;
 	private Brush brush;
 	private String action;
 	private WhiteboardGUI whiteboard;
 	
-	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image icon) {
+	/**
+	 * precondition: activeIcon, inactiveIcon and clickedIcon all have to be the same size
+	 * 
+	 * @param brush
+	 * @param action
+	 * @param whiteboard
+	 * @param activeIcon
+	 * @param inactiveIcon
+	 * @param clickedIcon
+	 */
+	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image activeIcon, Image inactiveIcon, Image clickedIcon) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
-		this.icon = icon;
-		height = icon.getHeight(null);
-		width = icon.getWidth(null);
+		this.activeIcon = activeIcon;
+		this.inactiveIcon = inactiveIcon;
+		this.clickedIcon = clickedIcon;
+		height = activeIcon.getHeight(null);
+		width = activeIcon.getWidth(null);
 		this.brush = brush;
 		this.action = action;
 		this.whiteboard = whiteboard;
+		if (action.equals("draw")) {
+			isActive = true;
+		}
+		else {
+			isActive = false;
+		}
 	}
 	
 	/**
@@ -43,28 +65,44 @@ public class CustomButton extends JComponent implements MouseListener {
 	 * @param icon
 	 * @param dimension
 	 */
-	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image icon, int dimension) {
+	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image activeIcon, Image inactiveIcon, Image clickedIcon, int dimension) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
-		this.icon = icon;
+		this.activeIcon = activeIcon;
+		this.inactiveIcon = inactiveIcon;
+		this.clickedIcon = clickedIcon;
 		height = dimension;
 		width = dimension;
 		this.brush = brush;
 		this.action = action;
 		this.whiteboard = whiteboard;
+		if (action.equals("draw")) {
+			isActive = true;
+		}
+		else {
+			isActive = false;
+		}
 	}
 	
-	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image icon, int h, int w) {
+	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Image activeIcon, Image inactiveIcon, Image clickedIcon, int h, int w) {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
-		this.icon = icon;
+		this.activeIcon = activeIcon;
+		this.inactiveIcon = inactiveIcon;
+		this.clickedIcon = clickedIcon;
 		height = h;
 		width = w;
-		//this.brush = brush;
+		this.brush = brush;
 		this.action = action;
 		this.whiteboard = whiteboard;
+		if (action.equals("draw")) {
+			isActive = true;
+		}
+		else {
+			isActive = false;
+		}
 	}
 	
 	@Override
@@ -89,8 +127,18 @@ public class CustomButton extends JComponent implements MouseListener {
 		// Cast to Graphics2D
 		Graphics2D graphics = (Graphics2D) g;
 		
-		// Draw the icon
-		graphics.drawImage(icon, 0, 0, height, width, null);
+		// Choose the necessary icon
+		Image currentIcon = null;
+		if (isMouseDown) {
+			currentIcon = clickedIcon;
+		}
+		else if (isActive) {
+			currentIcon = activeIcon;
+		}
+		else if (!isActive) {
+			currentIcon = inactiveIcon;
+		}
+		graphics.drawImage(currentIcon, 0, 0, height, width, null);
 		
 	}
 	
@@ -112,8 +160,6 @@ public class CustomButton extends JComponent implements MouseListener {
         }
     }
 	
-	
-	// --- OTHER THINGS ---
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -128,21 +174,36 @@ public class CustomButton extends JComponent implements MouseListener {
 		else if (action.equals("clear")) {
 			whiteboard.clear();
 			System.out.println("clear");
-
 		}
 		
 	}
 	
 	//Ignore all other mouse events
 	@Override
-	public void mousePressed(MouseEvent e) {}
+	public void mousePressed(MouseEvent e) {
+		isMouseDown = true;
+		this.repaint();
+	}
 
 	@Override
-	public void mouseReleased(MouseEvent e) {}
+	public void mouseReleased(MouseEvent e) {
+		isMouseDown = false;
+		// If it's a toggle button (not "clear") switch between active and inactive
+		if (!action.equals("clear")) {
+			isActive = !isActive;
+		}
+		this.repaint();
+	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {}
 
 	@Override
 	public void mouseExited(MouseEvent e) {}
+	
+	// ----------- GETTERS / SETTERS -----------
+	public void setStatus(boolean active) {
+		isActive = active;
+	}
+	
 }
