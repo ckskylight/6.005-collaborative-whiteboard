@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -43,6 +44,7 @@ public class CustomButton extends JComponent implements MouseListener {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
+		this.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		this.activeIcon = activeIcon;
 		this.inactiveIcon = inactiveIcon;
 		this.clickedIcon = clickedIcon;
@@ -71,6 +73,7 @@ public class CustomButton extends JComponent implements MouseListener {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
+		this.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		this.activeIcon = activeIcon;
 		this.inactiveIcon = inactiveIcon;
 		this.clickedIcon = clickedIcon;
@@ -92,6 +95,7 @@ public class CustomButton extends JComponent implements MouseListener {
 		super();
 		enableInputMethods(true);
 		addMouseListener(this);
+		this.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		this.activeIcon = activeIcon;
 		this.inactiveIcon = inactiveIcon;
 		this.clickedIcon = clickedIcon;
@@ -206,8 +210,7 @@ public class CustomButton extends JComponent implements MouseListener {
 		this.repaint();
 	}
 
-	// TODO: Do fancy cursor things
-	// http://stackoverflow.com/questions/7359189/how-to-change-the-mouse-cursor-in-java
+
 	@Override
 	public void mouseEntered(MouseEvent e) {}
 

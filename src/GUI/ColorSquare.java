@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -29,6 +30,7 @@ public class ColorSquare extends JComponent implements MouseListener {
 		this.addMouseListener(this);
 		this.color = color;
 		this.brush = brush;
+		this.setCursor(new Cursor(Cursor.HAND_CURSOR));
 	}
 	
 	// --------- GRAPHICS ---------
@@ -80,7 +82,6 @@ public class ColorSquare extends JComponent implements MouseListener {
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		
 	}
 
 	@Override
