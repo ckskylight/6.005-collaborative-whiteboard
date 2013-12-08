@@ -13,12 +13,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
 import ADT.Sketch;
 
@@ -71,6 +73,9 @@ public class WhiteboardGUI extends JFrame {
 		bottomPanel = new JPanel();
 		
 		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board);
+		// Add border to canvas
+		Border blackline = BorderFactory.createLineBorder(Color.black);
+		canvas.setBorder(blackline);
 
 		
 		// ----- PUT GUI LAYOUT TOGETHER ----- 
@@ -92,15 +97,51 @@ public class WhiteboardGUI extends JFrame {
 		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
 		buttonsPanel.setAlignmentY(TOP_ALIGNMENT);
+		buttonsPanel.setBackground(Color.decode("#F5DEB3"));
 		
 		mainPanel.add(buttonsPanel);
 		mainPanel.add(canvas);
+		mainPanel.setBackground(Color.decode("#8B4513"));
 		
 		
 		bottomPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
 
 		bottomPanel.add(colorTextBox);
 		bottomPanel.add(weightDropdown);
+		bottomPanel.setBackground(Color.decode("#101010"));
+		
+		ColorSquare white = new ColorSquare(Color.decode("#FFFFFF"));
+		ColorSquare lightgray = new ColorSquare(Color.decode("#D3D3D3"));
+		ColorSquare gray = new ColorSquare(Color.decode("#808080"));
+		ColorSquare black = new ColorSquare(Color.decode("#000000"));
+		ColorSquare yellow = new ColorSquare(Color.decode("#FFFF00"));
+		ColorSquare blue = new ColorSquare(Color.decode("#0000FF"));
+		ColorSquare cyan = new ColorSquare(Color.decode("#00FFFF"));
+		ColorSquare green = new ColorSquare(Color.decode("#008000"));
+		ColorSquare lawngreen = new ColorSquare(Color.decode("#7CFC00"));
+		ColorSquare red = new ColorSquare(Color.decode("#FF0000"));
+		ColorSquare purple = new ColorSquare(Color.decode("#800080"));
+		ColorSquare saddlebrown = new ColorSquare(Color.decode("#8B4513"));
+		ColorSquare darkorange = new ColorSquare(Color.decode("#FF8C00"));
+		ColorSquare teal = new ColorSquare(Color.decode("#008080"));
+		ColorSquare goldenrod = new ColorSquare(Color.decode("#DAA520"));
+
+		bottomPanel.add(white);
+		bottomPanel.add(lightgray);
+		bottomPanel.add(gray);
+		bottomPanel.add(black);
+		bottomPanel.add(red);
+		bottomPanel.add(darkorange);
+		bottomPanel.add(yellow);
+		bottomPanel.add(lawngreen);
+		bottomPanel.add(green);
+		bottomPanel.add(teal);
+		bottomPanel.add(blue);
+		bottomPanel.add(cyan);
+		bottomPanel.add(purple);
+		bottomPanel.add(saddlebrown);
+		bottomPanel.add(goldenrod);
+
 		
 		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), 1));
 		this.getContentPane().add(topPanel);

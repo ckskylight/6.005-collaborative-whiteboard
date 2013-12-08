@@ -109,6 +109,8 @@ public class CustomButton extends JComponent implements MouseListener {
 		}
 	}
 	
+	// --------- SIZE INFORMATION ----------
+	
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(height, width);
@@ -124,6 +126,9 @@ public class CustomButton extends JComponent implements MouseListener {
 	public Dimension getMinimumSize() {
 		return getPreferredSize();
 	}
+	
+	
+	// --------- GRAPHICS ----------
 	
 	@Override
 	public void paintComponent(Graphics g) {
@@ -145,6 +150,8 @@ public class CustomButton extends JComponent implements MouseListener {
 		graphics.drawImage(currentIcon, 0, 0, height, width, null);
 		
 	}
+	
+	// ---------- LISTENERS ---------
 	
 	public void addActionListener(ActionListener listener)
     {
@@ -202,11 +209,15 @@ public class CustomButton extends JComponent implements MouseListener {
 		this.repaint();
 	}
 
+	// TODO: Do fancy cursor things
+	// http://stackoverflow.com/questions/7359189/how-to-change-the-mouse-cursor-in-java
 	@Override
 	public void mouseEntered(MouseEvent e) {}
 
 	@Override
 	public void mouseExited(MouseEvent e) {}
+	
+	
 	
 	// ----------- GETTERS / SETTERS -----------
 	public void setStatus(boolean active) {
