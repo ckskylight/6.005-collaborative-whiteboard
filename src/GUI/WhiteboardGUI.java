@@ -6,6 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,11 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -29,19 +33,37 @@ public class WhiteboardGUI extends JFrame {
 	
 	// ----- OBJECTS TO BE USED IN THE GUI -----
 	
-	// Sidebar
-	// http://stackoverflow.com/questions/2158/creating-a-custom-button-in-java
-	private CustomButton clearButton;
-	private CustomButton drawButton;
-	private CustomButton eraseButton;
+	// Brush
+	Brush brush = new Brush();
+	
+	// Model
+	Sketch board = new Sketch();
+	
 	
 	// Color picker
 	private final JTextField colorTextBox;
 	// add buttons of different default colors to the colorPanel
+	private final ColorSquare white = new ColorSquare(Color.decode("#FFFFFF"), brush);
+	private final ColorSquare lightgray = new ColorSquare(Color.decode("#D3D3D3"), brush);
+	private final ColorSquare gray = new ColorSquare(Color.decode("#808080"), brush);
+	private final ColorSquare black = new ColorSquare(Color.decode("#000000"), brush);
+	private final ColorSquare yellow = new ColorSquare(Color.decode("#FFFF00"), brush);
+	private final ColorSquare blue = new ColorSquare(Color.decode("#0000FF"), brush);
+	private final ColorSquare cyan = new ColorSquare(Color.decode("#00FFFF"), brush);
+	private final ColorSquare green = new ColorSquare(Color.decode("#008000"), brush);
+	private final ColorSquare lawngreen = new ColorSquare(Color.decode("#7CFC00"), brush);
+	private final ColorSquare red = new ColorSquare(Color.decode("#FF0000"), brush);
+	private final ColorSquare purple = new ColorSquare(Color.decode("#800080"), brush);
+	private final ColorSquare saddlebrown = new ColorSquare(Color.decode("#8B4513"), brush);
+	private final ColorSquare darkorange = new ColorSquare(Color.decode("#FF8C00"), brush);
+	private final ColorSquare teal = new ColorSquare(Color.decode("#008080"), brush);
+	private final ColorSquare goldenrod = new ColorSquare(Color.decode("#DAA520"), brush);
+	
+	// Bottom panel labels
+	private JLabel weightLabel = new JLabel("Weight:");
 	
 	// Stroke weight picker
 	private final JComboBox weightDropdown;
-	private String[] weightChoices = new String[] {"1","2","4","6","10","20"};
 	
 	// Main canvas
 	private final Canvas canvas;
@@ -51,12 +73,6 @@ public class WhiteboardGUI extends JFrame {
 	private final JPanel mainPanel;
 	private final JPanel buttonsPanel;
 	private final JPanel bottomPanel;
-
-	// Brush
-	Brush brush = new Brush();
-	
-	// Model
-	Sketch board = new Sketch();
 	
 	
 	// ------- CONSTRUCTOR --------
@@ -65,8 +81,8 @@ public class WhiteboardGUI extends JFrame {
 		// ----- INITIALIZE GUI ELEMENTS ------
 
 		
-		colorTextBox = new JTextField();
-		weightDropdown = new JComboBox(weightChoices);
+		colorTextBox = new JTextField("Hex Color");
+		weightDropdown = new JComboBox(GUIConstants.WEIGHT_CHOICES);
 		
 		topPanel = new JPanel();
 		mainPanel = new JPanel();
@@ -82,12 +98,14 @@ public class WhiteboardGUI extends JFrame {
 		// ----- PUT GUI LAYOUT TOGETHER ----- 
 		
 		// Set up the weight combo box
-		weightDropdown.setSelectedIndex(1);
+		weightDropdown.setSelectedIndex(4);
 		weightDropdown.addActionListener(new WeightListener());
 		
 		// Set up the hex color box
 		colorTextBox.setPreferredSize(new Dimension(100, 20));
 		colorTextBox.addActionListener(new ColorListener());
+		colorTextBox.addMouseListener(new ColorMouseListener());
+		colorTextBox.setBackground(GUIConstants.HONEYDEW);
 		
 		
 		// Assemble the main panel
@@ -106,27 +124,12 @@ public class WhiteboardGUI extends JFrame {
 		
 		
 		bottomPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
-
-		bottomPanel.add(colorTextBox);
-		bottomPanel.add(weightDropdown);
-		bottomPanel.setBackground(Color.decode("#505050"));
 		
-		// Create and assemble colour palette
-		ColorSquare white = new ColorSquare(Color.decode("#FFFFFF"), brush);
-		ColorSquare lightgray = new ColorSquare(Color.decode("#D3D3D3"), brush);
-		ColorSquare gray = new ColorSquare(Color.decode("#808080"), brush);
-		ColorSquare black = new ColorSquare(Color.decode("#000000"), brush);
-		ColorSquare yellow = new ColorSquare(Color.decode("#FFFF00"), brush);
-		ColorSquare blue = new ColorSquare(Color.decode("#0000FF"), brush);
-		ColorSquare cyan = new ColorSquare(Color.decode("#00FFFF"), brush);
-		ColorSquare green = new ColorSquare(Color.decode("#008000"), brush);
-		ColorSquare lawngreen = new ColorSquare(Color.decode("#7CFC00"), brush);
-		ColorSquare red = new ColorSquare(Color.decode("#FF0000"), brush);
-		ColorSquare purple = new ColorSquare(Color.decode("#800080"), brush);
-		ColorSquare saddlebrown = new ColorSquare(Color.decode("#8B4513"), brush);
-		ColorSquare darkorange = new ColorSquare(Color.decode("#FF8C00"), brush);
-		ColorSquare teal = new ColorSquare(Color.decode("#008080"), brush);
-		ColorSquare goldenrod = new ColorSquare(Color.decode("#DAA520"), brush);
+		weightLabel.setForeground(Color.WHITE);
+		bottomPanel.add(weightLabel);
+		bottomPanel.add(weightDropdown);
+		bottomPanel.add(colorTextBox);
+		bottomPanel.setBackground(Color.decode("#505050"));
 
 		bottomPanel.add(white);
 		bottomPanel.add(lightgray);
@@ -183,14 +186,24 @@ public class WhiteboardGUI extends JFrame {
 	// ------- BRUSH CONTROLS -------
 	
 	// ------- LISTENERS -------
-	class SampleListener implements ActionListener {
+	class ColorMouseListener implements MouseListener {
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("blahhhh");
-			
+		public void mouseClicked(MouseEvent e) {
+			((JTextField) e.getSource()).setText("");
 		}
-		
+
+		@Override
+		public void mousePressed(MouseEvent e) {}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+
+		@Override
+		public void mouseExited(MouseEvent e) {}
 	}
 	
 	class WeightListener implements ActionListener {
@@ -207,7 +220,14 @@ public class WhiteboardGUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String newColor = e.getActionCommand();
-			brush.setColor(Color.decode(newColor));
+			JTextField currentField = ((JTextField) e.getSource());
+			try {
+				brush.setColor(Color.decode(newColor));
+				currentField.setBackground(GUIConstants.HONEYDEW);
+			} catch (Exception ex) {
+				currentField.setText("Not Hex");
+				currentField.setBackground(GUIConstants.MISTYROSE);
+			}
 		}
 		
 	}
