@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -108,7 +109,7 @@ public class WhiteboardGUI extends JFrame {
 
 		bottomPanel.add(colorTextBox);
 		bottomPanel.add(weightDropdown);
-		bottomPanel.setBackground(Color.decode("#101010"));
+		bottomPanel.setBackground(Color.decode("#505050"));
 		
 		// Create and assemble colour palette
 		ColorSquare white = new ColorSquare(Color.decode("#FFFFFF"), brush);
@@ -142,6 +143,7 @@ public class WhiteboardGUI extends JFrame {
 		bottomPanel.add(purple);
 		bottomPanel.add(saddlebrown);
 		bottomPanel.add(goldenrod);
+		
 
 		// Add components to the JFrame
 		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), 1));
@@ -181,6 +183,16 @@ public class WhiteboardGUI extends JFrame {
 	// ------- BRUSH CONTROLS -------
 	
 	// ------- LISTENERS -------
+	class SampleListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("blahhhh");
+			
+		}
+		
+	}
+	
 	class WeightListener implements ActionListener {
 
 		@Override

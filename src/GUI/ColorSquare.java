@@ -26,6 +26,7 @@ public class ColorSquare extends JComponent implements MouseListener {
 	
 	public ColorSquare(Color color, Brush brush) {
 		super();
+		this.addMouseListener(this);
 		this.color = color;
 		this.brush = brush;
 	}
@@ -68,7 +69,6 @@ public class ColorSquare extends JComponent implements MouseListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		System.out.println("pressed");
 		
 	}
 
@@ -80,7 +80,6 @@ public class ColorSquare extends JComponent implements MouseListener {
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		System.out.println("ENTERED");
 		
 	}
 
