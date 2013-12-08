@@ -5,19 +5,29 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 
 import javax.swing.JComponent;
 
 public class ColorSquare extends JComponent implements MouseListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	int height = 20;
 	int width = 20;
 	Color color;
+	Brush brush;
+
 	
-	public ColorSquare(Color color) {
+	public ColorSquare(Color color, Brush brush) {
+		super();
 		this.color = color;
+		this.brush = brush;
 	}
 	
 	// --------- GRAPHICS ---------
@@ -52,13 +62,13 @@ public class ColorSquare extends JComponent implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("setting color");
+		brush.setColor(color);
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
+		System.out.println("pressed");
 		
 	}
 
@@ -70,7 +80,7 @@ public class ColorSquare extends JComponent implements MouseListener {
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
+		System.out.println("ENTERED");
 		
 	}
 

@@ -110,21 +110,22 @@ public class WhiteboardGUI extends JFrame {
 		bottomPanel.add(weightDropdown);
 		bottomPanel.setBackground(Color.decode("#101010"));
 		
-		ColorSquare white = new ColorSquare(Color.decode("#FFFFFF"));
-		ColorSquare lightgray = new ColorSquare(Color.decode("#D3D3D3"));
-		ColorSquare gray = new ColorSquare(Color.decode("#808080"));
-		ColorSquare black = new ColorSquare(Color.decode("#000000"));
-		ColorSquare yellow = new ColorSquare(Color.decode("#FFFF00"));
-		ColorSquare blue = new ColorSquare(Color.decode("#0000FF"));
-		ColorSquare cyan = new ColorSquare(Color.decode("#00FFFF"));
-		ColorSquare green = new ColorSquare(Color.decode("#008000"));
-		ColorSquare lawngreen = new ColorSquare(Color.decode("#7CFC00"));
-		ColorSquare red = new ColorSquare(Color.decode("#FF0000"));
-		ColorSquare purple = new ColorSquare(Color.decode("#800080"));
-		ColorSquare saddlebrown = new ColorSquare(Color.decode("#8B4513"));
-		ColorSquare darkorange = new ColorSquare(Color.decode("#FF8C00"));
-		ColorSquare teal = new ColorSquare(Color.decode("#008080"));
-		ColorSquare goldenrod = new ColorSquare(Color.decode("#DAA520"));
+		// Create and assemble colour palette
+		ColorSquare white = new ColorSquare(Color.decode("#FFFFFF"), brush);
+		ColorSquare lightgray = new ColorSquare(Color.decode("#D3D3D3"), brush);
+		ColorSquare gray = new ColorSquare(Color.decode("#808080"), brush);
+		ColorSquare black = new ColorSquare(Color.decode("#000000"), brush);
+		ColorSquare yellow = new ColorSquare(Color.decode("#FFFF00"), brush);
+		ColorSquare blue = new ColorSquare(Color.decode("#0000FF"), brush);
+		ColorSquare cyan = new ColorSquare(Color.decode("#00FFFF"), brush);
+		ColorSquare green = new ColorSquare(Color.decode("#008000"), brush);
+		ColorSquare lawngreen = new ColorSquare(Color.decode("#7CFC00"), brush);
+		ColorSquare red = new ColorSquare(Color.decode("#FF0000"), brush);
+		ColorSquare purple = new ColorSquare(Color.decode("#800080"), brush);
+		ColorSquare saddlebrown = new ColorSquare(Color.decode("#8B4513"), brush);
+		ColorSquare darkorange = new ColorSquare(Color.decode("#FF8C00"), brush);
+		ColorSquare teal = new ColorSquare(Color.decode("#008080"), brush);
+		ColorSquare goldenrod = new ColorSquare(Color.decode("#DAA520"), brush);
 
 		bottomPanel.add(white);
 		bottomPanel.add(lightgray);
@@ -142,7 +143,7 @@ public class WhiteboardGUI extends JFrame {
 		bottomPanel.add(saddlebrown);
 		bottomPanel.add(goldenrod);
 
-		
+		// Add components to the JFrame
 		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), 1));
 		this.getContentPane().add(topPanel);
 		this.getContentPane().add(mainPanel);

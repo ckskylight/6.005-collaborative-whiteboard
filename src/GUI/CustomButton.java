@@ -176,15 +176,12 @@ public class CustomButton extends JComponent implements MouseListener {
 	public void mouseClicked(MouseEvent e) {
 		if (action.equals("draw")) {
 			brush.setColor( new Color(0,0,0) );
-			System.out.println("draw");
 		}
 		else if (action.equals("erase")) {
 			brush.setColor( new Color(255,255,255) );
-			System.out.println("erase");
 		}
 		else if (action.equals("clear")) {
 			whiteboard.clear();
-			System.out.println("clear");
 		}
 		
 	}
