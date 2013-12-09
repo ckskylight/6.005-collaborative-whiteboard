@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package gson.src.main.java.com.google.gson;
 
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Streams;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import gson.src.main.java.com.google.gson.internal.$Gson$Preconditions;
+import gson.src.main.java.com.google.gson.internal.Streams;
+import gson.src.main.java.com.google.gson.reflect.TypeToken;
+import gson.src.main.java.com.google.gson.stream.JsonReader;
+import gson.src.main.java.com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 
 /**

@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package gson.src.main.java.com.google.gson;
 
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.Primitives;
-import com.google.gson.internal.Streams;
-import com.google.gson.internal.bind.ArrayTypeAdapter;
-import com.google.gson.internal.bind.CollectionTypeAdapterFactory;
-import com.google.gson.internal.bind.DateTypeAdapter;
-import com.google.gson.internal.bind.JsonTreeReader;
-import com.google.gson.internal.bind.JsonTreeWriter;
-import com.google.gson.internal.bind.MapTypeAdapterFactory;
-import com.google.gson.internal.bind.ObjectTypeAdapter;
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
-import com.google.gson.internal.bind.SqlDateTypeAdapter;
-import com.google.gson.internal.bind.TimeTypeAdapter;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
+import gson.src.main.java.com.google.gson.internal.ConstructorConstructor;
+import gson.src.main.java.com.google.gson.internal.Excluder;
+import gson.src.main.java.com.google.gson.internal.Primitives;
+import gson.src.main.java.com.google.gson.internal.Streams;
+import gson.src.main.java.com.google.gson.internal.bind.ArrayTypeAdapter;
+import gson.src.main.java.com.google.gson.internal.bind.CollectionTypeAdapterFactory;
+import gson.src.main.java.com.google.gson.internal.bind.DateTypeAdapter;
+import gson.src.main.java.com.google.gson.internal.bind.JsonTreeReader;
+import gson.src.main.java.com.google.gson.internal.bind.JsonTreeWriter;
+import gson.src.main.java.com.google.gson.internal.bind.MapTypeAdapterFactory;
+import gson.src.main.java.com.google.gson.internal.bind.ObjectTypeAdapter;
+import gson.src.main.java.com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
+import gson.src.main.java.com.google.gson.internal.bind.SqlDateTypeAdapter;
+import gson.src.main.java.com.google.gson.internal.bind.TimeTypeAdapter;
+import gson.src.main.java.com.google.gson.internal.bind.TypeAdapters;
+import gson.src.main.java.com.google.gson.reflect.TypeToken;
+import gson.src.main.java.com.google.gson.stream.JsonReader;
+import gson.src.main.java.com.google.gson.stream.JsonToken;
+import gson.src.main.java.com.google.gson.stream.JsonWriter;
+import gson.src.main.java.com.google.gson.stream.MalformedJsonException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.gson.internal.bind;
+package gson.src.main.java.com.google.gson.internal.bind;
 
-import com.google.gson.Gson;
-import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import gson.src.main.java.com.google.gson.Gson;
+import gson.src.main.java.com.google.gson.TypeAdapter;
+import gson.src.main.java.com.google.gson.reflect.TypeToken;
+import gson.src.main.java.com.google.gson.stream.JsonReader;
+import gson.src.main.java.com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;

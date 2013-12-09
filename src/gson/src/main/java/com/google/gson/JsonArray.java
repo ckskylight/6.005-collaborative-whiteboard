@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package gson.src.main.java.com.google.gson;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

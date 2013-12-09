@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package gson.src.main.java.com.google.gson;
 
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import gson.src.main.java.com.google.gson.JsonPrimitive;
 
 /**
  * This type adapter supports three subclasses of date: Date, Timestamp, and

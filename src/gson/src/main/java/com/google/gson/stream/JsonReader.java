@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.gson.stream;
+package gson.src.main.java.com.google.gson.stream;
 
-import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.bind.JsonTreeReader;
+import gson.src.main.java.com.google.gson.internal.JsonReaderInternalAccess;
+import gson.src.main.java.com.google.gson.internal.bind.JsonTreeReader;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;

@@ -3,4 +3,4 @@
  *  
  * @author Inderjeet Singh, Joel Leitch
  */
-package com.google.gson.reflect;
+package gson.src.main.java.com.google.gson.reflect;

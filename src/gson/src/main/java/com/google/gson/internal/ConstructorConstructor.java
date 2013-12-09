@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package gson.src.main.java.com.google.gson.internal;
 
-import com.google.gson.InstanceCreator;
-import com.google.gson.JsonIOException;
-import com.google.gson.reflect.TypeToken;
+import gson.src.main.java.com.google.gson.InstanceCreator;
+import gson.src.main.java.com.google.gson.JsonIOException;
+import gson.src.main.java.com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

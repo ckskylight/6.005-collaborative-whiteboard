@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package gson.src.main.java.com.google.gson;
 
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonWriter;
+import gson.src.main.java.com.google.gson.internal.Streams;
+import gson.src.main.java.com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;

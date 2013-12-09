@@ -1,6 +1,6 @@
 package server;
 
-import com.google.gson.Gson;
+import gson.src.main.java.com.google.gson.Gson;
 
 import ADT.Drawing;
 import ADT.Sketch;

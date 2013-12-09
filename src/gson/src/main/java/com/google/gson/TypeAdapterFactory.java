@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package gson.src.main.java.com.google.gson;
 
-import com.google.gson.reflect.TypeToken;
+import gson.src.main.java.com.google.gson.reflect.TypeToken;
 
 /**
  * Creates type adapters for set of related types. Type adapter factories are

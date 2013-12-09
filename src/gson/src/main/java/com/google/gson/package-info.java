@@ -8,4 +8,4 @@
  *
  * @author Inderjeet Singh, Joel Leitch
  */
-package com.google.gson;
+package gson.src.main.java.com.google.gson;

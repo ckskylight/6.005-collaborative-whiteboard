@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package gson.src.main.java.com.google.gson;
 
 /**
  * This exception is raised if there is a serious issue that occurs during parsing of a Json

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.stream;
+package gson.src.main.java.com.google.gson.stream;
 
 /**
  * A structure, name or value type in a JSON-encoded string.

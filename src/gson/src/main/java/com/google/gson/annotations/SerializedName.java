@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.annotations;
+package gson.src.main.java.com.google.gson.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

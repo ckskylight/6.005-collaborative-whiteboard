@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal.bind;
+package gson.src.main.java.com.google.gson.internal.bind;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.stream.JsonWriter;
+import gson.src.main.java.com.google.gson.JsonArray;
+import gson.src.main.java.com.google.gson.JsonElement;
+import gson.src.main.java.com.google.gson.JsonNull;
+import gson.src.main.java.com.google.gson.JsonObject;
+import gson.src.main.java.com.google.gson.JsonPrimitive;
+import gson.src.main.java.com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;

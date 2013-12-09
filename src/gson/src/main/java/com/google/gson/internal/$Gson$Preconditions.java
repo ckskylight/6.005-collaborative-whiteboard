@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package gson.src.main.java.com.google.gson.internal;
 
 /**
  * A simple utility class used to check method Preconditions.

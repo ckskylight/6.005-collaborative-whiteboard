@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal;
+package gson.src.main.java.com.google.gson.internal;
 
 /**
  * Defines a generic object construction factory.  The purpose of this class

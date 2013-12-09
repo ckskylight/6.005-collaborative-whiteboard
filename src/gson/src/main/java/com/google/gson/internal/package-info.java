@@ -4,4 +4,4 @@
  *
  * @author Inderjeet Singh, Joel Leitch, Jesse Wilson
  */
-package com.google.gson.internal;
+package gson.src.main.java.com.google.gson.internal;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.gson;
+package gson.src.main.java.com.google.gson;
 
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
@@ -26,10 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gson.internal.$Gson$Preconditions;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
+import gson.src.main.java.com.google.gson.internal.$Gson$Preconditions;
+import gson.src.main.java.com.google.gson.internal.Excluder;
+import gson.src.main.java.com.google.gson.internal.bind.TypeAdapters;
+import gson.src.main.java.com.google.gson.reflect.TypeToken;
 
 /**
  * <p>Use this builder to construct a {@link Gson} instance when you need to set configuration

@@ -3,4 +3,4 @@
  * 
  * @author Inderjeet Singh, Joel Leitch
  */
-package com.google.gson.annotations;
+package gson.src.main.java.com.google.gson.annotations;

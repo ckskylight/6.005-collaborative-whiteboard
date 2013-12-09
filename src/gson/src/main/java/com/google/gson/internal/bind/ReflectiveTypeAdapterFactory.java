@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.google.gson.internal.bind;
+package gson.src.main.java.com.google.gson.internal.bind;
 
-import com.google.gson.FieldNamingStrategy;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.$Gson$Types;
-import com.google.gson.internal.ConstructorConstructor;
-import com.google.gson.internal.Excluder;
-import com.google.gson.internal.ObjectConstructor;
-import com.google.gson.internal.Primitives;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import gson.src.main.java.com.google.gson.FieldNamingStrategy;
+import gson.src.main.java.com.google.gson.Gson;
+import gson.src.main.java.com.google.gson.JsonSyntaxException;
+import gson.src.main.java.com.google.gson.TypeAdapter;
+import gson.src.main.java.com.google.gson.TypeAdapterFactory;
+import gson.src.main.java.com.google.gson.annotations.SerializedName;
+import gson.src.main.java.com.google.gson.internal.$Gson$Types;
+import gson.src.main.java.com.google.gson.internal.ConstructorConstructor;
+import gson.src.main.java.com.google.gson.internal.Excluder;
+import gson.src.main.java.com.google.gson.internal.ObjectConstructor;
+import gson.src.main.java.com.google.gson.internal.Primitives;
+import gson.src.main.java.com.google.gson.reflect.TypeToken;
+import gson.src.main.java.com.google.gson.stream.JsonReader;
+import gson.src.main.java.com.google.gson.stream.JsonToken;
+import gson.src.main.java.com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
