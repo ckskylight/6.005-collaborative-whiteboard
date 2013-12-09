@@ -3,9 +3,11 @@ package GUI;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -20,9 +22,11 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -79,6 +83,7 @@ public class WhiteboardGUI extends JFrame {
 	
 	// ------- CONSTRUCTOR --------
 	public WhiteboardGUI() {
+        
 		
 		// ----- INITIALIZE GUI ELEMENTS ------
 
@@ -150,17 +155,55 @@ public class WhiteboardGUI extends JFrame {
 		bottomPanel.add(saddlebrown);
 		bottomPanel.add(goldenrod);
 		
+		JTabbedPane tabbedPane = new JTabbedPane();
+		
+		JComponent panel1 = new JPanel();
+        tabbedPane.addTab("Tab 1", panel1);
+        tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+         
+        JComponent panel2 = makeTextPanel("Panel #2");
+        tabbedPane.addTab("Tab 2", panel2);
+        tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+         
+        JComponent panel3 = makeTextPanel("Panel #3");
+        tabbedPane.addTab("Tab 3", panel3);
+        tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
+         
+        JComponent panel4 = makeTextPanel(
+                "Panel #4 (has a preferred size of 410 x 50).");
+        panel4.setPreferredSize(new Dimension(410, 50));
+        tabbedPane.addTab("Tab 4", panel4);
+        tabbedPane.setMnemonicAt(3, KeyEvent.VK_4);
+        
+
+		
 
 		// Add components to the JFrame
-		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), 1));
+		/*this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), 1));
 		this.getContentPane().add(topPanel);
 		this.getContentPane().add(mainPanel);
-		this.getContentPane().add(bottomPanel);
+		this.getContentPane().add(bottomPanel);*/
 		
+		panel1.setLayout(new BoxLayout(panel1, 1));
+		panel1.add(topPanel);
+		panel1.add(mainPanel);
+		panel1.add(bottomPanel);
+		
+		
+        this.add(tabbedPane);
+        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 	}
 	
 	// ------- HELPER METHODS --------
 	
+	protected JComponent makeTextPanel(String text) {
+        JPanel panel = new JPanel(false);
+        JLabel filler = new JLabel(text);
+        filler.setHorizontalAlignment(JLabel.CENTER);
+        panel.setLayout(new GridLayout(1, 1));
+        panel.add(filler);
+        return panel;
+    }
 
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
