@@ -80,6 +80,9 @@ public class WhiteboardGUI extends JFrame {
 	private final JPanel buttonsPanel;
 	private final JPanel bottomPanel;
 	
+	// The tabbed pane that houses all tabs
+	private final JTabbedPane tabbedPane;
+	
 	
 	// ------- CONSTRUCTOR --------
 	public WhiteboardGUI() {
@@ -155,55 +158,33 @@ public class WhiteboardGUI extends JFrame {
 		bottomPanel.add(saddlebrown);
 		bottomPanel.add(goldenrod);
 		
-		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane = new JTabbedPane();
 		
 		JComponent panel1 = new JPanel();
         tabbedPane.addTab("Tab 1", panel1);
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
          
-        JComponent panel2 = makeTextPanel("Panel #2");
+        /*JComponent panel2 = makeTextPanel("Panel #2");
         tabbedPane.addTab("Tab 2", panel2);
-        tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
-         
-        JComponent panel3 = makeTextPanel("Panel #3");
-        tabbedPane.addTab("Tab 3", panel3);
-        tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
-         
-        JComponent panel4 = makeTextPanel(
-                "Panel #4 (has a preferred size of 410 x 50).");
-        panel4.setPreferredSize(new Dimension(410, 50));
-        tabbedPane.addTab("Tab 4", panel4);
-        tabbedPane.setMnemonicAt(3, KeyEvent.VK_4);
+        tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);*/
+
         
-
-		
-
-		// Add components to the JFrame
-		/*this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), 1));
-		this.getContentPane().add(topPanel);
-		this.getContentPane().add(mainPanel);
-		this.getContentPane().add(bottomPanel);*/
-		
+        // Currently working with single tab so add all contents to that tab
 		panel1.setLayout(new BoxLayout(panel1, 1));
 		panel1.add(topPanel);
 		panel1.add(mainPanel);
 		panel1.add(bottomPanel);
 		
-		
+		// Add the entire tabbed pane to the jframe
         this.add(tabbedPane);
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        
+        // Add the menu bar
+        this.setJMenuBar(MenuBar.createMenuBar());
 	}
 	
 	// ------- HELPER METHODS --------
 	
-	protected JComponent makeTextPanel(String text) {
-        JPanel panel = new JPanel(false);
-        JLabel filler = new JLabel(text);
-        filler.setHorizontalAlignment(JLabel.CENTER);
-        panel.setLayout(new GridLayout(1, 1));
-        panel.add(filler);
-        return panel;
-    }
 
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
