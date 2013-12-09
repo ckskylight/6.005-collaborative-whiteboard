@@ -1,14 +1,19 @@
 package GUI;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Shape;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 import ADT.Sketch;
@@ -26,6 +31,8 @@ public class Canvas extends JPanel {
 	private Sketch whiteboard;
 	// Instantiate the brush
 	private Brush brush;
+	
+
 
 	/**
 	 * Make a canvas.
@@ -125,7 +132,8 @@ public class Canvas extends JPanel {
 		}
 
 		// Ignore all these other mouse events.
-		public void mouseMoved(MouseEvent e) { }
+		public void mouseMoved(MouseEvent e) {
+		}
 		public void mouseClicked(MouseEvent e) { }
 		public void mouseReleased(MouseEvent e) { }
 		public void mouseEntered(MouseEvent e) { }

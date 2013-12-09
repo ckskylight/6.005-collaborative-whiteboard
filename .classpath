@@ -3,5 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+<<<<<<< HEAD
+=======
+	<classpathentry kind="lib" path="src/gson-2.2.4.jar"/>
+>>>>>>> refs/remotes/origin/GUIbuttons
 	<classpathentry kind="output" path="bin"/>
 </classpath>
