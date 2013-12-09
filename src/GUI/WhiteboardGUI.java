@@ -32,6 +32,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import ADT.Sketch;
+import GUI.Brush;
+import GUI.Canvas;
+import GUI.ColorSquare;
+import GUI.GUIConstants;
+import GUI.MenuBar;
+import GUI.Sidebar;
 
 public class WhiteboardGUI extends JFrame {
 	
@@ -89,20 +95,10 @@ public class WhiteboardGUI extends JFrame {
         
 		
 		// ----- INITIALIZE GUI ELEMENTS ------
+		
 
-		
-<<<<<<< HEAD
-		// *Note: Initializing everything with paintbrush temporarily 
-		drawButton = new CustomButton(brush, "draw", this, loadImage("src/GUI/images/DrawActive.png"), GUIConstants.SIDEBAR_WIDTH);
-		clearButton = new CustomButton(brush, "clear", this, loadImage("src/GUI/images/ClearInactive.png"), GUIConstants.SIDEBAR_WIDTH);
-		eraseButton = new CustomButton(brush, "erase", this, loadImage("src/GUI/images/EraseInactive.png"), GUIConstants.SIDEBAR_WIDTH);
-		
-		colorTextBox = new JTextField();
-		weightDropdown = new JComboBox(weightChoices);
-=======
 		colorTextBox = new JTextField("Hex Color");
 		weightDropdown = new JComboBox(GUIConstants.WEIGHT_CHOICES);
->>>>>>> refs/remotes/origin/GUIbuttons
 		
 		topPanel = new JPanel();
 		mainPanel = new JPanel();
@@ -132,14 +128,8 @@ public class WhiteboardGUI extends JFrame {
 		// Assemble the main panel
 		Sidebar sidebar = new Sidebar(this);
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, 1));
-<<<<<<< HEAD
-		
-		buttonsPanel.add(drawButton);
-		buttonsPanel.add(eraseButton);
-		buttonsPanel.add(clearButton);
-=======
+
 		sidebar.addSidebar(buttonsPanel);
->>>>>>> refs/remotes/origin/GUIbuttons
 		buttonsPanel.setSize(GUIConstants.SIDEBAR_WIDTH, GUIConstants.CANVAS_WIDTH);
 		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
