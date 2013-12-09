@@ -24,8 +24,6 @@ public class MenuBar {
         JMenuBar menuBar;
         JMenu menu, submenu;
         JMenuItem menuItem;
-        JRadioButtonMenuItem rbMenuItem;
-        JCheckBoxMenuItem cbMenuItem;
 
         // --------- MENU BAR -----------
         menuBar = new JMenuBar();
