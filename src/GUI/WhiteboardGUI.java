@@ -164,9 +164,9 @@ public class WhiteboardGUI extends JFrame {
         tabbedPane.addTab("Tab 1", panel1);
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
          
-        /*JComponent panel2 = makeTextPanel("Panel #2");
+        JComponent panel2 = new JPanel();
         tabbedPane.addTab("Tab 2", panel2);
-        tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);*/
+        tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
         
         // Currently working with single tab so add all contents to that tab
