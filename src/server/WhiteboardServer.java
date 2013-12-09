@@ -188,6 +188,16 @@ public class WhiteboardServer {
         String answer = gson.toJson(listing);
         return answer;
     }
+    
+    public static void main(String[] args) {
+    	System.out.println("Server starting...");
+    	try {
+			WhiteboardServer server = new WhiteboardServer(4444);
+			server.serve();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
 
     
     /**
