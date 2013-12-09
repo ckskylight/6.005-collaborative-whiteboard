@@ -38,6 +38,7 @@ public class WhiteboardGUI extends JFrame {
 	
 	// Model
 	Sketch board = new Sketch();
+	Sketch board2 = new Sketch();
 	
 	
 	// Color picker
@@ -67,6 +68,7 @@ public class WhiteboardGUI extends JFrame {
 	
 	// Main canvas
 	private final Canvas canvas;
+	private final Canvas canvas2;
 	
 	// JPanels
 	private final JPanel topPanel;
@@ -90,6 +92,7 @@ public class WhiteboardGUI extends JFrame {
 		bottomPanel = new JPanel();
 		
 		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board);
+		canvas2 = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board2);
 		// Add border to canvas
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		canvas.setBorder(blackline);
