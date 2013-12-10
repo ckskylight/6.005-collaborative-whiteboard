@@ -35,12 +35,9 @@ public class WhiteboardWindow extends JFrame {
 	
 
 	// Menu bar
-	private final MenuBar menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
+	private final MenuBar menuBar;
 	
-	public WhiteboardWindow() throws IOException {
-		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
-		tabbedPane = new JTabbedPane();
-		
+	public WhiteboardWindow() throws IOException {		
 		//Connect to Server
 		server = new Socket();
 		server.connect(new InetSocketAddress(SERVER_PORT));
@@ -50,9 +47,15 @@ public class WhiteboardWindow extends JFrame {
 		BufferedReader serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
 		String boardListString = serverIn.readLine().substring(6); //TDO: magic number
 		Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
-		this.setBoardList(boardList);
 		listner = new UpdateWerker(server);
+		
+		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
+		tabbedPane = new JTabbedPane();
+		menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
+		this.setBoardList(boardList);
 		listner.execute();
+
+
 
 	}
 	
@@ -101,6 +104,10 @@ public class WhiteboardWindow extends JFrame {
 	 * @param string, message from the server. 
 	 */
 	private void parseServerMessage(String string) {
+		System.out.println("server message is ");
+		System.out.println(string);
+		System.out.println();
+
 		if(string.contains("BOARD "))  {
 			String boardString = string.substring("BOARD ".length()); //TODO:Magic number
 			String sketchString = boardString.substring(6);

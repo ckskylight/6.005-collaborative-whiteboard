@@ -106,7 +106,7 @@ public class WhiteboardGUI extends JPanel {
 	// ------- CONSTRUCTOR --------
 	@SuppressWarnings("unchecked")
 
-	public WhiteboardGUI(PrintWriter out, int id) throws IOException {
+	public WhiteboardGUI(PrintWriter out, int id) {
 		this.out = out;
 		this.id = id;
 

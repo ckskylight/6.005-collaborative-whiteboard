@@ -72,7 +72,7 @@ public class WhiteboardServer {
 		System.out.println("Request recieved...");
 		System.out.println(input);
 		if (input.startsWith("createBoard")) {
-			String boardName = input.substring(12);
+			String boardName = input.substring("createBoard".length() + 1);
 			this.createBoard(userID, boardName);
 			updateClientsBoardList();
 			return "UPDATE ACK";
