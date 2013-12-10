@@ -1,8 +1,6 @@
 package GUI;
 import gson.src.main.java.com.google.gson.Gson;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -25,20 +23,25 @@ import javax.swing.SwingWorker;
 
 import ADT.Sketch;
 
+/**
+ * 
+ * @author Yala
+ *
+ */
 public class WhiteboardWindow extends JFrame {
 	
 	//Server Elements
 	private final int SERVER_PORT = 4444;
-	private final String host = "127.0.0.1";
 	private final Socket server;
 	private static PrintWriter serverOut;
 	private Gson gson;
 	private Map<Integer, String> boardNames;
 	private UpdateWerker listner;
 	
+	//Represents the whiteboard the user has joined. 
 	private static Map<Integer, WhiteboardGUI> whiteboards;
-	// The tabbed pane that houses all tabs
 
+	// The tabbed pane that houses all tabs
 	private JTabbedPane tabbedPane;
 	
 	// Background image
@@ -59,6 +62,8 @@ public class WhiteboardWindow extends JFrame {
 		//Connect to Server
 		server = new Socket();
 		server.connect(new InetSocketAddress(SERVER_PORT));
+		
+		//Get boardList from server and start listening for updates
 		gson = new Gson();
 		serverOut = new PrintWriter( server.getOutputStream(), true);
 		serverOut.println("getBoardList");
@@ -103,6 +108,9 @@ public class WhiteboardWindow extends JFrame {
 		return image;
 	}
 	
+	/**
+	 * This helper sets up the subelements of this GUI.
+	 */
 	private void assembleJFrame() {
 		tabbedPane = new JTabbedPane();
 		for (Integer id : whiteboards.keySet()) {
@@ -119,6 +127,13 @@ public class WhiteboardWindow extends JFrame {
         this.setJMenuBar(menuBar.createMenuBar());
 	}
 	
+	/**
+	 * Updates the current boardList for the whiteboard window and 
+	 * menubar. 
+	 * 
+	 * @param newBoardList, a list mapping the unique board ID's currently at the server
+	 * and their names.
+	 */
 	public void setBoardList(Map<Integer,String> newBoardList) {
 		this.boardNames = newBoardList;
 		menuBar.setBoardList(boardNames);
@@ -192,6 +207,11 @@ public class WhiteboardWindow extends JFrame {
 			}
 
 		}
+		
+		/**
+		 * The worker blocks and wait for the server's response in background.
+		 * @return server response
+		 */
 		@Override
 		protected String doInBackground() throws IOException {
 			String response = serverIn.readLine();
@@ -199,6 +219,10 @@ public class WhiteboardWindow extends JFrame {
 
 		}
 
+		/**
+		 * Parses and handles server message when done and creates a new 
+		 * UpdateWerker to keep listening for updates. 
+		 */
 		@Override
 		protected void done()  {
 
@@ -215,6 +239,10 @@ public class WhiteboardWindow extends JFrame {
 
 		}
 	}
+	
+	/**
+	 * @return instance of whiteboardGUI currently selected by used via tab interface. 
+	 */
 	public WhiteboardGUI getCurrentWhiteboard() {
 		return (WhiteboardGUI) tabbedPane.getSelectedComponent();
 	}

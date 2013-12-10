@@ -9,11 +9,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import gson.src.main.java.com.google.gson.Gson;
 import ADT.Drawing;
 import ADT.Stroke;
