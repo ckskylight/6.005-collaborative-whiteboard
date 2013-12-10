@@ -86,14 +86,10 @@ public class WhiteboardWindow extends JFrame {
 		sketchgson = new GsonBuilder().registerTypeAdapter(Sketch.class, new SketchDeserializer()).create();
 		serverOut = new PrintWriter( server.getOutputStream(), true);
 		serverOut.println("getBoardList");
-//		BufferedReader serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
 		in = new ObjectInputStream(server.getInputStream());
 		String boardListString = ( String) in.readObject();
-		System.out.println(boardListString);
 		boardListString = boardListString.substring(6);
-		System.out.println(boardListString);
 
-//		String boardListString = serverIn.readLine().substring(6); //TDO: magic number
 		Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
 		listner = new UpdateWerker(server, in);
 
@@ -175,12 +171,9 @@ public class WhiteboardWindow extends JFrame {
 		if (string == null || string.equals("null"))  
 			return;
 
-		System.out.println("MESSAGE:");
-		System.out.println(string);
-		System.out.println();
+
 		if(string.contains("BOARD "))  {
-			System.out.println("BOARD MESSAGE RECEIVED");
-			System.out.println(string);
+
 			String boardString = string.substring("BOARD ".length()); //TODO:Magic number
 			String sketchString = boardString.substring(6);
 			int id = Integer.parseInt(boardString.substring(0, 6).trim());
@@ -191,11 +184,6 @@ public class WhiteboardWindow extends JFrame {
 				assembleJFrame();
 			}
 			this.whiteboards.get(idInteger).setSketch(sketch);
-			System.out.println("new map size " + whiteboards.size());
-			System.out.println(sketchString);
-			for (int boardid : whiteboards.keySet()) {
-				System.out.println(boardNames.get(new Integer(boardid)));
-			}
 			
 			this.repaint();
 
@@ -306,8 +294,6 @@ public class WhiteboardWindow extends JFrame {
 				int thickness = strokeObject.get("thickness").getAsInt();
 				Point startPoint = gson.fromJson(strokeObject.get("startPoint"), Point.class);
 				Point endPoint = gson.fromJson(strokeObject.get("endPoint"), Point.class);
-				System.err.println(startPoint.toString());
-				System.err.println(endPoint.toString());
 				strokeArray.add(new Stroke(startPoint, endPoint, color, thickness));
 			}
 			//ArrayList<Drawing> sketchList = gson.fromJson(object.get("sketch"), ArrayList.class);

@@ -116,7 +116,6 @@ public class MenuBar {
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
-				System.out.println(whiteboards.size());
 			}
 			else if (command.equals("About")) {
 
@@ -126,7 +125,6 @@ public class MenuBar {
 				out.println(serverRequest);
 			}
 			else /*if a whiteboard name is chosen*/ {
-				System.out.println("JOIN BOARD");
 				int selectedBoardID = Integer.parseInt(((JMenuItem) e.getSource()).getAccessibleContext().getAccessibleDescription());
 				serverRequest = selectedBoardID + " joinBoard";
 				whiteboards.put(new Integer(selectedBoardID), new WhiteboardGUI(out, selectedBoardID));

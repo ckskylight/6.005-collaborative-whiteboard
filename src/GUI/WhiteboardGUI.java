@@ -217,8 +217,8 @@ public class WhiteboardGUI extends JPanel {
 	}
 
 	public void clear() {
-		System.out.println("Board size pre: " + board.getSketchSize());
 		board.clear();
+		//TODO: IMPLEMENT
 	}
 
 

@@ -72,8 +72,7 @@ public class WhiteboardServer {
 	}
 
 	private String handleRequest(String input, int userID) {
-		System.out.println("Request recieved...");
-		System.out.println(input);
+
 		if (input.startsWith("createBoard")) {
 			String boardName = input.substring("createBoard".length() +1 );
 			this.createBoard(userID, boardName);
@@ -84,7 +83,6 @@ public class WhiteboardServer {
 		} else {
 			int boardID = Integer.parseInt(input.substring(0,  5));
 			input = input.substring(6);
-			System.out.println("INPUT : " +input);
 			if (input.startsWith("joinBoard")) {
 				joinBoard(boardID, userID);
 				return "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
@@ -280,10 +278,7 @@ public class WhiteboardServer {
 //						out.flush();
 						outStream.writeObject(output);
 						outStream.flush();
-						if(line.contains("join"))  {
-							System.out.println("client request: " + line);
-							System.out.println("server response " + output);
-						}
+	
 					} 
 				} finally {
 					out.close();
