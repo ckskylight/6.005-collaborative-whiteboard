@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -15,7 +16,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import ADT.Drawing;
 import ADT.Sketch;
 
 public class WhiteboardWindow extends JFrame {
@@ -30,7 +30,7 @@ public class WhiteboardWindow extends JFrame {
 	private Map<Integer, String> boardNames;
 	private UpdateWerker listner;
 	
-	private static WhiteboardGUI[] whiteboards;
+	private static Map<Integer, WhiteboardGUI> whiteboards;
 	// The tabbed pane that houses all tabs
 	private final JTabbedPane tabbedPane;
 	
@@ -38,8 +38,8 @@ public class WhiteboardWindow extends JFrame {
 	// Menu bar
 	private final MenuBar menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut);
 	
-	public WhiteboardWindow(WhiteboardGUI[] whiteboards) throws IOException {
-		this.whiteboards = whiteboards;
+	public WhiteboardWindow() throws IOException {
+		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		tabbedPane = new JTabbedPane();
 		
 		//Connect to Server
@@ -60,7 +60,7 @@ public class WhiteboardWindow extends JFrame {
 				
 				WhiteboardWindow main;
 				try {
-					main = new WhiteboardWindow(new WhiteboardGUI[] {new WhiteboardGUI(serverOut), new WhiteboardGUI(serverOut)});
+					main = new WhiteboardWindow();
 					main.assembleJFrame();
 					
 					main.pack();
@@ -74,8 +74,8 @@ public class WhiteboardWindow extends JFrame {
 	}
 	
 	private void assembleJFrame() {
-		for (WhiteboardGUI whiteboard : whiteboards) {
-	        tabbedPane.addTab("Tab 1", whiteboard);
+		for (Integer id : whiteboards.keySet()) {
+	        tabbedPane.addTab(boardNames.get(id), whiteboards.get(id));
 		}
 		
 		// Add the entire tabbed pane to the jframe
