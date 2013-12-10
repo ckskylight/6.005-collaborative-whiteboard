@@ -98,7 +98,13 @@ public class WhiteboardServer {
 				changeBoardName(boardID, newName);
 				updateClientsBoardList();
 				return "UPDATE ACK";
-			} else {
+			} else if(input.startsWith("clearBoard"))  {
+				boards.get(boardID).clear();
+				updateClientsBoardList();
+				return "UPDATE ACK";
+
+			}
+			else {
 				return "ERROR"; // invalid request, this should cover all of 'em.
 			}
 		}
@@ -162,15 +168,10 @@ public class WhiteboardServer {
 		List<Integer> clients = this.boardMembers.get(boardID);
 		String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
 		for (Integer clientID : clients) {
-			Socket client = this.connections.get(clientID);
 			ObjectOutputStream out = this.outputs.get(clientID);
 			try{
-//				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-//				out.println(boardState);
 				out.writeObject(boardState);
 				out.flush();
-
-//				out.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -183,16 +184,12 @@ public class WhiteboardServer {
 	private  void updateClientsBoardList() {
 		String boardListJSON = "BLIST " + this.getBoardList();
 		for(Integer clientID: connections.keySet())  {
-			Socket client = connections.get(clientID);
 			ObjectOutputStream out = this.outputs.get(clientID);
 
 			try{
-//				PrintWriter out = new PrintWriter(client.getOutputStream(), true);
 				out.writeObject(boardListJSON);
 				out.flush();
-
-//				out.println(boardListJSON);
-			} catch (IOException e) {
+				} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -274,8 +271,6 @@ public class WhiteboardServer {
 				try{
 					for (String line = in.readLine(); line != null; line = in.readLine()){
 						String output = this.parentServer.handleRequest(line, userID);
-//						out.println(output);
-//						out.flush();
 						outStream.writeObject(output);
 						outStream.flush();
 	

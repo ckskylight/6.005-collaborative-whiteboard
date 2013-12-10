@@ -26,26 +26,30 @@ public class WhiteboardModel {
 		return boardID;
 	}
 	
-	public String getJSON() {
+	public synchronized String getJSON() {
 	    Gson gson = new Gson();
 	    String json = gson.toJson(this);
 	    return json;
 	}
 	
-	public String getBoardName()  {
+	public synchronized String getBoardName()  {
 		return boardName;
 	}
 	
-	public void setBoardName(String name)  {
+	public synchronized void setBoardName(String name)  {
 		boardName = name;
 	}
 	
-	public Sketch getSketch()  {
+	public  synchronized Sketch getSketch()  {
 		return drawing;
 	}
 	
-	public void connectDrawing(Drawing newDrawing) {
+	public synchronized void connectDrawing(Drawing newDrawing) {
 	    this.drawing.connect(newDrawing);
+	}
+	
+	public synchronized void clear()  {
+		this.drawing.clear();
 	}
 	
 	

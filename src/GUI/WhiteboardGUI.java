@@ -217,8 +217,8 @@ public class WhiteboardGUI extends JPanel {
 	}
 
 	public void clear() {
-		board.clear();
-		//TODO: IMPLEMENT
+		out.println(id + " clearBoard");
+		repaint();
 	}
 
 
