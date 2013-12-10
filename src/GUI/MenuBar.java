@@ -87,7 +87,7 @@ public class MenuBar {
 
 	public void setBoardList(Map<Integer,String> newBoardList) {
 		boardNames = newBoardList;
-
+		
 	}
 
 	public void updateCurrentBoardId(int id)  {
@@ -111,6 +111,12 @@ public class MenuBar {
 				serverRequest = "createBoard";
 				serverRequest += " customName";
 				out.println(serverRequest);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				System.out.println(whiteboards.size());
 			}
 			else if (command.equals("About")) {
 
