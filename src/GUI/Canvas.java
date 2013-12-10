@@ -1,22 +1,20 @@
 package GUI;
 
+import gson.src.main.java.com.google.gson.Gson;
+
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Shape;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Ellipse2D;
-import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 
 import javax.swing.JPanel;
+
 import ADT.Sketch;
 import ADT.Stroke;
 
@@ -32,6 +30,7 @@ public class Canvas extends JPanel {
 	private Sketch whiteboard;
 	// Instantiate the brush
 	private Brush brush;
+	private Gson gson;
 	
 	// Out to server
 	private final PrintWriter out;
@@ -50,6 +49,7 @@ public class Canvas extends JPanel {
 		this.setPreferredSize(new Dimension(width, height));
 		this.whiteboard = board;
 		this.out = out;
+		this.gson = new Gson();
 		addDrawingController();
 		// note: we can't call makeDrawingBuffer here, because it only
 		// works *after* this canvas has been added to a window.  Have to
@@ -101,6 +101,7 @@ public class Canvas extends JPanel {
 	
 	public void setSketch(Sketch newSketch) {
 		whiteboard = newSketch;
+		repaint();
 	}
 
 	/*
@@ -130,7 +131,9 @@ public class Canvas extends JPanel {
 			// Here store info in the ADT
 			Point startPoint = new Point(lastX, lastY);
 			Point endPoint = new Point(x, y);
-			whiteboard.connect(new Stroke(startPoint, endPoint, brush.getColor(), brush.getThickness()));
+			Stroke update = new Stroke(startPoint, endPoint, brush.getColor(), brush.getThickness());
+			String updateJSon = gson.toJson(update);
+			String updateString = "";
 
 			lastX = x;
 			lastY = y;
