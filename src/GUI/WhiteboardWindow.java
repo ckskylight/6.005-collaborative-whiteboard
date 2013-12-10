@@ -114,7 +114,14 @@ public class WhiteboardWindow extends JFrame {
 	private void assembleJFrame() {
 		tabbedPane = new JTabbedPane();
 		for (Integer id : whiteboards.keySet()) {
-			tabbedPane.addTab(boardNames.get(id), whiteboards.get(id));
+
+	        System.out.println("-----");
+	        System.out.println(id);
+	        System.out.println(boardNames.entrySet().toString());
+	        System.out.println(boardNames.get(Integer.toString(id)));
+	        System.out.println(whiteboards.get(id));
+	        System.out.println("-----");
+	        tabbedPane.addTab(boardNames.get(Integer.toString(id)), whiteboards.get(id));
 		}
 
 		// Add the entire tabbed pane to the jframe
@@ -153,6 +160,7 @@ public class WhiteboardWindow extends JFrame {
 		System.out.println();
 		if(string.contains("BOARD "))  {
 			System.out.println("BOARD MESSAGE RECEIVED");
+			System.out.println(string);
 			String boardString = string.substring("BOARD ".length()); //TODO:Magic number
 			String sketchString = boardString.substring(6);
 			int id = Integer.parseInt(boardString.substring(0, 6).trim());
@@ -163,16 +171,22 @@ public class WhiteboardWindow extends JFrame {
 			}
 			this.whiteboards.get(idInteger).setSketch(sketch);
 			System.out.println("new map size " + whiteboards.size());
-			assembleJFrame();
-			this.repaint();
+			for (int boardid : whiteboards.keySet()) {
+				System.out.println(boardNames.get(boardid));
+			}
 
 
 		}else  {
 			if(string.contains("BLIST"))  {
+				System.out.println("RECEIVED BLIST");
+				System.out.println(string);
 				String boardListString = string.substring(6); //TODO:Magic number
 				@SuppressWarnings("unchecked")
 				Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
 				this.setBoardList(boardList);
+				
+				assembleJFrame();
+				this.repaint();
 
 			}
 			else  { //In this cases, no  changes are necessary. 
