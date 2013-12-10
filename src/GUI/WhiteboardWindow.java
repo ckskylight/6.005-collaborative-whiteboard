@@ -75,6 +75,7 @@ public class WhiteboardWindow extends JFrame {
 		});
 	}
 	
+	
 	private void assembleJFrame() {
 		for (Integer id : whiteboards.keySet()) {
 	        tabbedPane.addTab(boardNames.get(id), whiteboards.get(id));

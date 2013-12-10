@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -34,6 +35,9 @@ public class Canvas extends JPanel {
 	
 	// Out to server
 	private final PrintWriter out;
+	
+	// Map of Whiteboards and their ID's
+	Map<Integer,WhiteboardGUI> whiteboards;
 
 
 	/**
@@ -44,12 +48,13 @@ public class Canvas extends JPanel {
 	 * on the canvas
 	 * @param board, represents the contents of the canvas. 
 	 */
-	public Canvas(int width, int height, Brush brush, Sketch board, PrintWriter out) {
+	public Canvas(int width, int height, Brush brush, Sketch board, PrintWriter out, Map<Integer,WhiteboardGUI> whiteboards) {
 		this.brush = brush;
 		this.setPreferredSize(new Dimension(width, height));
 		this.whiteboard = board;
 		this.out = out;
 		this.gson = new Gson();
+		this.whiteboards = whiteboards;
 		addDrawingController();
 		// note: we can't call makeDrawingBuffer here, because it only
 		// works *after* this canvas has been added to a window.  Have to
