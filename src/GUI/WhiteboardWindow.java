@@ -149,6 +149,7 @@ public class WhiteboardWindow extends JFrame {
 			return;
 		}
 		if(string.contains("BOARD "))  {
+			System.out.println("BOARD MESSAGE RECEIVED");
 			String boardString = string.substring("BOARD ".length()); //TODO:Magic number
 			String sketchString = boardString.substring(6);
 			int id = Integer.parseInt(boardString.substring(0, 6).trim());
@@ -158,6 +159,9 @@ public class WhiteboardWindow extends JFrame {
 				this.whiteboards.put(idInteger, new WhiteboardGUI(serverOut, id));
 			}
 			this.whiteboards.get(idInteger).setSketch(sketch);
+			System.out.println("new map size " + whiteboards.size());
+			assembleJFrame();
+			this.repaint();
 
 
 		}else  {
