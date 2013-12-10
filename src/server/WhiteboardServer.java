@@ -72,7 +72,7 @@ public class WhiteboardServer {
 		System.out.println("Request recieved...");
 		System.out.println(input);
 		if (input.startsWith("createBoard")) {
-			String boardName = input.substring(12);
+			String boardName = input.substring("createBoard".length() + 1);
 			this.createBoard(userID, boardName);
 			updateClientsBoardList();
 			return "UPDATE ACK";
@@ -88,11 +88,11 @@ public class WhiteboardServer {
 				leaveBoard(boardID, userID);
 				return "LEAVE You left Board #" + Integer.toString(boardID); 
 			} else if (input.startsWith("addDrawing")) {
-				String drawingJSON = input.substring(11);
+				String drawingJSON = input.substring("addDrawing".length() + 1);
 				connectDrawing(boardID, drawingJSON);
 				return "UPDATE ACK";
 			} else if (input.startsWith("setBoardName")) {
-				String newName = input.substring(13);
+				String newName = input.substring("setBoardName".length() + 1);
 				changeBoardName(boardID, newName);
 				updateClientsBoardList();
 				return "UPDATE ACK";

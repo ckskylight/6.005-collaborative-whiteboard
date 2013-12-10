@@ -33,13 +33,12 @@ public class WhiteboardWindow extends JFrame {
 	private final Socket server;
 	private static PrintWriter serverOut;
 	private Gson gson;
-	private BufferedReader serverIn;
 	private Map<Integer, String> boardNames;
 	private UpdateWerker listner;
 	
 	private static Map<Integer, WhiteboardGUI> whiteboards;
 	// The tabbed pane that houses all tabs
-	private final JTabbedPane tabbedPane;
+	private JTabbedPane tabbedPane;
 	
 	// Background image
 	Image backgroundImage = loadImage("src/GUI/images/Background.jpg");
@@ -49,7 +48,7 @@ public class WhiteboardWindow extends JFrame {
 	
 
 	// Menu bar
-	private final MenuBar menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
+	private final MenuBar menuBar;
 	
 	public WhiteboardWindow() throws IOException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
@@ -60,10 +59,19 @@ public class WhiteboardWindow extends JFrame {
 		server = new Socket();
 		server.connect(new InetSocketAddress(SERVER_PORT));
 		gson = new Gson();
-		listner = new UpdateWerker(server);
-		listner.execute();
 		serverOut = new PrintWriter( server.getOutputStream(), true);
 		serverOut.println("getBoardList");
+		BufferedReader serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
+		String boardListString = serverIn.readLine().substring(6); //TDO: magic number
+		Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
+		listner = new UpdateWerker(server);
+		
+		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
+		tabbedPane = new JTabbedPane();
+		menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
+		this.setBoardList(boardList);
+		listner.execute();
+
 
 		//whiteboards.put(12345, new WhiteboardGUI(serverOut, whiteboards));
 		//boardNames.put(12345, "BLAHH");
@@ -115,7 +123,8 @@ public class WhiteboardWindow extends JFrame {
 	}
 	
 	public void setBoardList(Map<Integer,String> newBoardList) {
-		menuBar.setBoardList(newBoardList);
+		this.boardNames = newBoardList;
+		menuBar.setBoardList(boardNames);
 		
 	}
 	/**
@@ -124,10 +133,16 @@ public class WhiteboardWindow extends JFrame {
 	 * @param string, message from the server. 
 	 */
 	private void parseServerMessage(String string) {
+		System.out.println("server message is ");
+		System.out.println(string);
+		System.out.println();
+
 		if(string.contains("BOARD "))  {
-			String boardString = string.substring(16); //TODO:Magic number
-			Sketch sketch = gson.fromJson(boardString, Sketch.class);
-			this.getCurrentWhiteboard().setSketch(sketch);
+			String boardString = string.substring("BOARD ".length()); //TODO:Magic number
+			String sketchString = boardString.substring(6);
+			int id = Integer.parseInt(boardString.substring(0, 6).trim());
+			Sketch sketch = gson.fromJson(sketchString, Sketch.class);
+			this.whiteboards.get(new Integer(id)).setSketch(sketch);
 			
 
 		}else  {

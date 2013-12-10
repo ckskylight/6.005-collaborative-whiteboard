@@ -32,12 +32,12 @@ public class Canvas extends JPanel {
 	// Instantiate the brush
 	private Brush brush;
 	private Gson gson;
+	private final int id; //ID of the white board Canvas displays.
 	
 	// Out to server
 	private final PrintWriter out;
 	
-	// Map of Whiteboards and their ID's
-	Map<Integer,WhiteboardGUI> whiteboards;
+
 
 
 	/**
@@ -48,13 +48,13 @@ public class Canvas extends JPanel {
 	 * on the canvas
 	 * @param board, represents the contents of the canvas. 
 	 */
-	public Canvas(int width, int height, Brush brush, Sketch board, PrintWriter out, Map<Integer,WhiteboardGUI> whiteboards) {
+	public Canvas(int width, int height, Brush brush, Sketch board, PrintWriter out, int id) {
 		this.brush = brush;
 		this.setPreferredSize(new Dimension(width, height));
 		this.whiteboard = board;
 		this.out = out;
 		this.gson = new Gson();
-		this.whiteboards = whiteboards;
+		this.id = id;
 		addDrawingController();
 		// note: we can't call makeDrawingBuffer here, because it only
 		// works *after* this canvas has been added to a window.  Have to
@@ -138,7 +138,8 @@ public class Canvas extends JPanel {
 			Point endPoint = new Point(x, y);
 			Stroke update = new Stroke(startPoint, endPoint, brush.getColor(), brush.getThickness());
 			String updateJSon = gson.toJson(update);
-			String updateString = "";
+			String updateString = id + " addDrawing " + updateJSon;
+			out.println(updateString);
 
 			lastX = x;
 			lastY = y;

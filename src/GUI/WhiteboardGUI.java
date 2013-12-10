@@ -99,17 +99,16 @@ public class WhiteboardGUI extends JPanel {
 	
 	// Output stream to server
 	private final PrintWriter out;
-	
-	// Whiteboards and their ID's
-	private Map<Integer,WhiteboardGUI> whiteboards;
 
+	//ID of the board represented by this whiteboardGUI
+	private final int id;
 
 	// ------- CONSTRUCTOR --------
 	@SuppressWarnings("unchecked")
 
-	public WhiteboardGUI(PrintWriter out, Map<Integer,WhiteboardGUI> whiteboards) throws IOException {
+	public WhiteboardGUI(PrintWriter out, int id) {
 		this.out = out;
-		this.whiteboards = whiteboards;
+		this.id = id;
 
 
 		// ----- INITIALIZE GUI ELEMENTS ------
@@ -123,7 +122,7 @@ public class WhiteboardGUI extends JPanel {
 		buttonsPanel = new JPanel();
 		bottomPanel = new JPanel();
 
-		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board, out, whiteboards);
+		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board, out, id);
 		// Add border to canvas
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		canvas.setBorder(blackline);
