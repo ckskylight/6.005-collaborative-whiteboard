@@ -24,12 +24,14 @@ import javax.swing.KeyStroke;
 public class MenuBar {
 	
 	Map<Integer,String> boardList;
+	PrintWriter out;
 	
 	public MenuBar(Map<Integer,String> boardList, PrintWriter out) {
-		
+		this.boardList = boardList;
+		this.out = out;
 	}
 	
-	public static JMenuBar createMenuBar(Map<Integer,String> boardList, PrintWriter out) {
+	public JMenuBar createMenuBar() {
         JMenuBar menuBar;
         JMenu menu, submenu;
         JMenuItem menuItem;
@@ -76,6 +78,11 @@ public class MenuBar {
 
         return menuBar;
     }
+	
+	public void setBoardList(Map<Integer,String> newBoardList) {
+		boardList = newBoardList;
+	}
+	
 }
 
 class MenuListener implements ActionListener {

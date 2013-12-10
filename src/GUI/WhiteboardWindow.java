@@ -9,7 +9,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -17,7 +16,6 @@ import javax.swing.SwingWorker;
 
 import ADT.Drawing;
 import ADT.Sketch;
-import ADT.Stroke;
 
 public class WhiteboardWindow extends JFrame {
 	
@@ -34,6 +32,10 @@ public class WhiteboardWindow extends JFrame {
 	private static WhiteboardGUI[] whiteboards;
 	// The tabbed pane that houses all tabs
 	private final JTabbedPane tabbedPane;
+	
+
+	// Menu bar
+	private final MenuBar menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut);
 	
 	public WhiteboardWindow(WhiteboardGUI[] whiteboards) throws IOException {
 		this.whiteboards = whiteboards;
@@ -80,7 +82,13 @@ public class WhiteboardWindow extends JFrame {
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         
         // Add the menu bar
-        this.setJMenuBar(MenuBar.createMenuBar(boardNames, serverOut));
+
+        this.setJMenuBar(menuBar.createMenuBar());
+	}
+	
+	public void setBoardList(Map<Integer,String> newBoardList) {
+		menuBar.setBoardList(newBoardList);
+		
 	}
 	/**
 	 * Takes in a message from the board, as specified in the Server Protocol,
@@ -97,7 +105,7 @@ public class WhiteboardWindow extends JFrame {
 			if(string.contains("BLIST"))  {
 				String boardListString = string.substring(6); //TODO:Magic number
 				Map boardList = gson.fromJson(boardListString, Map.class);
-
+				this.setBoardList(boardList);
 
 			}
 			else  { //In this cases, no  changes are necessary. 
