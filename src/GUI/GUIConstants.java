@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,4 +16,5 @@ public class GUIConstants {
 	public static final Color HONEYDEW = Color.decode("#F0FFF0");
 	public static final Color MISTYROSE = Color.decode("#FFE4E1");
 	public static final Map EMPTY_BOARDS = new HashMap<Integer,String>();
+	public static final Dimension WINDOW_DIMENSIONS = new Dimension(850, 735);
 }

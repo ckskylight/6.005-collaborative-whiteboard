@@ -53,7 +53,7 @@ public class WhiteboardWindow extends JFrame {
 	public WhiteboardWindow() throws IOException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		tabbedPane = new JTabbedPane();
-		this.setPreferredSize(new Dimension(840, 650));
+		this.setPreferredSize(GUIConstants.WINDOW_DIMENSIONS);
 		
 		//Connect to Server
 		server = new Socket();
@@ -71,10 +71,6 @@ public class WhiteboardWindow extends JFrame {
 		menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
 		this.setBoardList(boardList);
 		listner.execute();
-
-
-		//whiteboards.put(12345, new WhiteboardGUI(serverOut, whiteboards));
-		//boardNames.put(12345, "BLAHH");
 
 	}
 	
