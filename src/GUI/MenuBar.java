@@ -3,6 +3,7 @@ package GUI;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.ButtonGroup;
@@ -30,16 +31,12 @@ public class MenuBar {
 
         // --------- FIRST MENU ---------
         menu = new JMenu("Whiteboard");
-        menu.setMnemonic(KeyEvent.VK_A);
         menuBar.add(menu);
 
         menuItem = new JMenuItem("Create new Whiteboard", KeyEvent.VK_T);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_1, ActionEvent.ALT_MASK));
         menu.add(menuItem);
 
         menuItem = new JMenuItem("Rename Whiteboard");
-        menuItem.setMnemonic(KeyEvent.VK_B);
         menu.add(menuItem);
 
         menu.addSeparator();
@@ -48,7 +45,6 @@ public class MenuBar {
 
         // -------- SECOND MENU ----------
         menu = new JMenu("Join/Leave");
-        menu.setMnemonic(KeyEvent.VK_N);
         menuBar.add(menu);
         
         menuItem = new JMenuItem("Leave Current Whiteboard");
@@ -65,7 +61,14 @@ public class MenuBar {
 
         return menuBar;
     }
+}
 
+class MenuListener implements ActionListener {
 
-
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }
