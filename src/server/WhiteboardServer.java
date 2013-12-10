@@ -3,6 +3,7 @@ package server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import gson.src.main.java.com.google.gson.Gson;
 import ADT.Drawing;
 import ADT.Stroke;
@@ -40,6 +42,8 @@ import ADT.Stroke;
 public class WhiteboardServer {
 	private Map<Integer, WhiteboardModel> boards; 
 	private Map<Integer, Socket> connections;
+	private Map<Integer, ObjectOutputStream> outputs;
+
 	private Map<Integer, List<Integer>> boardMembers;
 	private ServerSocket serverSocket;
 
@@ -48,6 +52,7 @@ public class WhiteboardServer {
 		this.connections = Collections.synchronizedMap(new HashMap<Integer, Socket>());
 		this.boardMembers = Collections.synchronizedMap(new HashMap<Integer, List<Integer>>());
 		this.serverSocket = new ServerSocket(port);
+		this.outputs = Collections.synchronizedMap(new HashMap<Integer, ObjectOutputStream>());
 	}
 
 	public void serve() throws IOException {
@@ -59,6 +64,7 @@ public class WhiteboardServer {
 			}
 			synchronized(this.connections) {
 				this.connections.put(userID, socket);
+				outputs.put(userID, new ObjectOutputStream(socket.getOutputStream()));
 			}
 			Thread newUser = new Thread(new WhiteboardUser(socket, this, userID));
 			newUser.start();
@@ -95,7 +101,7 @@ public class WhiteboardServer {
 				updateClientsBoardList();
 				return "UPDATE ACK";
 			} else {
-				return null; // invalid request, this should cover all of 'em.
+				return "ERROR"; // invalid request, this should cover all of 'em.
 			}
 		}
 	}
@@ -157,12 +163,16 @@ public class WhiteboardServer {
 	private  void updateClientsBoards(int boardID) {
 		List<Integer> clients = this.boardMembers.get(boardID);
 		String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
-		for (Integer i : clients) {
-			Socket socket = this.connections.get(i);
+		for (Integer clientID : clients) {
+			Socket client = this.connections.get(clientID);
+			ObjectOutputStream out = this.outputs.get(clientID);
 			try{
-				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-				out.println(boardState);
+//				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+//				out.println(boardState);
+				out.writeObject(boardState);
 				out.flush();
+
+//				out.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -176,9 +186,14 @@ public class WhiteboardServer {
 		String boardListJSON = "BLIST " + this.getBoardList();
 		for(Integer clientID: connections.keySet())  {
 			Socket client = connections.get(clientID);
+			ObjectOutputStream out = this.outputs.get(clientID);
+
 			try{
-				PrintWriter out = new PrintWriter(client.getOutputStream(), true);
-				out.println(boardListJSON);
+//				PrintWriter out = new PrintWriter(client.getOutputStream(), true);
+				out.writeObject(boardListJSON);
+				out.flush();
+
+//				out.println(boardListJSON);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -245,11 +260,13 @@ public class WhiteboardServer {
 		private final Socket socket;
 		private final WhiteboardServer parentServer;
 		private final int userID;
-
+		ObjectOutputStream outStream;
+		
 		public WhiteboardUser(Socket socket, WhiteboardServer parentServer, int userID) {
 			this.socket = socket;
 			this.parentServer = parentServer;
 			this.userID = userID;
+			outStream = parentServer.outputs.get(userID);
 		}
 
 		public void run() {
@@ -259,8 +276,10 @@ public class WhiteboardServer {
 				try{
 					for (String line = in.readLine(); line != null; line = in.readLine()){
 						String output = this.parentServer.handleRequest(line, userID);
-						out.println(output);
-						out.flush();
+//						out.println(output);
+//						out.flush();
+						outStream.writeObject(output);
+						outStream.flush();
 						if(line.contains("join"))  {
 							System.out.println("client request: " + line);
 							System.out.println("server response " + output);

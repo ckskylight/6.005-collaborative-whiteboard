@@ -13,6 +13,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -45,6 +47,7 @@ public class WhiteboardWindow extends JFrame {
 	private Gson sketchgson;
 	private Map<Integer, String> boardNames;
 	private UpdateWerker listner;
+	private ObjectInputStream in;
 
 	//Represents the whiteboard the user has joined. 
 	private static Map<Integer, WhiteboardGUI> whiteboards;
@@ -62,7 +65,7 @@ public class WhiteboardWindow extends JFrame {
 	// Menu bar
 	private final MenuBar menuBar;
 
-	public WhiteboardWindow() throws IOException {
+	public WhiteboardWindow() throws IOException, ClassNotFoundException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		tabbedPane = new JTabbedPane();
 		this.setPreferredSize(GUIConstants.WINDOW_DIMENSIONS);
@@ -76,10 +79,16 @@ public class WhiteboardWindow extends JFrame {
 		sketchgson = new GsonBuilder().registerTypeAdapter(Sketch.class, new SketchDeserializer()).create();
 		serverOut = new PrintWriter( server.getOutputStream(), true);
 		serverOut.println("getBoardList");
-		BufferedReader serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
-		String boardListString = serverIn.readLine().substring(6); //TDO: magic number
+//		BufferedReader serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
+		in = new ObjectInputStream(server.getInputStream());
+		String boardListString = ( String) in.readObject();
+		System.out.println(boardListString);
+		boardListString = boardListString.substring(6);
+		System.out.println(boardListString);
+
+//		String boardListString = serverIn.readLine().substring(6); //TDO: magic number
 		Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
-		listner = new UpdateWerker(server);
+		listner = new UpdateWerker(server, in);
 
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
@@ -100,6 +109,8 @@ public class WhiteboardWindow extends JFrame {
 					main.pack();
 					main.setVisible(true);
 				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
 
@@ -191,9 +202,7 @@ public class WhiteboardWindow extends JFrame {
 
 
 		}else  {
-			if(string.contains("BLIST"))  {
-				System.out.println("RECEIVED BLIST");
-				System.out.println(string);
+			if(string.contains("BLIST"))  {;
 				String boardListString = string.substring(6); //TODO:Magic number
 				@SuppressWarnings("unchecked")
 				Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
@@ -222,7 +231,8 @@ public class WhiteboardWindow extends JFrame {
 	public class UpdateWerker  extends SwingWorker<String, String>{
 
 		private final Socket server;
-		private BufferedReader serverIn;
+//		private BufferedReader serverIn;
+		private ObjectInputStream serverIn;
 		/**
 		 * This Swing worker handel's the receiving and 
 		 * processing of messages from the server. It is always waiting for a new 
@@ -230,23 +240,21 @@ public class WhiteboardWindow extends JFrame {
 		 * worker to continue listening to the server. 
 		 * @throws IOException 
 		 */
-		public UpdateWerker(Socket serverConnection)  {
+		public UpdateWerker(Socket serverConnection, ObjectInputStream serverIn)  {
 			server = serverConnection;
-			try {
-				serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			this.serverIn = serverIn;
+			
 
 		}
 
 		/**
 		 * The worker blocks and wait for the server's response in background.
 		 * @return server response
+		 * @throws ClassNotFoundException 
 		 */
 		@Override
-		protected String doInBackground() throws IOException {
-			String response = serverIn.readLine();
+		protected String doInBackground() throws IOException, ClassNotFoundException {
+			String response =  "" + ( String) serverIn.readObject();
 			return response;
 
 		}
@@ -269,7 +277,7 @@ public class WhiteboardWindow extends JFrame {
 				e.printStackTrace();
 			}
 			UpdateWerker listner;
-			listner = new UpdateWerker(server);
+			listner = new UpdateWerker(server, serverIn);
 			listner.execute();
 
 		}
