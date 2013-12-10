@@ -1,7 +1,12 @@
 package GUI;
 import gson.src.main.java.com.google.gson.Gson;
 
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -11,7 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -34,6 +41,12 @@ public class WhiteboardWindow extends JFrame {
 	// The tabbed pane that houses all tabs
 	private final JTabbedPane tabbedPane;
 	
+	// Background image
+	Image backgroundImage = loadImage("src/GUI/images/Background.jpg");
+	
+	// IPanel that has the background image that everything is painted on
+	JPanel mainPanel = new IPanel(backgroundImage);
+	
 
 	// Menu bar
 	private final MenuBar menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
@@ -41,6 +54,7 @@ public class WhiteboardWindow extends JFrame {
 	public WhiteboardWindow() throws IOException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		tabbedPane = new JTabbedPane();
+		this.setPreferredSize(new Dimension(840, 650));
 		
 		//Connect to Server
 		server = new Socket();
@@ -51,6 +65,8 @@ public class WhiteboardWindow extends JFrame {
 		serverOut = new PrintWriter( server.getOutputStream(), true);
 		serverOut.println("getBoardList");
 
+		//whiteboards.put(12345, new WhiteboardGUI(serverOut, whiteboards));
+		//boardNames.put(12345, "BLAHH");
 
 	}
 	
@@ -73,6 +89,15 @@ public class WhiteboardWindow extends JFrame {
 		});
 	}
 	
+	public Image loadImage(String filePath) {
+		BufferedImage image = null;
+		try {
+			image = ImageIO.read(new File(filePath));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return image;
+	}
 	
 	private void assembleJFrame() {
 		for (Integer id : whiteboards.keySet()) {
@@ -80,11 +105,12 @@ public class WhiteboardWindow extends JFrame {
 		}
 		
 		// Add the entire tabbed pane to the jframe
-        this.add(tabbedPane);
+        mainPanel.add(tabbedPane);
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         
         // Add the menu bar
-
+        
+        this.add(mainPanel);
         this.setJMenuBar(menuBar.createMenuBar());
 	}
 	
