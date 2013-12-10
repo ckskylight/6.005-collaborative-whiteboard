@@ -2,9 +2,11 @@ package GUI;
 
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -15,6 +17,9 @@ public class WhiteboardWindow extends JFrame {
 	
 	// The tabbed pane that houses all tabs
 	private final JTabbedPane tabbedPane;
+	
+	// Menu bar
+	private final MenuBar menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, out);
 	
 	public WhiteboardWindow(WhiteboardGUI[] whiteboards) {
 		this.whiteboards = whiteboards;
@@ -53,7 +58,11 @@ public class WhiteboardWindow extends JFrame {
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         
         // Add the menu bar
-        this.setJMenuBar(MenuBar.createMenuBar());
+        this.setJMenuBar(menuBar.createMenuBar());
+	}
+	
+	public void setBoardList(Map<Integer,String> newBoardList) {
+		menuBar.setBoardList(newBoardList);
 	}
 	
 	public WhiteboardGUI getCurrentWhiteboard() {
