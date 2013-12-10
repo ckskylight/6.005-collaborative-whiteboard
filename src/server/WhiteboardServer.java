@@ -88,11 +88,11 @@ public class WhiteboardServer {
 				leaveBoard(boardID, userID);
 				return "LEAVE You left Board #" + Integer.toString(boardID); 
 			} else if (input.startsWith("addDrawing")) {
-				String drawingJSON = input.substring(11);
+				String drawingJSON = input.substring("addDrawing".length() + 1);
 				connectDrawing(boardID, drawingJSON);
 				return "UPDATE ACK";
 			} else if (input.startsWith("setBoardName")) {
-				String newName = input.substring(13);
+				String newName = input.substring("setBoardName".length() + 1);
 				changeBoardName(boardID, newName);
 				updateClientsBoardList();
 				return "UPDATE ACK";
