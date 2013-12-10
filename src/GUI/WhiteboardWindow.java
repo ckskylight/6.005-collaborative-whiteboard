@@ -26,7 +26,6 @@ public class WhiteboardWindow extends JFrame {
 	private final Socket server;
 	private static PrintWriter serverOut;
 	private Gson gson;
-	private BufferedReader serverIn;
 	private Map<Integer, String> boardNames;
 	private UpdateWerker listner;
 	
@@ -46,11 +45,14 @@ public class WhiteboardWindow extends JFrame {
 		server = new Socket();
 		server.connect(new InetSocketAddress(SERVER_PORT));
 		gson = new Gson();
-		listner = new UpdateWerker(server);
-		listner.execute();
 		serverOut = new PrintWriter( server.getOutputStream(), true);
 		serverOut.println("getBoardList");
-
+		BufferedReader serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
+		String boardListString = serverIn.readLine().substring(6); //TDO: magic number
+		Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
+		this.setBoardList(boardList);
+		listner = new UpdateWerker(server);
+		listner.execute();
 
 	}
 	
@@ -88,7 +90,8 @@ public class WhiteboardWindow extends JFrame {
 	}
 	
 	public void setBoardList(Map<Integer,String> newBoardList) {
-		menuBar.setBoardList(newBoardList);
+		this.boardNames = newBoardList;
+		menuBar.setBoardList(boardNames);
 		
 	}
 	/**
