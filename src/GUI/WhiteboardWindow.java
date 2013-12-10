@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -98,13 +99,15 @@ public class WhiteboardWindow extends JFrame {
 	private void parseServerMessage(String string) {
 		if(string.contains("BOARD "))  {
 			String boardString = string.substring(16); //TODO:Magic number
-			Drawing sketch = gson.fromJson(boardString, Sketch.class);
+			Sketch sketch = gson.fromJson(boardString, Sketch.class);
+			this.getCurrentWhiteboard().setSketch(sketch);
 			
 
 		}else  {
 			if(string.contains("BLIST"))  {
 				String boardListString = string.substring(6); //TODO:Magic number
-				Map boardList = gson.fromJson(boardListString, Map.class);
+				@SuppressWarnings("unchecked")
+				Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
 				this.setBoardList(boardList);
 
 			}
@@ -170,6 +173,8 @@ public class WhiteboardWindow extends JFrame {
 
 		}
 	}
-
+	public WhiteboardGUI getCurrentWhiteboard() {
+		return (WhiteboardGUI) tabbedPane.getSelectedComponent();
+	}
 
 }
