@@ -1,5 +1,7 @@
 package ADT;
 
+import gson.src.main.java.com.google.gson.Gson;
+
 import java.awt.Image;
 import java.util.ArrayList;
 
@@ -48,7 +50,7 @@ public class Sketch implements Drawing {
 			drawing.clear();
 		}
 	}
-	
+
 	/**
 	 * @return the size of the sketch (number of strokes)
 	 */
@@ -89,7 +91,7 @@ public class Sketch implements Drawing {
 		//Returns true otherwise. 
 		return true;
 	}
-	
+
 	@Override
 	public int hashCode()  {
 		int hash = 0;
@@ -106,6 +108,13 @@ public class Sketch implements Drawing {
 	 */
 	public ArrayList<Drawing> getDrawings()  {
 		return this.sketch;
+	}
+
+
+	@Override
+	public String getJSON() {
+		Gson gson = new Gson();
+		return gson.toJson(this) ;
 	}
 
 }

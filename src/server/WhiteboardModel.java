@@ -40,7 +40,7 @@ public class WhiteboardModel {
 		boardName = name;
 	}
 	
-	public Drawing getDrawing()  {
+	public Sketch getSketch()  {
 		return drawing;
 	}
 	

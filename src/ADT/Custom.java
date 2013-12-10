@@ -1,5 +1,7 @@
 package ADT;
 
+import gson.src.main.java.com.google.gson.Gson;
+
 import java.awt.Image;
 
 //TODO: Implement if time available. 
@@ -17,4 +19,9 @@ public class Custom implements Drawing {
 		return null;
 	}
 
+	@Override
+	public String getJSON() {
+		Gson gson = new Gson();
+		return gson.toJson(this) ;
+	}
 }

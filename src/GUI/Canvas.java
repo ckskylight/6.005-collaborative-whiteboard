@@ -105,6 +105,7 @@ public class Canvas extends JPanel {
 	public void setSketch(Sketch newSketch) {
 		System.out.println("New sketch!");
 		whiteboard = newSketch;
+		System.out.println("BOARD SIZE " + whiteboard.getSketchSize());
 		repaint();
 	}
 

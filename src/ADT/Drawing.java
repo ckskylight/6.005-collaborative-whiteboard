@@ -22,4 +22,6 @@ public interface Drawing {
 	 *   Drawing.  This represents the bridge from the ADT to the GUI.
 	 **/ 
 	public Image getImage(Image background);
+
+	public String getJSON();
 }

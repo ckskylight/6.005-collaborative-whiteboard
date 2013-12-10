@@ -81,7 +81,7 @@ public class WhiteboardServer {
 			System.out.println("INPUT : " +input);
 			if (input.startsWith("joinBoard")) {
 				joinBoard(boardID, userID);
-				return "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
+				return "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
 			} else if (input.startsWith("leaveBoard")) {
 				leaveBoard(boardID, userID);
 				return "LEAVE You left Board #" + Integer.toString(boardID); 
@@ -156,7 +156,7 @@ public class WhiteboardServer {
 	 */
 	private  void updateClientsBoards(int boardID) {
 		List<Integer> clients = this.boardMembers.get(boardID);
-		String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
+		String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
 		for (Integer i : clients) {
 			Socket socket = this.connections.get(i);
 			try{

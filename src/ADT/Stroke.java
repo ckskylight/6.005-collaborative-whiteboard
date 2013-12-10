@@ -1,5 +1,7 @@
 package ADT;
 
+import gson.src.main.java.com.google.gson.Gson;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -100,6 +102,12 @@ public class Stroke implements Drawing {
 	@Override
 	public int hashCode()  {
 		return color.hashCode() + startPoint.hashCode() + endPoint.hashCode() + (int) thickness;
+	}
+	
+	@Override
+	public String getJSON() {
+		Gson gson = new Gson();
+		return gson.toJson(this) ;
 	}
 }
 

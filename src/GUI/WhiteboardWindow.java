@@ -1,5 +1,7 @@
 package GUI;
 import gson.src.main.java.com.google.gson.Gson;
+import gson.src.main.java.com.google.gson.GsonBuilder;
+import gson.src.main.java.com.google.gson.InstanceCreator;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -21,6 +23,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import ADT.Drawing;
 import ADT.Sketch;
 
 /**
@@ -35,6 +38,7 @@ public class WhiteboardWindow extends JFrame {
 	private final Socket server;
 	private static PrintWriter serverOut;
 	private Gson gson;
+	private Gson sketchgson;
 	private Map<Integer, String> boardNames;
 	private UpdateWerker listner;
 
@@ -65,6 +69,7 @@ public class WhiteboardWindow extends JFrame {
 
 		//Get boardList from server and start listening for updates
 		gson = new Gson();
+		sketchgson = new GsonBuilder().registerTypeAdapter(Sketch.class, new SketchInstanceCreator()).create();
 		serverOut = new PrintWriter( server.getOutputStream(), true);
 		serverOut.println("getBoardList");
 		BufferedReader serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
@@ -165,12 +170,14 @@ public class WhiteboardWindow extends JFrame {
 			String sketchString = boardString.substring(6);
 			int id = Integer.parseInt(boardString.substring(0, 6).trim());
 			Integer idInteger = new Integer(id);
-			Sketch sketch = gson.fromJson(sketchString, Sketch.class);
+			Sketch sketch = sketchgson.fromJson(sketchString, Sketch.class);
 			if(!this.whiteboards.containsKey(idInteger))  {
 				this.whiteboards.put(idInteger, new WhiteboardGUI(serverOut, id));
 			}
 			this.whiteboards.get(idInteger).setSketch(sketch);
 			System.out.println("new map size " + whiteboards.size());
+			System.out.println("RECEIVED SKETCH SIZE " + sketch.getSketchSize());
+			System.out.println(sketchString);
 			for (int boardid : whiteboards.keySet()) {
 				System.out.println(boardNames.get(new Integer(boardid)));
 			}
@@ -269,6 +276,15 @@ public class WhiteboardWindow extends JFrame {
 	 */
 	public WhiteboardGUI getCurrentWhiteboard() {
 		return (WhiteboardGUI) tabbedPane.getSelectedComponent();
+	}
+	
+	class SketchInstanceCreator implements InstanceCreator<Drawing> {
+
+		@Override
+		public Sketch createInstance(java.lang.reflect.Type type) {
+			return new Sketch();
+		}
+		
 	}
 
 }
