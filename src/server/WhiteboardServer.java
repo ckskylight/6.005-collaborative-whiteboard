@@ -1,8 +1,10 @@
 package server;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -252,11 +254,11 @@ public class WhiteboardServer {
 		public void run() {
 			try {
 				BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 				try{
 					for (String line = in.readLine(); line != null; line = in.readLine()){
 						String output = this.parentServer.handleRequest(line, userID);
-						out.println(output);
+						out.write(output);
 						out.flush();
 					} 
 				} finally {
