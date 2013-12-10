@@ -172,7 +172,7 @@ public class WhiteboardWindow extends JFrame {
 			this.whiteboards.get(idInteger).setSketch(sketch);
 			System.out.println("new map size " + whiteboards.size());
 			for (int boardid : whiteboards.keySet()) {
-				System.out.println(boardNames.get(boardid));
+				System.out.println(boardNames.get(new Integer(boardid)));
 			}
 
 

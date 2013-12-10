@@ -66,8 +66,6 @@ public class Canvas extends JPanel {
 	 */
 	@Override
 	public void paintComponent(Graphics g) {
-		// If this is the first time paintComponent() is being called,
-		// make our drawing buffer.
 		makeDrawingBuffer();
 		g.drawImage(whiteboard.getImage(drawingBuffer), 0, 0, null);
 	}
@@ -105,6 +103,7 @@ public class Canvas extends JPanel {
 	}
 	
 	public void setSketch(Sketch newSketch) {
+		System.out.println("New sketch!");
 		whiteboard = newSketch;
 		repaint();
 	}
