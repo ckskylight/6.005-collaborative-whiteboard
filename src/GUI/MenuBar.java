@@ -5,6 +5,8 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.PrintWriter;
+import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -21,8 +23,7 @@ import javax.swing.KeyStroke;
 
 public class MenuBar {
 	
-
-	public static JMenuBar createMenuBar() {
+	public static JMenuBar createMenuBar(Map<Integer,String> boardList, PrintWriter out) {
         JMenuBar menuBar;
         JMenu menu, submenu;
         JMenuItem menuItem;

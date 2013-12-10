@@ -14,6 +14,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
+import java.io.PrintWriter;
 
 import javax.swing.JPanel;
 import ADT.Sketch;
@@ -32,6 +33,8 @@ public class Canvas extends JPanel {
 	// Instantiate the brush
 	private Brush brush;
 	
+	// Out to server
+	private final PrintWriter out;
 
 
 	/**
@@ -42,10 +45,11 @@ public class Canvas extends JPanel {
 	 * on the canvas
 	 * @param board, represents the contents of the canvas. 
 	 */
-	public Canvas(int width, int height, Brush brush, Sketch board) {
+	public Canvas(int width, int height, Brush brush, Sketch board, PrintWriter out) {
 		this.brush = brush;
 		this.setPreferredSize(new Dimension(width, height));
 		this.whiteboard = board;
+		this.out = out;
 		addDrawingController();
 		// note: we can't call makeDrawingBuffer here, because it only
 		// works *after* this canvas has been added to a window.  Have to
@@ -93,6 +97,10 @@ public class Canvas extends JPanel {
 		DrawingController controller = new DrawingController();
 		addMouseListener(controller);
 		addMouseMotionListener(controller);
+	}
+	
+	public void setSketch(Sketch newSketch) {
+		whiteboard = newSketch;
 	}
 
 	/*
