@@ -174,6 +174,9 @@ public class WhiteboardWindow extends JFrame {
 			for (int boardid : whiteboards.keySet()) {
 				System.out.println(boardNames.get(new Integer(boardid)));
 			}
+			
+			assembleJFrame();
+			this.repaint();
 
 
 		}else  {
