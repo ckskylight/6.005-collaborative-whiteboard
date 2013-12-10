@@ -23,6 +23,12 @@ import javax.swing.KeyStroke;
 
 public class MenuBar {
 	
+	Map<Integer,String> boardList;
+	
+	public MenuBar(Map<Integer,String> boardList, PrintWriter out) {
+		
+	}
+	
 	public static JMenuBar createMenuBar(Map<Integer,String> boardList, PrintWriter out) {
         JMenuBar menuBar;
         JMenu menu, submenu;

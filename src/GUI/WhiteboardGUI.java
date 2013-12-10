@@ -195,28 +195,6 @@ public class WhiteboardGUI extends JPanel {
 		canvas.setSketch(newSketch);
 	}
 
-	private Socket connectToServer(int port) throws IOException {
-		Socket ret = new Socket();
-		ret.connect(new InetSocketAddress(port));
-		//	        final int MAX_ATTEMPTS = 50;
-		//	        int attempts = 0;
-		//	        do {
-		//	          try {
-		//	            ret = new Socket(host, port);
-		//	          } catch (ConnectException ce) {
-		//	            try {
-		//	              if (++attempts > MAX_ATTEMPTS)
-		//	                throw new IOException("Exceeded max connection attempts", ce);
-		//	              Thread.sleep(300);
-		//	            } catch (InterruptedException ie) {
-		//	              throw new IOException("Unexpected InterruptedException", ie);
-		//	            }
-		//	          }
-		//	        } while (ret == null);
-		//	        ret.setSoTimeout(3000);
-		return ret;
-	}
-
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
 		try {

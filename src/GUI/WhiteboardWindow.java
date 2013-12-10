@@ -91,6 +91,7 @@ public class WhiteboardWindow extends JFrame {
 		if(string.contains("BOARD "))  {
 			String boardString = string.substring(16); //TODO:Magic number
 			Drawing sketch = gson.fromJson(boardString, Sketch.class);
+			
 
 		}else  {
 			if(string.contains("BLIST"))  {

@@ -33,10 +33,12 @@ public class CustomButton extends JComponent implements MouseListener {
 	
 	/**
 	 * precondition: activeIcon, inactiveIcon and clickedIcon all have to be the same size
-	 * @param brush
-	 * @param action one of: "draw", "erase", "clear"
-	 * @param icon
-	 * @param dimension
+	 * @param brush - the brush associated to the WhiteboardGUI the button is in
+	 * @param action - one of: "draw", "erase", "clear"
+	 * @param activeIcon - image of the button when active
+	 * @param inactiveIcon - image of the button when inactive
+	 * @param clickedIcon - image of the button when the mouse is down
+	 * @param dimension - length of one side of the button (button is square)
 	 */
 	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Sidebar sidebar, Image activeIcon, Image inactiveIcon, Image clickedIcon, int dimension) {
 		super();
@@ -73,7 +75,6 @@ public class CustomButton extends JComponent implements MouseListener {
 		return getPreferredSize();
 	}
 	
-	
 	@Override
 	public Dimension getMinimumSize() {
 		return getPreferredSize();
@@ -81,7 +82,10 @@ public class CustomButton extends JComponent implements MouseListener {
 	
 	
 	// --------- GRAPHICS ----------
-	
+	/**
+	 * Selects a different icon to print based on the 
+	 * status of the icon (whether it's active, inactive or clicked)
+	 */
 	@Override
 	public void paintComponent(Graphics g) {
 		
@@ -99,6 +103,8 @@ public class CustomButton extends JComponent implements MouseListener {
 		else if (!isActive) {
 			currentIcon = inactiveIcon;
 		}
+		
+		// Draw the icon
 		graphics.drawImage(currentIcon, 0, 0, height, width, null);
 		
 	}
