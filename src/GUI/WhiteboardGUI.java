@@ -64,15 +64,6 @@ public class WhiteboardGUI extends JPanel {
 	Sketch board = new Sketch();
 	Sketch board2 = new Sketch();
 
-	//Server Elements
-	private final int SERVER_PORT = 4444;
-	private final String host = "127.0.0.1";
-	private final Socket server;
-	private PrintWriter serverOut;
-	private Gson gson;
-	private BufferedReader serverIn;
-	private Map<Integer, String> boardNames;
-	private UpdateWerker listner;
 
 	// Color picker
 	private final JTextField colorTextBox;
@@ -112,16 +103,7 @@ public class WhiteboardGUI extends JPanel {
 	// ------- CONSTRUCTOR --------
 	@SuppressWarnings("unchecked")
 	public WhiteboardGUI() throws IOException {
-		//Connect to Server
-		server = connectToServer(SERVER_PORT);
-		gson = new Gson();
-		listner = new UpdateWerker(server);
-		listner.execute();
-		serverOut = new PrintWriter( server.getOutputStream(), true);
-		serverOut.println("getBoardList");
-		String boardListJSON = serverIn.readLine();
-		System.out.println(boardListJSON);
-		boardNames =  gson.fromJson(boardListJSON, Map.class);
+
 
 
 		// ----- INITIALIZE GUI ELEMENTS ------
@@ -207,29 +189,6 @@ public class WhiteboardGUI extends JPanel {
 
 	// ------- HELPER METHODS --------
 
-
-	private Socket connectToServer(int port) throws IOException {
-		Socket ret = new Socket();
-		ret.connect(new InetSocketAddress(port));
-		//	        final int MAX_ATTEMPTS = 50;
-		//	        int attempts = 0;
-		//	        do {
-		//	          try {
-		//	            ret = new Socket(host, port);
-		//	          } catch (ConnectException ce) {
-		//	            try {
-		//	              if (++attempts > MAX_ATTEMPTS)
-		//	                throw new IOException("Exceeded max connection attempts", ce);
-		//	              Thread.sleep(300);
-		//	            } catch (InterruptedException ie) {
-		//	              throw new IOException("Unexpected InterruptedException", ie);
-		//	            }
-		//	          }
-		//	        } while (ret == null);
-		//	        ret.setSoTimeout(3000);
-		return ret;
-	}
-
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
 		try {
@@ -303,49 +262,5 @@ public class WhiteboardGUI extends JPanel {
 
 	}
 
-	//
-	public class UpdateWerker  extends SwingWorker<String, String>{
-
-		private final Socket server;
-		private BufferedReader serverIn;
-		/**
-		 * This Swing worker handel's the receiving and 
-		 * processing of messages from the server. It is always waiting for a new 
-		 * message from the server. Once it processes a new message, it creates the next worker
-		 * worker to continue listening to the server. 
-		 * @throws IOException 
-		 */
-		public UpdateWerker(Socket serverConnection)  {
-			server = serverConnection;
-			try {
-				serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-		}
-		@Override
-		protected String doInBackground() throws IOException {
-			String response = serverIn.readLine();
-			return response;
-
-		}
-
-		@Override
-		protected void done()  {
-
-			try {
-				String serverResponse = get();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			}
-			UpdateWerker listner;
-			listner = new UpdateWerker(server);
-			listner.execute();
-
-		}
-	}
-
+	
 }
