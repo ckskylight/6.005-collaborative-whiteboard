@@ -56,5 +56,8 @@ public class WhiteboardWindow extends JFrame {
         this.setJMenuBar(MenuBar.createMenuBar());
 	}
 	
+	public WhiteboardGUI getCurrentWhiteboard() {
+		return (WhiteboardGUI) tabbedPane.getSelectedComponent();
+	}
 
 }
