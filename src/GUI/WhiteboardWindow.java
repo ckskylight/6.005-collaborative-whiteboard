@@ -25,7 +25,7 @@ public class WhiteboardWindow extends JFrame {
 	private final int SERVER_PORT = 4444;
 	private final String host = "127.0.0.1";
 	private final Socket server;
-	private PrintWriter serverOut;
+	private static PrintWriter serverOut;
 	private Gson gson;
 	private BufferedReader serverIn;
 	private Map<Integer, String> boardNames;
@@ -57,7 +57,7 @@ public class WhiteboardWindow extends JFrame {
 				
 				WhiteboardWindow main;
 				try {
-					main = new WhiteboardWindow(new WhiteboardGUI[] {new WhiteboardGUI(), new WhiteboardGUI()});
+					main = new WhiteboardWindow(new WhiteboardGUI[] {new WhiteboardGUI(serverOut), new WhiteboardGUI(serverOut)});
 					main.assembleJFrame();
 					
 					main.pack();
@@ -80,7 +80,7 @@ public class WhiteboardWindow extends JFrame {
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         
         // Add the menu bar
-        this.setJMenuBar(MenuBar.createMenuBar());
+        this.setJMenuBar(MenuBar.createMenuBar(boardNames, serverOut));
 	}
 	/**
 	 * Takes in a message from the board, as specified in the Server Protocol,

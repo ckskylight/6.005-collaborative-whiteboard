@@ -30,40 +30,9 @@ public class CustomButton extends JComponent implements MouseListener {
 	private WhiteboardGUI whiteboard;
 	private Sidebar sidebar;
 	
-	/**
-	 * precondition: activeIcon, inactiveIcon and clickedIcon all have to be the same size
-	 * 
-	 * @param brush
-	 * @param action
-	 * @param whiteboard
-	 * @param activeIcon
-	 * @param inactiveIcon
-	 * @param clickedIcon
-	 */
-	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Sidebar sidebar, Image activeIcon, Image inactiveIcon, Image clickedIcon) {
-		super();
-		enableInputMethods(true);
-		addMouseListener(this);
-		this.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		this.activeIcon = activeIcon;
-		this.inactiveIcon = inactiveIcon;
-		this.clickedIcon = clickedIcon;
-		height = activeIcon.getHeight(null);
-		width = activeIcon.getWidth(null);
-		this.brush = brush;
-		this.action = action;
-		this.whiteboard = whiteboard;
-		this.sidebar = sidebar;
-		if (action.equals("draw")) {
-			isActive = true;
-		}
-		else {
-			isActive = false;
-		}
-	}
 	
 	/**
-	 * 
+	 * precondition: activeIcon, inactiveIcon and clickedIcon all have to be the same size
 	 * @param brush
 	 * @param action one of: "draw", "erase", "clear"
 	 * @param icon
@@ -91,27 +60,6 @@ public class CustomButton extends JComponent implements MouseListener {
 		}
 	}
 	
-	public CustomButton(Brush brush, String action, WhiteboardGUI whiteboard, Sidebar sidebar, Image activeIcon, Image inactiveIcon, Image clickedIcon, int h, int w) {
-		super();
-		enableInputMethods(true);
-		addMouseListener(this);
-		this.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		this.activeIcon = activeIcon;
-		this.inactiveIcon = inactiveIcon;
-		this.clickedIcon = clickedIcon;
-		height = h;
-		width = w;
-		this.brush = brush;
-		this.action = action;
-		this.whiteboard = whiteboard;
-		this.sidebar = sidebar;
-		if (action.equals("draw")) {
-			isActive = true;
-		}
-		else {
-			isActive = false;
-		}
-	}
 	
 	// --------- SIZE INFORMATION ----------
 	
@@ -213,7 +161,6 @@ public class CustomButton extends JComponent implements MouseListener {
 
 	@Override
 	public void mouseEntered(MouseEvent e) {}
-
 	@Override
 	public void mouseExited(MouseEvent e) {}
 	

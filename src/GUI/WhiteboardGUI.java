@@ -62,7 +62,6 @@ public class WhiteboardGUI extends JPanel {
 
 	// Model
 	Sketch board = new Sketch();
-	Sketch board2 = new Sketch();
 
 
 	// Color picker
@@ -91,19 +90,22 @@ public class WhiteboardGUI extends JPanel {
 
 	// Main canvas
 	private final Canvas canvas;
-	private final Canvas canvas2;
 
 	// JPanels
 	private final JPanel topPanel;
 	private final JPanel mainPanel;
 	private final JPanel buttonsPanel;
 	private final JPanel bottomPanel;
+	
+	// Output stream to server
+	private final PrintWriter out;
 
 
 	// ------- CONSTRUCTOR --------
 	@SuppressWarnings("unchecked")
-	public WhiteboardGUI() throws IOException {
 
+	public WhiteboardGUI(PrintWriter out) throws IOException {
+		this.out = out;
 
 
 		// ----- INITIALIZE GUI ELEMENTS ------
@@ -117,8 +119,7 @@ public class WhiteboardGUI extends JPanel {
 		buttonsPanel = new JPanel();
 		bottomPanel = new JPanel();
 
-		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board);
-		canvas2 = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board2);
+		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board, out);
 		// Add border to canvas
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		canvas.setBorder(blackline);
@@ -188,6 +189,33 @@ public class WhiteboardGUI extends JPanel {
 	}
 
 	// ------- HELPER METHODS --------
+
+
+	public void setSketch(Sketch newSketch) {
+		canvas.setSketch(newSketch);
+	}
+
+	private Socket connectToServer(int port) throws IOException {
+		Socket ret = new Socket();
+		ret.connect(new InetSocketAddress(port));
+		//	        final int MAX_ATTEMPTS = 50;
+		//	        int attempts = 0;
+		//	        do {
+		//	          try {
+		//	            ret = new Socket(host, port);
+		//	          } catch (ConnectException ce) {
+		//	            try {
+		//	              if (++attempts > MAX_ATTEMPTS)
+		//	                throw new IOException("Exceeded max connection attempts", ce);
+		//	              Thread.sleep(300);
+		//	            } catch (InterruptedException ie) {
+		//	              throw new IOException("Unexpected InterruptedException", ie);
+		//	            }
+		//	          }
+		//	        } while (ret == null);
+		//	        ret.setSoTimeout(3000);
+		return ret;
+	}
 
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
