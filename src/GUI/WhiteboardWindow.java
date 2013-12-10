@@ -31,7 +31,7 @@ public class WhiteboardWindow extends JFrame {
 	
 	private static Map<Integer, WhiteboardGUI> whiteboards;
 	// The tabbed pane that houses all tabs
-	private final JTabbedPane tabbedPane;
+	private final static JTabbedPane tabbedPane;
 	
 
 	// Menu bar
@@ -50,7 +50,6 @@ public class WhiteboardWindow extends JFrame {
 		listner = new UpdateWerker(server);
 		
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
-		tabbedPane = new JTabbedPane();
 		menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
 		this.setBoardList(boardList);
 		listner.execute();
@@ -79,7 +78,8 @@ public class WhiteboardWindow extends JFrame {
 	}
 	
 	
-	private void assembleJFrame() {
+	private static void assembleJFrame() {
+		tabbedPane = new JTabbedPane();
 		for (Integer id : whiteboards.keySet()) {
 	        tabbedPane.addTab(boardNames.get(id), whiteboards.get(id));
 		}
