@@ -28,7 +28,10 @@ import ADT.Stroke;
  *   - receive messages to allow users to join/leave boards
  *   - receive messages for users to create new boards
  *   - send a message to every client containing the most recent state of the board
- *   - send a message to a client containing a list of every currently created board 
+ *   - send a message to a client containing a list of every currently created board
+ *   
+ *   Thread Safety Argument:
+ *   s
  */
 public class WhiteboardServer {
     private Map<Integer, WhiteboardModel> boards; 
@@ -59,21 +62,24 @@ public class WhiteboardServer {
     }
     
     private String handleRequest(String input, int userID) {
+    	System.out.println("Request recieved...");
+    	System.out.println(input);
         if (input.startsWith("createBoard")) {
             String boardName = input.substring(12);
             WhiteboardModel newBoard = this.createBoard(userID, boardName);
-            return (Integer.toString(newBoard.getBoardID())) + " " + newBoard.getJSON();
+            updateClientsBoardList();
+            return "BOARD " + (Integer.toString(newBoard.getBoardID())) + " " + newBoard.getJSON();
         } else if (input.startsWith("getBoardList")) {
-            return this.getBoardList();
+            return "BLIST " + this.getBoardList();
         } else {
             int boardID = Integer.parseInt(input.substring(0,  6));
             input = input.substring(7);
             if (input.startsWith("joinBoard")) {
                 joinBoard(boardID, userID);
-             return Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
+             return "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
             } else if (input.startsWith("leaveBoard")) {
                 leaveBoard(boardID, userID);
-             return "You left Board #" + Integer.toString(boardID); 
+             return "LEAVE You left Board #" + Integer.toString(boardID); 
             } else if (input.startsWith("addDrawing")) {
                 String drawingJSON = input.substring(11);
                 connectStroke(boardID, drawingJSON);
@@ -81,6 +87,7 @@ public class WhiteboardServer {
             } else if (input.startsWith("setBoardName")) {
                 String newName = input.substring(13);
                 changeBoardName(boardID, newName);
+                updateClientsBoardList();
                 return Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
             } else if (input.startsWith("getBoardName")) {
                 return Integer.toString(boardID) + " " + this.boards.get(boardID).getBoardName();
@@ -96,12 +103,12 @@ public class WhiteboardServer {
      * @param boardID
      * @param strokeJSON
      */
-    private synchronized void connectStroke(int boardID, String strokeJSON) {
+    private synchronized void connectStroke(int boardID, String strokeJSON) { //TODO: We probably should lock on the board, not the entire server
         WhiteboardModel board = this.boards.get(boardID);
         Gson gson = new Gson();
         Drawing strokeObj = gson.fromJson(strokeJSON, Stroke.class);
         board.connectDrawing(strokeObj);
-        updateClients(boardID);
+        updateClientsBoards(boardID);
     }
     
     /**
@@ -112,6 +119,7 @@ public class WhiteboardServer {
      */
     private synchronized void changeBoardName(int boardID, String newName) {
         this.boards.get(boardID).setBoardName(newName);
+        updateClientsBoards(boardID);
         return;
     }
     
@@ -138,9 +146,9 @@ public class WhiteboardServer {
      * of the board.
      * @param boardID
      */
-    private synchronized void updateClients(int boardID) {
+    private synchronized void updateClientsBoards(int boardID) {
         List<Integer> clients = this.boardMembers.get(boardID);
-        String boardState = this.boards.get(boardID).getJSON();
+        String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
         for (Integer i : clients) {
             Socket socket = this.connections.get(i);
             try{
@@ -150,6 +158,22 @@ public class WhiteboardServer {
                 e.printStackTrace();
             }
         }
+    }
+    
+    /**
+     * Sends an updated version of the boardsName list to all clients connected to the server. 
+     */
+    private synchronized void updateClientsBoardList() {
+    	String boardListJSON = "BLIST " + this.getBoardList();
+    	for(Integer clientID: connections.keySet())  {
+    		Socket client = connections.get(clientID);
+    		try{
+                PrintWriter out = new PrintWriter(client.getOutputStream(), true);
+                out.println(boardListJSON);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    	}
     }
     
     /**
@@ -165,7 +189,7 @@ public class WhiteboardServer {
             newBoardID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
         }
         WhiteboardModel newBoard = new WhiteboardModel(boardName, newBoardID);
-        synchronized(this.boards) {
+        synchronized(this.boards) { //TODO: this seems unnessersay because you are already using a  courser lock. I say remove courser lock. 
             this.boards.put(newBoardID, newBoard);
         }
         synchronized(this.boardMembers) {
@@ -179,7 +203,7 @@ public class WhiteboardServer {
      * Returns a string representing a JSON of a map between boardID's and boardName's.
      * @return
      */
-    private synchronized String getBoardList() {
+    private synchronized String getBoardList() { //TODO: Should be sent out whenever names or anything is edited. 
         HashMap<Integer, String> listing = new HashMap<Integer, String>();
         for (int boardID : this.boards.keySet()) {
             listing.put(boardID, this.boards.get(boardID).getBoardName());

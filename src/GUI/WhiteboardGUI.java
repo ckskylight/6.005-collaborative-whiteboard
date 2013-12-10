@@ -1,5 +1,7 @@
 package GUI;
 
+import gson.src.main.java.com.google.gson.Gson;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -11,10 +13,18 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
@@ -29,9 +39,12 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 
+import server.WhiteboardModel;
 import ADT.Sketch;
+import ADT.Stroke;
 import GUI.Brush;
 import GUI.Canvas;
 import GUI.ColorSquare;
@@ -40,17 +53,26 @@ import GUI.MenuBar;
 import GUI.Sidebar;
 
 public class WhiteboardGUI extends JFrame {
-	
+
 	// ----- OBJECTS TO BE USED IN THE GUI -----
-	
+
 	// Brush
 	Brush brush = new Brush();
-	
+
 	// Model
 	Sketch board = new Sketch();
 	Sketch board2 = new Sketch();
-	
-	
+
+	//Server Elements
+	private final int SERVER_PORT = 4444;
+	private final String host = "127.0.0.1";
+	private final Socket server;
+	private PrintWriter serverOut;
+	private Gson gson;
+	private BufferedReader serverIn;
+	private Map<Integer, String> boardNames;
+	private UpdateWerker listner;
+
 	// Color picker
 	private final JTextField colorTextBox;
 	// add buttons of different default colors to the colorPanel
@@ -69,80 +91,90 @@ public class WhiteboardGUI extends JFrame {
 	private final ColorSquare darkorange = new ColorSquare(Color.decode("#FF8C00"), brush);
 	private final ColorSquare teal = new ColorSquare(Color.decode("#008080"), brush);
 	private final ColorSquare goldenrod = new ColorSquare(Color.decode("#DAA520"), brush);
-	
+
 	// Bottom panel labels
 	private JLabel weightLabel = new JLabel("Weight:");
-	
 	// Stroke weight picker
 	private final JComboBox weightDropdown;
-	
+
 	// Main canvas
 	private final Canvas canvas;
 	private final Canvas canvas2;
-	
+
 	// JPanels
 	private final JPanel topPanel;
 	private final JPanel mainPanel;
 	private final JPanel buttonsPanel;
 	private final JPanel bottomPanel;
-	
+
 	// The tabbed pane that houses all tabs
 	private final JTabbedPane tabbedPane;
-	
-	
+
+
 	// ------- CONSTRUCTOR --------
-	public WhiteboardGUI() {
-        
-		
+	@SuppressWarnings("unchecked")
+	public WhiteboardGUI() throws IOException {
+		//Connect to Server
+		server = connectToServer(SERVER_PORT);
+		gson = new Gson();
+		listner = new UpdateWerker(server);
+		listner.execute();
+		serverOut = new PrintWriter( server.getOutputStream(), true);
+		serverOut.println("getBoardList");
+		String boardListJSON = serverIn.readLine();
+		System.out.println(boardListJSON);
+		boardNames =  gson.fromJson(boardListJSON, Map.class);
+
+
 		// ----- INITIALIZE GUI ELEMENTS ------
-		
+
 
 		colorTextBox = new JTextField("Hex Color");
 		weightDropdown = new JComboBox(GUIConstants.WEIGHT_CHOICES);
-		
+
 		topPanel = new JPanel();
 		mainPanel = new JPanel();
 		buttonsPanel = new JPanel();
 		bottomPanel = new JPanel();
-		
+
 		canvas = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board);
 		canvas2 = new Canvas(GUIConstants.CANVAS_WIDTH, GUIConstants.CANVAS_HEIGHT, brush, board2);
 		// Add border to canvas
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		canvas.setBorder(blackline);
 
-		
+
 		// ----- PUT GUI LAYOUT TOGETHER ----- 
-		
+
 		// Set up the weight combo box
 		weightDropdown.setSelectedIndex(4);
 		weightDropdown.addActionListener(new WeightListener());
-		
+
 		// Set up the hex color box
 		colorTextBox.setPreferredSize(new Dimension(100, 20));
 		colorTextBox.addActionListener(new ColorListener());
 		colorTextBox.addMouseListener(new ColorMouseListener());
 		colorTextBox.setBackground(GUIConstants.HONEYDEW);
-		
-		
+
+
 		// Assemble the main panel
 		Sidebar sidebar = new Sidebar(this);
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, 1));
 
 		sidebar.addSidebar(buttonsPanel);
 		buttonsPanel.setSize(GUIConstants.SIDEBAR_WIDTH, GUIConstants.CANVAS_WIDTH);
-		
+
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
 		buttonsPanel.setAlignmentY(TOP_ALIGNMENT);
 		buttonsPanel.setBackground(Color.decode("#F5DEB3"));
-		
+
 		mainPanel.add(buttonsPanel);
 		mainPanel.add(canvas);
 		mainPanel.setBackground(Color.decode("#8B4513"));
-		
-		
+
+
 		bottomPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
-		
+
 		weightLabel.setForeground(Color.WHITE);
 		bottomPanel.add(weightLabel);
 		bottomPanel.add(weightDropdown);
@@ -164,34 +196,56 @@ public class WhiteboardGUI extends JFrame {
 		bottomPanel.add(purple);
 		bottomPanel.add(saddlebrown);
 		bottomPanel.add(goldenrod);
-		
-		tabbedPane = new JTabbedPane();
-		
-		JComponent panel1 = new JPanel();
-        tabbedPane.addTab("Tab 1", panel1);
-        tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
-         
-        JComponent panel2 = new JPanel();
-        tabbedPane.addTab("Tab 2", panel2);
-        tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
-        
-        // Currently working with single tab so add all contents to that tab
+		tabbedPane = new JTabbedPane();
+
+		JComponent panel1 = new JPanel();
+		tabbedPane.addTab("Tab 1", panel1);
+		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+
+		JComponent panel2 = new JPanel();
+		tabbedPane.addTab("Tab 2", panel2);
+		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+
+
+		// Currently working with single tab so add all contents to that tab
 		panel1.setLayout(new BoxLayout(panel1, 1));
 		panel1.add(topPanel);
 		panel1.add(mainPanel);
 		panel1.add(bottomPanel);
-		
+
 		// Add the entire tabbed pane to the jframe
-        this.add(tabbedPane);
-        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        
-        // Add the menu bar
-        this.setJMenuBar(MenuBar.createMenuBar());
+		this.add(tabbedPane);
+		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+
+		// Add the menu bar
+		this.setJMenuBar(MenuBar.createMenuBar());
 	}
-	
+
 	// ------- HELPER METHODS --------
-	
+
+
+	private Socket connectToServer(int port) throws IOException {
+		Socket ret = new Socket();
+		ret.connect(new InetSocketAddress(port));
+		//	        final int MAX_ATTEMPTS = 50;
+		//	        int attempts = 0;
+		//	        do {
+		//	          try {
+		//	            ret = new Socket(host, port);
+		//	          } catch (ConnectException ce) {
+		//	            try {
+		//	              if (++attempts > MAX_ATTEMPTS)
+		//	                throw new IOException("Exceeded max connection attempts", ce);
+		//	              Thread.sleep(300);
+		//	            } catch (InterruptedException ie) {
+		//	              throw new IOException("Unexpected InterruptedException", ie);
+		//	            }
+		//	          }
+		//	        } while (ret == null);
+		//	        ret.setSoTimeout(3000);
+		return ret;
+	}
 
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
@@ -202,23 +256,23 @@ public class WhiteboardGUI extends JFrame {
 		}
 		return image;
 	}
-	
+
 	public int getWeight() {
 		return Integer.parseInt(weightDropdown.toString());
 	}
-	
+
 	public Brush getBrush() {
 		return brush;
 	}
-	
+
 	public void clear() {
 		System.out.println("Board size pre: " + board.getSketchSize());
 		board.clear();
 	}
-	
-	
+
+
 	// ------- BRUSH CONTROLS -------
-	
+
 	// ------- LISTENERS -------
 	class ColorMouseListener implements MouseListener {
 
@@ -239,7 +293,7 @@ public class WhiteboardGUI extends JFrame {
 		@Override
 		public void mouseExited(MouseEvent e) {}
 	}
-	
+
 	class WeightListener implements ActionListener {
 
 		@Override
@@ -248,9 +302,9 @@ public class WhiteboardGUI extends JFrame {
 			brush.setThickness(newThickness);
 		}
 	}
-	
+
 	class ColorListener implements ActionListener {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String newColor = e.getActionCommand();
@@ -263,22 +317,71 @@ public class WhiteboardGUI extends JFrame {
 				currentField.setBackground(GUIConstants.MISTYROSE);
 			}
 		}
-		
+
 	}
-	
-	
+
+	//
+	public class UpdateWerker  extends SwingWorker<String, String>{
+
+		private final Socket server;
+		private BufferedReader serverIn;
+		/**
+		 * This Swing worker handel's the receiving and 
+		 * processing of messages from the server. It is always waiting for a new 
+		 * message from the server. Once it processes a new message, it creates the next worker
+		 * worker to continue listening to the server. 
+		 * @throws IOException 
+		 */
+		public UpdateWerker(Socket serverConnection)  {
+			server = serverConnection;
+			try {
+				serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+		@Override
+		protected String doInBackground() throws IOException {
+			String response = serverIn.readLine();
+			return response;
+
+		}
+
+		@Override
+		protected void done()  {
+
+			try {
+				String serverResponse = get();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
+			UpdateWerker listner;
+			listner = new UpdateWerker(server);
+			listner.execute();
+
+		}
+	}
+
 	// ------- MAIN METHOD ---------
 	public static void main(final String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				
+
 				// Initialize the GUI
-				WhiteboardGUI main = new WhiteboardGUI();
-				
-				main.pack();
-				main.setVisible(true);
+				WhiteboardGUI main;
+				try {
+					main = new WhiteboardGUI();
+					main.pack();
+					main.setVisible(true);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
 			}
 		});
 	}
-	
+
 }
