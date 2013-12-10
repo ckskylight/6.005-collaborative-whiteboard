@@ -43,6 +43,7 @@ import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 
 import server.WhiteboardModel;
+
 import ADT.Sketch;
 import ADT.Stroke;
 import GUI.Brush;
@@ -52,8 +53,8 @@ import GUI.GUIConstants;
 import GUI.MenuBar;
 import GUI.Sidebar;
 
-public class WhiteboardGUI extends JFrame {
-
+public class WhiteboardGUI extends JPanel {
+	
 	// ----- OBJECTS TO BE USED IN THE GUI -----
 
 	// Brush
@@ -106,9 +107,6 @@ public class WhiteboardGUI extends JFrame {
 	private final JPanel mainPanel;
 	private final JPanel buttonsPanel;
 	private final JPanel bottomPanel;
-
-	// The tabbed pane that houses all tabs
-	private final JTabbedPane tabbedPane;
 
 
 	// ------- CONSTRUCTOR --------
@@ -197,29 +195,14 @@ public class WhiteboardGUI extends JFrame {
 		bottomPanel.add(saddlebrown);
 		bottomPanel.add(goldenrod);
 
-		tabbedPane = new JTabbedPane();
-
-		JComponent panel1 = new JPanel();
-		tabbedPane.addTab("Tab 1", panel1);
-		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
-
-		JComponent panel2 = new JPanel();
-		tabbedPane.addTab("Tab 2", panel2);
-		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
-
-
-		// Currently working with single tab so add all contents to that tab
-		panel1.setLayout(new BoxLayout(panel1, 1));
-		panel1.add(topPanel);
-		panel1.add(mainPanel);
-		panel1.add(bottomPanel);
-
-		// Add the entire tabbed pane to the jframe
-		this.add(tabbedPane);
-		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-
-		// Add the menu bar
-		this.setJMenuBar(MenuBar.createMenuBar());
+		
+        
+        // Currently working with single tab so add all contents to that tab
+		this.setLayout(new BoxLayout(this, 1));
+		this.add(topPanel);
+		this.add(mainPanel);
+		this.add(bottomPanel);
+		
 	}
 
 	// ------- HELPER METHODS --------
@@ -363,25 +346,6 @@ public class WhiteboardGUI extends JFrame {
 			listner.execute();
 
 		}
-	}
-
-	// ------- MAIN METHOD ---------
-	public static void main(final String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-
-				// Initialize the GUI
-				WhiteboardGUI main;
-				try {
-					main = new WhiteboardGUI();
-					main.pack();
-					main.setVisible(true);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-			}
-		});
 	}
 
 }
