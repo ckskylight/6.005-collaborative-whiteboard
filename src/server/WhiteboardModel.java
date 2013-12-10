@@ -7,14 +7,12 @@ import ADT.Sketch;
 
 public class WhiteboardModel {
 
-	// Implementation note: I changed the ID to an int, it's best practice.
 	private final int boardID;
 	private String boardName;
 	private Sketch drawing;
 	
 	public WhiteboardModel(String boardName, int boardID)  {
 		this.drawing = new Sketch();
-//		this.subscribers = new ArrayList<String>();
 		this.boardID = boardID;
 		this.boardName = boardName;
 	}

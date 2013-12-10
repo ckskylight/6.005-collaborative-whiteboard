@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -26,11 +27,18 @@ public class WhiteboardWindow extends JFrame {
 			public void run() {
 				
 				// Initialize the GUI. Currently has nothing
-				WhiteboardWindow main = new WhiteboardWindow(new WhiteboardGUI[] {new WhiteboardGUI(), new WhiteboardGUI()});
-				main.assembleJFrame();
-				
-				main.pack();
-				main.setVisible(true);
+				WhiteboardWindow main;
+				try {
+					main = new WhiteboardWindow(new WhiteboardGUI[] {new WhiteboardGUI(), new WhiteboardGUI()});
+					main.assembleJFrame();
+					
+					main.pack();
+					main.setVisible(true);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 			}
 		});
 	}
