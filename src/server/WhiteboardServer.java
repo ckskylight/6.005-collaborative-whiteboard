@@ -105,12 +105,14 @@ public class WhiteboardServer {
 	 * @param boardID
 	 * @param drawingJSON
 	 */
-	private synchronized void connectDrawing(int boardID, String drawingJSON) {
+	private void connectDrawing(int boardID, String drawingJSON) {
 		WhiteboardModel board = this.boards.get(boardID);
-		Gson gson = new Gson();
-		Drawing drawObj = gson.fromJson(drawingJSON, Stroke.class);
-		board.connectDrawing(drawObj);
-		updateClientsBoards(boardID);
+		synchronized (board) {
+			Gson gson = new Gson();
+			Drawing drawObj = gson.fromJson(drawingJSON, Stroke.class);
+			board.connectDrawing(drawObj);
+			updateClientsBoards(boardID);
+		}
 	}
 
 	/**
@@ -120,9 +122,12 @@ public class WhiteboardServer {
 	 * @param newName
 	 */
 	private synchronized void changeBoardName(int boardID, String newName) {
-		this.boards.get(boardID).setBoardName(newName);
-		updateClientsBoardList();
-		return;
+		WhiteboardModel board = this.boards.get(boardID);
+		synchronized (board) {
+			this.boards.get(boardID).setBoardName(newName);
+			updateClientsBoardList();
+			return;
+		}
 	}
 
 	/**
@@ -130,7 +135,7 @@ public class WhiteboardServer {
 	 * @param boardID
 	 * @param userID
 	 */
-	private synchronized void joinBoard(int boardID, int userID) {
+	private void joinBoard(int boardID, int userID) {
 		this.boardMembers.get(boardID).add(userID);
 	}
 
@@ -139,7 +144,7 @@ public class WhiteboardServer {
 	 * @param boardID
 	 * @param userID
 	 */
-	private synchronized void leaveBoard(int boardID, int userID) {
+	private void leaveBoard(int boardID, int userID) {
 		this.boardMembers.get(boardID).remove(userID);
 	}
 
@@ -186,13 +191,13 @@ public class WhiteboardServer {
 	 * @param userID
 	 * @param boardName
 	 */
-	private synchronized WhiteboardModel createBoard(int userID, String boardName) {
+	private WhiteboardModel createBoard(int userID, String boardName) {
 		int newBoardID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
 		while (this.boards.containsKey(newBoardID)) {
 			newBoardID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
 		}
 		WhiteboardModel newBoard = new WhiteboardModel(boardName, newBoardID);
-		synchronized(this.boards) { //TODO: this seems unnessersay because you are already using a  courser lock. I say remove courser lock. 
+		synchronized(this.boards) {
 			this.boards.put(newBoardID, newBoard);
 		}
 		synchronized(this.boardMembers) {
@@ -272,7 +277,7 @@ public class WhiteboardServer {
 									this.parentServer.boardMembers.get(boardID).remove(userID);
 								}
 							}
-							
+
 						}
 					}
 				}

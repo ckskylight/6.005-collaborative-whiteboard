@@ -5,6 +5,11 @@ import gson.src.main.java.com.google.gson.Gson;
 import ADT.Drawing;
 import ADT.Sketch;
 
+/**
+ * 
+ * @author Yala
+ *
+ */
 public class WhiteboardModel {
 
 	private final int boardID;
