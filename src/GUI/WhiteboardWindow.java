@@ -1,8 +1,8 @@
 package GUI;
 import gson.src.main.java.com.google.gson.Gson;
+import gson.src.main.java.com.google.gson.GsonBuilder;
+import gson.src.main.java.com.google.gson.InstanceCreator;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -23,66 +23,76 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import ADT.Drawing;
 import ADT.Sketch;
 
+/**
+ * 
+ * @author Yala
+ *
+ */
 public class WhiteboardWindow extends JFrame {
-	
+
 	//Server Elements
 	private final int SERVER_PORT = 4444;
-	private final String host = "127.0.0.1";
 	private final Socket server;
 	private static PrintWriter serverOut;
 	private Gson gson;
+	private Gson sketchgson;
 	private Map<Integer, String> boardNames;
 	private UpdateWerker listner;
-	
-	private static Map<Integer, WhiteboardGUI> whiteboards;
-	// The tabbed pane that houses all tabs
 
+	//Represents the whiteboard the user has joined. 
+	private static Map<Integer, WhiteboardGUI> whiteboards;
+
+	// The tabbed pane that houses all tabs
 	private JTabbedPane tabbedPane;
-	
+
 	// Background image
-	Image backgroundImage = loadImage("src/GUI/images/Background.jpg");
-	
+	Image backgroundImage = loadImage("src/GUI/images/BackgroundResized.jpg");
+
 	// IPanel that has the background image that everything is painted on
 	JPanel mainPanel = new IPanel(backgroundImage);
-	
+
 
 	// Menu bar
 	private final MenuBar menuBar;
-	
+
 	public WhiteboardWindow() throws IOException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		tabbedPane = new JTabbedPane();
 		this.setPreferredSize(GUIConstants.WINDOW_DIMENSIONS);
-		
+
 		//Connect to Server
 		server = new Socket();
 		server.connect(new InetSocketAddress(SERVER_PORT));
+
+		//Get boardList from server and start listening for updates
 		gson = new Gson();
+		sketchgson = new GsonBuilder().registerTypeAdapter(Sketch.class, new SketchInstanceCreator()).create();
 		serverOut = new PrintWriter( server.getOutputStream(), true);
 		serverOut.println("getBoardList");
 		BufferedReader serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
 		String boardListString = serverIn.readLine().substring(6); //TDO: magic number
 		Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
 		listner = new UpdateWerker(server);
-		
+
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
 		this.setBoardList(boardList);
 		listner.execute();
 
 	}
-	
+
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				
+
 				WhiteboardWindow main;
 				try {
 					main = new WhiteboardWindow();
 					main.assembleJFrame();
-					
+
 					main.pack();
 					main.setVisible(true);
 				} catch (IOException e) {
@@ -92,7 +102,7 @@ public class WhiteboardWindow extends JFrame {
 			}
 		});
 	}
-	
+
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
 		try {
@@ -102,27 +112,44 @@ public class WhiteboardWindow extends JFrame {
 		}
 		return image;
 	}
-	
+
+	/**
+	 * This helper sets up the subelements of this GUI.
+	 */
 	private void assembleJFrame() {
 		tabbedPane = new JTabbedPane();
 		for (Integer id : whiteboards.keySet()) {
-	        tabbedPane.addTab(boardNames.get(id), whiteboards.get(id));
+
+	        System.out.println("-----");
+	        System.out.println(id);
+	        System.out.println(boardNames.entrySet().toString());
+	        System.out.println(boardNames.get(Integer.toString(id)));
+	        System.out.println(whiteboards.get(id));
+	        System.out.println("-----");
+	        tabbedPane.addTab(boardNames.get(Integer.toString(id)), whiteboards.get(id));
 		}
-		
+
 		// Add the entire tabbed pane to the jframe
-        mainPanel.add(tabbedPane);
-        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        
-        // Add the menu bar
-        
-        this.add(mainPanel);
-        this.setJMenuBar(menuBar.createMenuBar());
+		mainPanel.add(tabbedPane);
+		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+
+		// Add the menu bar
+
+		this.add(mainPanel);
+		this.setJMenuBar(menuBar.createMenuBar());
 	}
-	
+
+	/**
+	 * Updates the current boardList for the whiteboard window and 
+	 * menubar. 
+	 * 
+	 * @param newBoardList, a list mapping the unique board ID's currently at the server
+	 * and their names.
+	 */
 	public void setBoardList(Map<Integer,String> newBoardList) {
 		this.boardNames = newBoardList;
 		menuBar.setBoardList(boardNames);
-		
+
 	}
 	/**
 	 * Takes in a message from the board, as specified in the Server Protocol,
@@ -130,43 +157,62 @@ public class WhiteboardWindow extends JFrame {
 	 * @param string, message from the server. 
 	 */
 	private void parseServerMessage(String string) {
-		System.out.println("server message is ");
+		if (string == null || string.equals("null"))  
+			return;
+
+		System.out.println("MESSAGE:");
 		System.out.println(string);
 		System.out.println();
-
 		if(string.contains("BOARD "))  {
+			System.out.println("BOARD MESSAGE RECEIVED");
+			System.out.println(string);
 			String boardString = string.substring("BOARD ".length()); //TODO:Magic number
 			String sketchString = boardString.substring(6);
 			int id = Integer.parseInt(boardString.substring(0, 6).trim());
-			Sketch sketch = gson.fromJson(sketchString, Sketch.class);
-			this.whiteboards.get(new Integer(id)).setSketch(sketch);
+			Integer idInteger = new Integer(id);
+			Sketch sketch = sketchgson.fromJson(sketchString, Sketch.class);
+			if(!this.whiteboards.containsKey(idInteger))  {
+				this.whiteboards.put(idInteger, new WhiteboardGUI(serverOut, id));
+			}
+			this.whiteboards.get(idInteger).setSketch(sketch);
+			System.out.println("new map size " + whiteboards.size());
+			System.out.println("RECEIVED SKETCH SIZE " + sketch.getSketchSize());
+			System.out.println(sketchString);
+			for (int boardid : whiteboards.keySet()) {
+				System.out.println(boardNames.get(new Integer(boardid)));
+			}
 			
+			assembleJFrame();
+			this.repaint();
+
 
 		}else  {
 			if(string.contains("BLIST"))  {
+				System.out.println("RECEIVED BLIST");
+				System.out.println(string);
 				String boardListString = string.substring(6); //TODO:Magic number
 				@SuppressWarnings("unchecked")
 				Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
 				this.setBoardList(boardList);
+				
+				assembleJFrame();
+				this.repaint();
 
 			}
 			else  { //In this cases, no  changes are necessary. 
-				if(string.contains("LEAVE"))  {
+				if(string.contains("LEAVE") || string.contains("UPDATE ACK"))  {
 					return;
 				}
+				//This should take care of all cases.
 				else  {
-					if(string.contains("UPDATE ACK"))  {
-						return;
-					} //This should take care of all cases.
-					else  {
-						throw new RuntimeException("Unrecognized Server Message!");
-					}
-					
+					throw new RuntimeException("Unrecognized Server Message: " + string);
 				}
+
 			}
 		}
-		
 	}
+
+
 
 	//
 	public class UpdateWerker  extends SwingWorker<String, String>{
@@ -189,6 +235,11 @@ public class WhiteboardWindow extends JFrame {
 			}
 
 		}
+
+		/**
+		 * The worker blocks and wait for the server's response in background.
+		 * @return server response
+		 */
 		@Override
 		protected String doInBackground() throws IOException {
 			String response = serverIn.readLine();
@@ -196,11 +247,18 @@ public class WhiteboardWindow extends JFrame {
 
 		}
 
+		/**
+		 * Parses and handles server message when done and creates a new 
+		 * UpdateWerker to keep listening for updates. 
+		 */
 		@Override
 		protected void done()  {
 
 			try {
-				parseServerMessage(get());
+				String message = get();
+				if(message != null){
+					parseServerMessage(message);
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (ExecutionException e) {
@@ -212,8 +270,21 @@ public class WhiteboardWindow extends JFrame {
 
 		}
 	}
+
+	/**
+	 * @return instance of whiteboardGUI currently selected by used via tab interface. 
+	 */
 	public WhiteboardGUI getCurrentWhiteboard() {
 		return (WhiteboardGUI) tabbedPane.getSelectedComponent();
+	}
+	
+	class SketchInstanceCreator implements InstanceCreator<Drawing> {
+
+		@Override
+		public Sketch createInstance(java.lang.reflect.Type type) {
+			return new Sketch();
+		}
+		
 	}
 
 }

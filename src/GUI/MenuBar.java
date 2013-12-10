@@ -75,7 +75,7 @@ public class MenuBar {
 		for (Entry<Integer,String> nameEntry : boardNames.entrySet()) {
 			// Make the board name the name of the menu item and the ID its description
 			menuItem = new JMenuItem(nameEntry.getValue());
-			menuItem.getAccessibleContext().setAccessibleDescription(Integer.toString(nameEntry.getKey()));
+			menuItem.getAccessibleContext().setAccessibleDescription(nameEntry.getKey() + "");
 			// Add a listener to each item
 			menuItem.addActionListener(new MenuListener());
 			submenu.add(menuItem);
@@ -87,7 +87,7 @@ public class MenuBar {
 
 	public void setBoardList(Map<Integer,String> newBoardList) {
 		boardNames = newBoardList;
-
+		
 	}
 
 	public void updateCurrentBoardId(int id)  {
@@ -101,31 +101,36 @@ public class MenuBar {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String command = ((JMenuItem) e.getSource()).getText();
+			String serverRequest;
 			if (command.equals("Rename Whiteboard")) {
-				String serverRequest = currentBoardID + " setBoardName ";
+				serverRequest = currentBoardID + " setBoardName ";
 				serverRequest += "customName";
 				out.println(serverRequest);
 			}
 			else if (command.equals("Create new Whiteboard")) {
-				if( out == null)  {
-					System.err.println("PRINT WRITER NULL");
+				serverRequest = "createBoard";
+				serverRequest += " customName";
+				out.println(serverRequest);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
 				}
-				out.println("createBoard");
+				System.out.println(whiteboards.size());
 			}
 			else if (command.equals("About")) {
 
 			}
 			else if (command.equals("Leave Current Whiteboard")) {
-				String serverRequest = currentBoardID + " leaveBoard";
+				serverRequest = currentBoardID + " leaveBoard";
 				out.println(serverRequest);
 			}
 			else /*if a whiteboard name is chosen*/ {
+				System.out.println("JOIN BOARD");
 				int selectedBoardID = Integer.parseInt(((JMenuItem) e.getSource()).getAccessibleContext().getAccessibleDescription());
-				String serverRequest = selectedBoardID + " joinBoard";
-				out.println(serverRequest);
+				serverRequest = selectedBoardID + " joinBoard";
 				whiteboards.put(new Integer(selectedBoardID), new WhiteboardGUI(out, selectedBoardID));
-				assembleJFrame()
-
+				out.println(serverRequest);
 
 			}
 		}

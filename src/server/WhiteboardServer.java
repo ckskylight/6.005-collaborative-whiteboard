@@ -11,11 +11,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import gson.src.main.java.com.google.gson.Gson;
 import ADT.Drawing;
 import ADT.Stroke;
@@ -74,18 +71,19 @@ public class WhiteboardServer {
 		System.out.println("Request recieved...");
 		System.out.println(input);
 		if (input.startsWith("createBoard")) {
-			String boardName = input.substring("createBoard".length() + 1);
+			String boardName = input.substring("createBoard".length() +1 );
 			this.createBoard(userID, boardName);
 			updateClientsBoardList();
 			return "UPDATE ACK";
 		} else if (input.startsWith("getBoardList")) {
 			return "BLIST " + this.getBoardList();
 		} else {
-			int boardID = Integer.parseInt(input.substring(0,  6));
-			input = input.substring(7);
+			int boardID = Integer.parseInt(input.substring(0,  5));
+			input = input.substring(6);
+			System.out.println("INPUT : " +input);
 			if (input.startsWith("joinBoard")) {
 				joinBoard(boardID, userID);
-				return "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
+				return "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
 			} else if (input.startsWith("leaveBoard")) {
 				leaveBoard(boardID, userID);
 				return "LEAVE You left Board #" + Integer.toString(boardID); 
@@ -110,12 +108,14 @@ public class WhiteboardServer {
 	 * @param boardID
 	 * @param drawingJSON
 	 */
-	private synchronized void connectDrawing(int boardID, String drawingJSON) {
-		WhiteboardModel board = this.boards.get(boardID);
-		Gson gson = new Gson();
-		Drawing drawObj = gson.fromJson(drawingJSON, Stroke.class);
-		board.connectDrawing(drawObj);
-		updateClientsBoards(boardID);
+	private void connectDrawing(int boardID, String drawingJSON) {
+		WhiteboardModel board;
+		synchronized (board = this.boards.get(boardID)) {
+			Gson gson = new Gson();
+			Drawing drawObj = gson.fromJson(drawingJSON, Stroke.class);
+			board.connectDrawing(drawObj);
+			updateClientsBoards(boardID);
+		}
 	}
 
 	/**
@@ -124,10 +124,13 @@ public class WhiteboardServer {
 	 * @param boardID
 	 * @param newName
 	 */
-	private synchronized void changeBoardName(int boardID, String newName) {
-		this.boards.get(boardID).setBoardName(newName);
-		updateClientsBoardList();
-		return;
+	private void changeBoardName(int boardID, String newName) {
+		WhiteboardModel board = this.boards.get(boardID);
+		synchronized (board) {
+			this.boards.get(boardID).setBoardName(newName);
+			updateClientsBoardList();
+			return;
+		}
 	}
 
 	/**
@@ -135,7 +138,7 @@ public class WhiteboardServer {
 	 * @param boardID
 	 * @param userID
 	 */
-	private synchronized void joinBoard(int boardID, int userID) {
+	private void joinBoard(int boardID, int userID) {
 		this.boardMembers.get(boardID).add(userID);
 	}
 
@@ -144,7 +147,7 @@ public class WhiteboardServer {
 	 * @param boardID
 	 * @param userID
 	 */
-	private synchronized void leaveBoard(int boardID, int userID) {
+	private void leaveBoard(int boardID, int userID) {
 		this.boardMembers.get(boardID).remove(userID);
 	}
 
@@ -153,9 +156,9 @@ public class WhiteboardServer {
 	 * of the board.
 	 * @param boardID
 	 */
-	private synchronized void updateClientsBoards(int boardID) {
+	private  void updateClientsBoards(int boardID) {
 		List<Integer> clients = this.boardMembers.get(boardID);
-		String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
+		String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
 		for (Integer i : clients) {
 			Socket socket = this.connections.get(i);
 			try{
@@ -171,7 +174,7 @@ public class WhiteboardServer {
 	/**
 	 * Sends an updated version of the boardsName list to all clients connected to the server. 
 	 */
-	private synchronized void updateClientsBoardList() {
+	private  void updateClientsBoardList() {
 		String boardListJSON = "BLIST " + this.getBoardList();
 		for(Integer clientID: connections.keySet())  {
 			Socket client = connections.get(clientID);
@@ -191,13 +194,13 @@ public class WhiteboardServer {
 	 * @param userID
 	 * @param boardName
 	 */
-	private synchronized WhiteboardModel createBoard(int userID, String boardName) {
+	private WhiteboardModel createBoard(int userID, String boardName) {
 		int newBoardID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
 		while (this.boards.containsKey(newBoardID)) {
 			newBoardID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
 		}
 		WhiteboardModel newBoard = new WhiteboardModel(boardName, newBoardID);
-		synchronized(this.boards) { //TODO: this seems unnessersay because you are already using a  courser lock. I say remove courser lock. 
+		synchronized(this.boards) {
 			this.boards.put(newBoardID, newBoard);
 		}
 		synchronized(this.boardMembers) {
@@ -212,7 +215,7 @@ public class WhiteboardServer {
 	 * Returns a string representing a JSON of a map between boardID's and boardName's.
 	 * @return
 	 */
-	private synchronized String getBoardList() { //TODO: Should be sent out whenever names or anything is edited. 
+	private synchronized String getBoardList() {  
 		HashMap<Integer, String> listing = new HashMap<Integer, String>();
 		for (int boardID : this.boards.keySet()) {
 			listing.put(boardID, this.boards.get(boardID).getBoardName());
@@ -260,6 +263,10 @@ public class WhiteboardServer {
 						String output = this.parentServer.handleRequest(line, userID);
 						out.write(output);
 						out.flush();
+						if(line.contains("join"))  {
+							System.out.println("client request: " + line);
+							System.out.println("server response " + output);
+						}
 					} 
 				} finally {
 					out.close();
@@ -269,17 +276,17 @@ public class WhiteboardServer {
 					synchronized(this.parentServer.connections) {
 						this.parentServer.connections.remove(userID);
 					} 
-					// Uglier, gets the userID out of all the boardMembers listings.
-					synchronized(this.parentServer.boardMembers) {
-						Iterator<Entry<Integer, List<Integer>>> boardMembers = this.parentServer.boardMembers.entrySet().iterator();
-						while (boardMembers.hasNext()) {
-							Map.Entry<Integer, List<Integer>> listing = (Map.Entry<Integer, List<Integer>>)boardMembers.next();
-							List<Integer> members = listing.getValue();
-							if (members.contains(userID)) {
-								members.remove(userID);
-							}
-						}
-					}
+					// gets the userID out of all the boardMembers listings.
+//					synchronized(this.parentServer.boardMembers) {
+//						for(Integer boardID: this.parentServer.boardMembers.keySet())  {
+//							for(Integer userID: this.parentServer.boardMembers.get(boardID)) {
+//								if(userID.equals(new Integer(this.userID)))  {
+//									this.parentServer.boardMembers.get(boardID).remove(userID);
+//								}
+//							}
+//
+//						}
+//					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
