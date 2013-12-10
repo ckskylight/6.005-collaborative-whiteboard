@@ -130,13 +130,6 @@ public class WhiteboardWindow extends JFrame {
 	private void assembleJFrame() {
 		tabbedPane = new JTabbedPane();
 		for (Integer id : whiteboards.keySet()) {
-
-	        System.out.println("-----");
-	        System.out.println(id);
-	        System.out.println(boardNames.entrySet().toString());
-	        System.out.println(boardNames.get(Integer.toString(id)));
-	        System.out.println(whiteboards.get(id));
-	        System.out.println("-----");
 	        tabbedPane.addTab(boardNames.get(Integer.toString(id)), whiteboards.get(id));
 		}
 
@@ -184,6 +177,7 @@ public class WhiteboardWindow extends JFrame {
 			Sketch sketch = sketchgson.fromJson(sketchString, Sketch.class);
 			if(!this.whiteboards.containsKey(idInteger))  {
 				this.whiteboards.put(idInteger, new WhiteboardGUI(serverOut, id));
+				assembleJFrame();
 			}
 			this.whiteboards.get(idInteger).setSketch(sketch);
 			System.out.println("new map size " + whiteboards.size());
@@ -192,7 +186,6 @@ public class WhiteboardWindow extends JFrame {
 				System.out.println(boardNames.get(new Integer(boardid)));
 			}
 			
-			assembleJFrame();
 			this.repaint();
 
 
