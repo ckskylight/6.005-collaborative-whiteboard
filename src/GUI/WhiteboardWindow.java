@@ -45,7 +45,7 @@ public class WhiteboardWindow extends JFrame {
 	private JTabbedPane tabbedPane;
 
 	// Background image
-	Image backgroundImage = loadImage("src/GUI/images/Background.jpg");
+	Image backgroundImage = loadImage("src/GUI/images/BackgroundResized.jpg");
 
 	// IPanel that has the background image that everything is painted on
 	JPanel mainPanel = new IPanel(backgroundImage);

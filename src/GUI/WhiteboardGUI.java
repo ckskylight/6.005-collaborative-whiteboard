@@ -185,7 +185,7 @@ public class WhiteboardGUI extends JPanel {
         
         // Currently working with single tab so add all contents to that tab
 		this.setLayout(new BoxLayout(this, 1));
-		this.add(topPanel);
+		//this.add(topPanel);
 		this.add(mainPanel);
 		this.add(bottomPanel);
 		

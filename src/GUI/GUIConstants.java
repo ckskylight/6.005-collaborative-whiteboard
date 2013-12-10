@@ -16,5 +16,5 @@ public class GUIConstants {
 	public static final Color HONEYDEW = Color.decode("#F0FFF0");
 	public static final Color MISTYROSE = Color.decode("#FFE4E1");
 	public static final Map EMPTY_BOARDS = new HashMap<Integer,String>();
-	public static final Dimension WINDOW_DIMENSIONS = new Dimension(850, 735);
+	public static final Dimension WINDOW_DIMENSIONS = new Dimension(850, 750);
 }
