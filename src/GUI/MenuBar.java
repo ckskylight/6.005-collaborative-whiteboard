@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -23,12 +24,14 @@ import javax.swing.KeyStroke;
 
 public class MenuBar {
 	
-	Map<Integer,String> boardList;
+	Map<Integer,String> boardNames;
 	PrintWriter out;
+	Map<Integer,WhiteboardGUI> whiteboards;
 	
-	public MenuBar(Map<Integer,String> boardList, PrintWriter out) {
-		this.boardList = boardList;
+	public MenuBar(Map<Integer,String> boardList, PrintWriter out, Map<Integer,WhiteboardGUI> whiteboards) {
+		this.boardNames = boardList;
 		this.out = out;
+		this.whiteboards = whiteboards;
 	}
 	
 	public JMenuBar createMenuBar() {
@@ -64,23 +67,25 @@ public class MenuBar {
         menuItem.addActionListener(new MenuListener());
         menu.add(menuItem);
         
+        
+        // Loop to list the different whiteboards in the submenu
         submenu = new JMenu("Join Whiteboard");
-        menuItem = new JMenuItem("Whiteboard1");
-        menuItem.addActionListener(new MenuListener());
-        submenu.add(menuItem);
-        menuItem = new JMenuItem("Whiteboard2");
-        menuItem.addActionListener(new MenuListener());
-        submenu.add(menuItem);
-        menuItem = new JMenuItem("Whiteboard3");
-        menuItem.addActionListener(new MenuListener());
-        submenu.add(menuItem);
+        for (Entry<Integer,String> nameEntry : boardNames.entrySet()) {
+        	// Make the board name the name of the menu item and the ID its description
+        	menuItem = new JMenuItem(nameEntry.getValue());
+        	menuItem.getAccessibleContext().setAccessibleDescription(Integer.toString(nameEntry.getKey()));
+        	// Add a listener to each item
+        	menuItem.addActionListener(new MenuListener());
+        	submenu.add(menuItem);
+        }
         menu.add(submenu);
 
         return menuBar;
     }
 	
 	public void setBoardList(Map<Integer,String> newBoardList) {
-		boardList = newBoardList;
+		boardNames = newBoardList;
+		
 	}
 	
 }
