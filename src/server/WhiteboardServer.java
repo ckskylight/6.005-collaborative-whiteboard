@@ -72,7 +72,7 @@ public class WhiteboardServer {
 		System.out.println("Request recieved...");
 		System.out.println(input);
 		if (input.startsWith("createBoard")) {
-			String boardName = input.substring("createBoard".length() + 1);
+			String boardName = input.substring("createBoard".length() +1 );
 			this.createBoard(userID, boardName);
 			updateClientsBoardList();
 			return "UPDATE ACK";
@@ -269,13 +269,13 @@ public class WhiteboardServer {
 					} 
 					// Uglier, gets the userID out of all the boardMembers listings.
 					synchronized(this.parentServer.boardMembers) {
-						Iterator<Entry<Integer, List<Integer>>> boardMembers = this.parentServer.boardMembers.entrySet().iterator();
-						while (boardMembers.hasNext()) {
-							Map.Entry<Integer, List<Integer>> listing = (Map.Entry<Integer, List<Integer>>)boardMembers.next();
-							List<Integer> members = listing.getValue();
-							if (members.contains(userID)) {
-								members.remove(userID);
+						for(Integer boardID: this.parentServer.boardMembers.keySet())  {
+							for(Integer userID: this.parentServer.boardMembers.get(boardID)) {
+								if(userID.equals(new Integer(this.userID)))  {
+									this.parentServer.boardMembers.get(boardID).remove(userID);
+								}
 							}
+							
 						}
 					}
 				}

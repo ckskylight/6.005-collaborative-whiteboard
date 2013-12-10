@@ -130,17 +130,20 @@ public class WhiteboardWindow extends JFrame {
 	 * @param string, message from the server. 
 	 */
 	private void parseServerMessage(String string) {
-		System.out.println("server message is ");
-		System.out.println(string);
-		System.out.println();
-
+		if (string == null)  {
+			return;
+		}
 		if(string.contains("BOARD "))  {
 			String boardString = string.substring("BOARD ".length()); //TODO:Magic number
 			String sketchString = boardString.substring(6);
 			int id = Integer.parseInt(boardString.substring(0, 6).trim());
+			Integer idInteger = new Integer(id);
 			Sketch sketch = gson.fromJson(sketchString, Sketch.class);
-			this.whiteboards.get(new Integer(id)).setSketch(sketch);
-			
+			if(!this.whiteboards.containsKey(idInteger))  {
+				this.whiteboards.put(idInteger, new WhiteboardGUI(serverOut, id));
+			}
+			this.whiteboards.get(idInteger).setSketch(sketch);
+
 
 		}else  {
 			if(string.contains("BLIST"))  {
