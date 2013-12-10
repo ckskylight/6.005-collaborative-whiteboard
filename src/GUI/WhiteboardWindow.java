@@ -2,6 +2,10 @@ package GUI;
 import gson.src.main.java.com.google.gson.Gson;
 import gson.src.main.java.com.google.gson.GsonBuilder;
 import gson.src.main.java.com.google.gson.InstanceCreator;
+import gson.src.main.java.com.google.gson.JsonDeserializationContext;
+import gson.src.main.java.com.google.gson.JsonDeserializer;
+import gson.src.main.java.com.google.gson.JsonElement;
+import gson.src.main.java.com.google.gson.JsonParseException;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -69,7 +73,7 @@ public class WhiteboardWindow extends JFrame {
 
 		//Get boardList from server and start listening for updates
 		gson = new Gson();
-		sketchgson = new GsonBuilder().registerTypeAdapter(Sketch.class, new SketchInstanceCreator()).create();
+		sketchgson = new GsonBuilder().registerTypeAdapter(Sketch.class, new SketchDeserializer()).create();
 		serverOut = new PrintWriter( server.getOutputStream(), true);
 		serverOut.println("getBoardList");
 		BufferedReader serverIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
@@ -278,10 +282,12 @@ public class WhiteboardWindow extends JFrame {
 		return (WhiteboardGUI) tabbedPane.getSelectedComponent();
 	}
 	
-	class SketchInstanceCreator implements InstanceCreator<Drawing> {
+	class SketchDeserializer implements JsonDeserializer<Sketch> {
 
 		@Override
-		public Sketch createInstance(java.lang.reflect.Type type) {
+		public Sketch deserialize(JsonElement json,
+				java.lang.reflect.Type typeOfT,
+				JsonDeserializationContext context) throws JsonParseException {
 			return new Sketch();
 		}
 		

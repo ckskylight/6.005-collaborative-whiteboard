@@ -23,5 +23,4 @@ public interface Drawing {
 	 **/ 
 	public Image getImage(Image background);
 
-	public String getJSON();
 }

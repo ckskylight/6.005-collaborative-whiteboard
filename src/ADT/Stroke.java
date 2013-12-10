@@ -104,10 +104,6 @@ public class Stroke implements Drawing {
 		return color.hashCode() + startPoint.hashCode() + endPoint.hashCode() + (int) thickness;
 	}
 	
-	@Override
-	public String getJSON() {
-		Gson gson = new Gson();
-		return gson.toJson(this) ;
-	}
+
 }
 
