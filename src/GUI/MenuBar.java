@@ -124,6 +124,7 @@ public class MenuBar {
 				String serverRequest = selectedBoardID + " joinBoard";
 				out.println(serverRequest);
 				whiteboards.put(new Integer(selectedBoardID), new WhiteboardGUI(out, selectedBoardID));
+				assembleJFrame()
 
 
 			}
