@@ -36,7 +36,7 @@ public class WhiteboardWindow extends JFrame {
 	
 
 	// Menu bar
-	private final MenuBar menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut);
+	private final MenuBar menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
 	
 	public WhiteboardWindow() throws IOException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
