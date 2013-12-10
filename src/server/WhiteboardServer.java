@@ -76,7 +76,7 @@ public class WhiteboardServer {
 		} else if (input.startsWith("getBoardList")) {
 			return "BLIST " + this.getBoardList();
 		} else {
-			int boardID = Integer.parseInt(input.substring(0,  6));
+			int boardID = Integer.parseInt(input.substring(0,  5));
 			input = input.substring(7);
 			if (input.startsWith("joinBoard")) {
 				joinBoard(boardID, userID);
@@ -106,8 +106,8 @@ public class WhiteboardServer {
 	 * @param drawingJSON
 	 */
 	private void connectDrawing(int boardID, String drawingJSON) {
-		WhiteboardModel board = this.boards.get(boardID);
-		synchronized (board) {
+		WhiteboardModel board;
+		synchronized (board = this.boards.get(boardID)) {
 			Gson gson = new Gson();
 			Drawing drawObj = gson.fromJson(drawingJSON, Stroke.class);
 			board.connectDrawing(drawObj);
@@ -121,7 +121,7 @@ public class WhiteboardServer {
 	 * @param boardID
 	 * @param newName
 	 */
-	private synchronized void changeBoardName(int boardID, String newName) {
+	private void changeBoardName(int boardID, String newName) {
 		WhiteboardModel board = this.boards.get(boardID);
 		synchronized (board) {
 			this.boards.get(boardID).setBoardName(newName);
@@ -153,7 +153,7 @@ public class WhiteboardServer {
 	 * of the board.
 	 * @param boardID
 	 */
-	private synchronized void updateClientsBoards(int boardID) {
+	private  void updateClientsBoards(int boardID) {
 		List<Integer> clients = this.boardMembers.get(boardID);
 		String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getJSON();
 		for (Integer i : clients) {
@@ -171,7 +171,7 @@ public class WhiteboardServer {
 	/**
 	 * Sends an updated version of the boardsName list to all clients connected to the server. 
 	 */
-	private synchronized void updateClientsBoardList() {
+	private  void updateClientsBoardList() {
 		String boardListJSON = "BLIST " + this.getBoardList();
 		for(Integer clientID: connections.keySet())  {
 			Socket client = connections.get(clientID);
@@ -212,7 +212,7 @@ public class WhiteboardServer {
 	 * Returns a string representing a JSON of a map between boardID's and boardName's.
 	 * @return
 	 */
-	private synchronized String getBoardList() { //TODO: Should be sent out whenever names or anything is edited. 
+	private synchronized String getBoardList() {  
 		HashMap<Integer, String> listing = new HashMap<Integer, String>();
 		for (int boardID : this.boards.keySet()) {
 			listing.put(boardID, this.boards.get(boardID).getBoardName());
@@ -269,17 +269,17 @@ public class WhiteboardServer {
 					synchronized(this.parentServer.connections) {
 						this.parentServer.connections.remove(userID);
 					} 
-					// Uglier, gets the userID out of all the boardMembers listings.
-					synchronized(this.parentServer.boardMembers) {
-						for(Integer boardID: this.parentServer.boardMembers.keySet())  {
-							for(Integer userID: this.parentServer.boardMembers.get(boardID)) {
-								if(userID.equals(new Integer(this.userID)))  {
-									this.parentServer.boardMembers.get(boardID).remove(userID);
-								}
-							}
-
-						}
-					}
+					// gets the userID out of all the boardMembers listings.
+//					synchronized(this.parentServer.boardMembers) {
+//						for(Integer boardID: this.parentServer.boardMembers.keySet())  {
+//							for(Integer userID: this.parentServer.boardMembers.get(boardID)) {
+//								if(userID.equals(new Integer(this.userID)))  {
+//									this.parentServer.boardMembers.get(boardID).remove(userID);
+//								}
+//							}
+//
+//						}
+//					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

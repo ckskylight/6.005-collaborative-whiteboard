@@ -29,7 +29,7 @@ import ADT.Sketch;
  *
  */
 public class WhiteboardWindow extends JFrame {
-	
+
 	//Server Elements
 	private final int SERVER_PORT = 4444;
 	private final Socket server;
@@ -37,32 +37,32 @@ public class WhiteboardWindow extends JFrame {
 	private Gson gson;
 	private Map<Integer, String> boardNames;
 	private UpdateWerker listner;
-	
+
 	//Represents the whiteboard the user has joined. 
 	private static Map<Integer, WhiteboardGUI> whiteboards;
 
 	// The tabbed pane that houses all tabs
 	private JTabbedPane tabbedPane;
-	
+
 	// Background image
 	Image backgroundImage = loadImage("src/GUI/images/Background.jpg");
-	
+
 	// IPanel that has the background image that everything is painted on
 	JPanel mainPanel = new IPanel(backgroundImage);
-	
+
 
 	// Menu bar
 	private final MenuBar menuBar;
-	
+
 	public WhiteboardWindow() throws IOException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		tabbedPane = new JTabbedPane();
 		this.setPreferredSize(GUIConstants.WINDOW_DIMENSIONS);
-		
+
 		//Connect to Server
 		server = new Socket();
 		server.connect(new InetSocketAddress(SERVER_PORT));
-		
+
 		//Get boardList from server and start listening for updates
 		gson = new Gson();
 		serverOut = new PrintWriter( server.getOutputStream(), true);
@@ -71,23 +71,23 @@ public class WhiteboardWindow extends JFrame {
 		String boardListString = serverIn.readLine().substring(6); //TDO: magic number
 		Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
 		listner = new UpdateWerker(server);
-		
+
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
 		this.setBoardList(boardList);
 		listner.execute();
 
 	}
-	
+
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				
+
 				WhiteboardWindow main;
 				try {
 					main = new WhiteboardWindow();
 					main.assembleJFrame();
-					
+
 					main.pack();
 					main.setVisible(true);
 				} catch (IOException e) {
@@ -97,7 +97,7 @@ public class WhiteboardWindow extends JFrame {
 			}
 		});
 	}
-	
+
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
 		try {
@@ -107,26 +107,26 @@ public class WhiteboardWindow extends JFrame {
 		}
 		return image;
 	}
-	
+
 	/**
 	 * This helper sets up the subelements of this GUI.
 	 */
 	private void assembleJFrame() {
 		tabbedPane = new JTabbedPane();
 		for (Integer id : whiteboards.keySet()) {
-	        tabbedPane.addTab(boardNames.get(id), whiteboards.get(id));
+			tabbedPane.addTab(boardNames.get(id), whiteboards.get(id));
 		}
-		
+
 		// Add the entire tabbed pane to the jframe
-        mainPanel.add(tabbedPane);
-        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        
-        // Add the menu bar
-        
-        this.add(mainPanel);
-        this.setJMenuBar(menuBar.createMenuBar());
+		mainPanel.add(tabbedPane);
+		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+
+		// Add the menu bar
+
+		this.add(mainPanel);
+		this.setJMenuBar(menuBar.createMenuBar());
 	}
-	
+
 	/**
 	 * Updates the current boardList for the whiteboard window and 
 	 * menubar. 
@@ -137,7 +137,7 @@ public class WhiteboardWindow extends JFrame {
 	public void setBoardList(Map<Integer,String> newBoardList) {
 		this.boardNames = newBoardList;
 		menuBar.setBoardList(boardNames);
-		
+
 	}
 	/**
 	 * Takes in a message from the board, as specified in the Server Protocol,
@@ -145,9 +145,12 @@ public class WhiteboardWindow extends JFrame {
 	 * @param string, message from the server. 
 	 */
 	private void parseServerMessage(String string) {
-		if (string == null)  {
+		if (string == null || string.equals("null"))  
 			return;
-		}
+
+		System.out.println("MESSAGE:");
+		System.out.println(string);
+		System.out.println();
 		if(string.contains("BOARD "))  {
 			System.out.println("BOARD MESSAGE RECEIVED");
 			String boardString = string.substring("BOARD ".length()); //TODO:Magic number
@@ -173,22 +176,19 @@ public class WhiteboardWindow extends JFrame {
 
 			}
 			else  { //In this cases, no  changes are necessary. 
-				if(string.contains("LEAVE"))  {
+				if(string.contains("LEAVE") || string.contains("UPDATE ACK"))  {
 					return;
 				}
+				//This should take care of all cases.
 				else  {
-					if(string.contains("UPDATE ACK"))  {
-						return;
-					} //This should take care of all cases.
-					else  {
-						throw new RuntimeException("Unrecognized Server Message!");
-					}
-					
+					throw new RuntimeException("Unrecognized Server Message: " + string);
 				}
+
 			}
 		}
-		
 	}
+
+
 
 	//
 	public class UpdateWerker  extends SwingWorker<String, String>{
@@ -211,7 +211,7 @@ public class WhiteboardWindow extends JFrame {
 			}
 
 		}
-		
+
 		/**
 		 * The worker blocks and wait for the server's response in background.
 		 * @return server response
@@ -231,7 +231,10 @@ public class WhiteboardWindow extends JFrame {
 		protected void done()  {
 
 			try {
-				parseServerMessage(get());
+				String message = get();
+				if(message != null){
+					parseServerMessage(message);
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (ExecutionException e) {
@@ -243,7 +246,7 @@ public class WhiteboardWindow extends JFrame {
 
 		}
 	}
-	
+
 	/**
 	 * @return instance of whiteboardGUI currently selected by used via tab interface. 
 	 */
