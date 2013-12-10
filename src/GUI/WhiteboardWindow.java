@@ -2,12 +2,17 @@ package GUI;
 import gson.src.main.java.com.google.gson.Gson;
 import gson.src.main.java.com.google.gson.GsonBuilder;
 import gson.src.main.java.com.google.gson.InstanceCreator;
+import gson.src.main.java.com.google.gson.JsonArray;
 import gson.src.main.java.com.google.gson.JsonDeserializationContext;
 import gson.src.main.java.com.google.gson.JsonDeserializer;
 import gson.src.main.java.com.google.gson.JsonElement;
+import gson.src.main.java.com.google.gson.JsonObject;
 import gson.src.main.java.com.google.gson.JsonParseException;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -31,6 +37,7 @@ import javax.swing.SwingWorker;
 
 import ADT.Drawing;
 import ADT.Sketch;
+import ADT.Stroke;
 
 /**
  * 
@@ -134,13 +141,6 @@ public class WhiteboardWindow extends JFrame {
 	private void assembleJFrame() {
 		tabbedPane = new JTabbedPane();
 		for (Integer id : whiteboards.keySet()) {
-
-	        System.out.println("-----");
-	        System.out.println(id);
-	        System.out.println(boardNames.entrySet().toString());
-	        System.out.println(boardNames.get(Integer.toString(id)));
-	        System.out.println(whiteboards.get(id));
-	        System.out.println("-----");
 	        tabbedPane.addTab(boardNames.get(Integer.toString(id)), whiteboards.get(id));
 		}
 
@@ -188,16 +188,15 @@ public class WhiteboardWindow extends JFrame {
 			Sketch sketch = sketchgson.fromJson(sketchString, Sketch.class);
 			if(!this.whiteboards.containsKey(idInteger))  {
 				this.whiteboards.put(idInteger, new WhiteboardGUI(serverOut, id));
+				assembleJFrame();
 			}
 			this.whiteboards.get(idInteger).setSketch(sketch);
 			System.out.println("new map size " + whiteboards.size());
-			System.out.println("RECEIVED SKETCH SIZE " + sketch.getSketchSize());
 			System.out.println(sketchString);
 			for (int boardid : whiteboards.keySet()) {
 				System.out.println(boardNames.get(new Integer(boardid)));
 			}
 			
-			assembleJFrame();
 			this.repaint();
 
 
@@ -296,7 +295,23 @@ public class WhiteboardWindow extends JFrame {
 		public Sketch deserialize(JsonElement json,
 				java.lang.reflect.Type typeOfT,
 				JsonDeserializationContext context) throws JsonParseException {
-			return new Sketch();
+			ArrayList<Drawing> strokeArray = new ArrayList<Drawing>();
+			
+
+			JsonObject object = (JsonObject) json;
+			JsonArray sketchArray = object.getAsJsonArray("sketch");
+			for (JsonElement stroke : sketchArray) {
+				JsonObject strokeObject = (JsonObject) stroke;
+				Color color = gson.fromJson(strokeObject.get("color"), Color.class);
+				int thickness = strokeObject.get("thickness").getAsInt();
+				Point startPoint = gson.fromJson(strokeObject.get("startPoint"), Point.class);
+				Point endPoint = gson.fromJson(strokeObject.get("endPoint"), Point.class);
+				System.err.println(startPoint.toString());
+				System.err.println(endPoint.toString());
+				strokeArray.add(new Stroke(startPoint, endPoint, color, thickness));
+			}
+			//ArrayList<Drawing> sketchList = gson.fromJson(object.get("sketch"), ArrayList.class);
+			return new Sketch(strokeArray);
 		}
 		
 	}
