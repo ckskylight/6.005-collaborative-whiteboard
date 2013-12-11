@@ -61,7 +61,6 @@ public class ColorSquare extends JComponent implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		System.out.println("setting color");
 		brush.setColor(color);
 	}
 

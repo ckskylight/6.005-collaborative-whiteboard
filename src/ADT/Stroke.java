@@ -18,13 +18,12 @@ import java.awt.Point;
  * Thickness must be >= 1
  * 
  * Thread Safety Argument:
- * Since this class is only mutated from a single thread, (server when clear is called)
- * this class is thread-safe. 
+ * Since this class is immutable, it is thread-safe. 
  *
  */
 public class Stroke implements Drawing {
 
-	private Color color;
+	private final Color color;
 	private final float thickness;
 	private final Point startPoint;
 	private final Point endPoint;
@@ -39,16 +38,6 @@ public class Stroke implements Drawing {
 		this.endPoint = endPoint;
 		this.color = c;
 		this.thickness = pixels;
-	}
-
-	/**
-	 * Erases all drawings from the Whiteboard. 
-	 * This is done by the setting the color of the stroke to be
-	 * Transparent. 
-	 */
-	public void clear()  {
-		this.color = new Color(0,0,0,0); //Sets the color to be transparent. 
-
 	}
 
 

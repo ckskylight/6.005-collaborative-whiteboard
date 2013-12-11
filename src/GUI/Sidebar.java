@@ -38,7 +38,6 @@ public class Sidebar {
 	public void inactivateExcept(String currentButtonAction) {
 		for (CustomButton button : buttons) {
 			if (button.getAction() != currentButtonAction) {
-				System.out.println("deactivating " + button.getAction());
 				button.setStatus(false);
 			}
 		}
