@@ -94,7 +94,7 @@ public class WhiteboardServer {
 				joinBoard(boardID, userID);
 				clientWriter.put(  "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON());
 			} else if (input.startsWith("leaveBoard")) {
-				clientWriter.put("LEAVE");
+				clientWriter.put("LEAVE "+ boardID);
 				leaveBoard(boardID, userID);
 			} else if (input.startsWith("addDrawing")) {
 				String drawingJSON = input.substring("addDrawing".length() + 1);

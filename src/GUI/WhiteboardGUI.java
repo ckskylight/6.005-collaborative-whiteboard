@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -32,6 +33,11 @@ import GUI.Sidebar;
 public class WhiteboardGUI extends JPanel {
 	
 	// ----- OBJECTS TO BE USED IN THE GUI -----
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 193838065573701861L;
 
 	// Brush
 	Brush brush = new Brush();
@@ -62,12 +68,14 @@ public class WhiteboardGUI extends JPanel {
 	// Bottom panel labels
 	private JLabel weightLabel = new JLabel("Weight:");
 	// Stroke weight picker
+	@SuppressWarnings("rawtypes")
 	private final JComboBox weightDropdown;
 
 	// Main canvas
 	private final Canvas canvas;
 
 	// JPanels
+	@SuppressWarnings("unused")
 	private final JPanel topPanel;
 	private final JPanel mainPanel;
 	private final JPanel buttonsPanel;
@@ -80,7 +88,7 @@ public class WhiteboardGUI extends JPanel {
 	private final int id;
 
 	// ------- CONSTRUCTOR --------
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 
 	public WhiteboardGUI(PrintWriter out, int id) {
 		this.out = out;
@@ -233,6 +241,7 @@ public class WhiteboardGUI extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			@SuppressWarnings("rawtypes")
 			float newThickness = Float.parseFloat((String)((JComboBox) e.getSource()).getSelectedItem());
 			brush.setThickness(newThickness);
 		}

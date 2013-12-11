@@ -208,60 +208,40 @@ public class WhiteboardWindow extends JFrame {
 
 		if (string == null || string.equals("null")) // Skip invalid messages.
 			return;
-		if (string.equals("LEAVE")) {
+		if (string.contains ("LEAVE")) {
+			String idString = string.substring("LEAVE ".length());
+			int id = Integer.parseInt(idString); // IDs are 5 digits long
+			whiteboards.remove(id);
 			assembleJFrame();
-		} else if (string.contains("BOARD ")) { // Indicates server sent a
-												// Sketch representing a
-												// whiteboard.
-
+		} else if (string.contains("BOARD ")) { // Indicates server sent a Sketch representing a whiteboard.
 			String boardString = string.substring("BOARD ".length());
-			int id = Integer.parseInt(boardString.substring(0, 6).trim()); // IDs
-																			// are
-																			// 5
-																			// digits
-																			// long
+			int id = Integer.parseInt(boardString.substring(0, 6).trim()); // IDs are 5 digits long
 			Integer idInteger = new Integer(id);
-			String sketchString = boardString.substring(6); // 6 is used to get
-															// past the ID in
-															// the string.
-			Sketch sketch = sketchgson.fromJson(sketchString, Sketch.class); // Convert
-																				// the
-																				// string
-																				// to
-																				// a
-																				// sketch
+			String sketchString = boardString.substring(6); // 6 is used to get past the ID in the string.
+			Sketch sketch = sketchgson.fromJson(sketchString, Sketch.class); // Convert the string to a sketch
 
 			if (!this.whiteboards.containsKey(idInteger)) {
 				this.whiteboards.put(idInteger,
 						new WhiteboardGUI(serverOut, id));
 			}
-			this.whiteboards.get(idInteger).setSketch(sketch); // update sketch
-																// of whiteboard
+			this.whiteboards.get(idInteger).setSketch(sketch); // update sketch of a whiteboard
 			assembleJFrame(); // Update tabs
 
-		} else if (string.contains("MSG ")) { // Indicates server sent an update
-												// in the form of a Stroke or a
-												// clear message
+		} else if (string.contains("MSG ")) { // Indicates server sent an update in the form of a Stroke or a clear message
+
 			String updateString = string.substring("MSG ".length());
-			int id = Integer.parseInt(updateString.substring(0, 6).trim()); // IDs
-																			// are
-																			// 5
-																			// digits
-																			// longs
+			int id = Integer.parseInt(updateString.substring(0, 6).trim()); // IDs are 5 digits long
 			Integer idInteger = new Integer(id);
 
 			if (string.contains("clearBoard")) { // Server sent a clear message
 				this.whiteboards.get(idInteger).clear();
-			} else { // Server sent a Stroke update message (Free hand drawing
-						// and erasing)
+			} else { // Server sent a Stroke update message (Free hand drawing and erasing)
 				String sketchString = updateString.substring(6);
 				Stroke stroke = gson.fromJson(sketchString, Stroke.class);
 				this.whiteboards.get(idInteger).connectStroke(stroke);
 			}
 
-		} else if (string.contains("BLIST ")) {// Indicates server sent a an
-												// updated Boards List (<ID,
-												// Name>)
+		} else if (string.contains("BLIST ")) {// Indicates server sent a an updated Boards List (<ID,Name>)
 			String boardListString = string.substring("BLIST ".length());
 			@SuppressWarnings("unchecked")
 			Map<Integer, String> boardList = gson.fromJson(boardListString,

@@ -12,8 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.PrintWriter;
-import java.util.Map;
-
 import javax.swing.JPanel;
 
 import ADT.Sketch;
