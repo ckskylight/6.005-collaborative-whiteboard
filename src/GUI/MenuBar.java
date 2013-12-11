@@ -17,6 +17,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
@@ -30,10 +31,11 @@ public class MenuBar {
 	Map<Integer,WhiteboardGUI> whiteboards;
 	int currentBoardID;
 
-	public MenuBar(Map<Integer,String> boardList, PrintWriter out, Map<Integer,WhiteboardGUI> whiteboards) {
+	public MenuBar(Map<Integer,String> boardList, PrintWriter out, Map<Integer,WhiteboardGUI> whiteboards, int currentBoardID) {
 		this.boardNames = boardList;
 		this.out = out;
 		this.whiteboards = whiteboards;
+		this.currentBoardID = currentBoardID;
 	}
 
 	public JMenuBar createMenuBar() {
@@ -103,19 +105,17 @@ public class MenuBar {
 			String command = ((JMenuItem) e.getSource()).getText();
 			String serverRequest;
 			if (command.equals("Rename Whiteboard")) {
+				String newName = JOptionPane.showInputDialog("Enter a new name");
 				serverRequest = currentBoardID + " setBoardName ";
-				serverRequest += "customName";
+				serverRequest += newName; 
+				System.out.println("REQUEST: " + serverRequest);
 				out.println(serverRequest);
 			}
 			else if (command.equals("Create new Whiteboard")) {
+				String boardName = JOptionPane.showInputDialog("Enter a whiteboard name");
 				serverRequest = "createBoard";
-				serverRequest += " customName";
+				serverRequest += " " + boardName;
 				out.println(serverRequest);
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
 			}
 			else if (command.equals("About")) {
 

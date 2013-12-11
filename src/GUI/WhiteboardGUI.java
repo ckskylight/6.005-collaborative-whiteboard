@@ -200,6 +200,10 @@ public class WhiteboardGUI extends JPanel {
 		canvas.clear();
 		repaint();
 	}
+	
+	public int getID() {
+		return id;
+	}
 
 
 	// ------- BRUSH CONTROLS -------
