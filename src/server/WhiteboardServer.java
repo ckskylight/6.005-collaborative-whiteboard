@@ -49,6 +49,10 @@ public class WhiteboardServer {
 	private Map<Integer, List<Integer>> boardMembers;
 	private ServerSocket serverSocket;
 
+	/**
+	 * Initializes the server at the specified port. 
+	 * @throws IOException
+	 */
 	public WhiteboardServer(int port) throws IOException {
 		this.boards = Collections.synchronizedMap(new HashMap<Integer, WhiteboardModel>());
 		this.connections = Collections.synchronizedMap(new HashMap<Integer, Socket>());
@@ -58,17 +62,25 @@ public class WhiteboardServer {
 		this.writerRunnables = Collections.synchronizedMap(new HashMap<Integer, Writer>());
 	}
 
+	/**
+	 * Accepts a client, and spawns a new Thread to read and a new Thread to write to the client
+	 * Each user receives a unique user ID and is recorded in the list of connections,
+	 * and read and write runnables. 
+	 * @throws IOException
+	 */
 	public void serve() throws IOException {
 		while(true) {
 			Socket socket = serverSocket.accept();
+			//Obtain unique user ID
 			int userID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
 			while (this.connections.containsKey(userID)) {
 				userID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
 			}
+			//Spawn new threads to read and write to/from this client
 			Thread newListner = new Thread(new Listner(socket, this, userID));
 			Writer writer = new Writer(socket);
 			Thread newWriter = new Thread( writer);
-			synchronized(this.connections) {
+			synchronized(this.connections) { //Update maps
 				this.connections.put(userID, socket);
 				readThreads.put(userID, newListner);
 				writerRunnables.put(userID, writer);
@@ -79,35 +91,44 @@ public class WhiteboardServer {
 		}
 	}
 
+	/**
+	 * Handles requests from a client (with userID) as specified
+	 * by the Protocol. For a more explicit description of the protocol, 
+	 * please see Design Doc. 
+	 * If appropriate, the server prompts a writing thread to return a message
+	 * to the client. 
+	 * @param input, User request
+	 * @param userID, ID of User.
+	 */
 	private void handleRequest(String input, int userID) {
-		Writer clientWriter = writerRunnables.get(userID);
-		if (input.startsWith("createBoard")) {
+		Writer clientWriter = writerRunnables.get(userID); //Gets writer for this client
+		if (input.startsWith("createBoard")) { //creatBoard Message
 			String boardName = input.substring("createBoard".length() +1 );
 			this.createBoard(userID, boardName);
-			updateClientsBoardList();
-		} else if (input.startsWith("getBoardList")) {
-			clientWriter.put( "BLIST " + this.getBoardList());
-		} else {
-			int boardID = Integer.parseInt(input.substring(0,  5));
+			updateClientsBoardList(); //Sends everyone a updated boardList
+		} else if (input.startsWith("getBoardList")) {//Get board list message
+			clientWriter.put( "BLIST " + this.getBoardList());//Sends client current boardList	
+		} else { //This is some sort of message beginning with a boardID
+			int boardID = Integer.parseInt(input.substring(0,  5));  //Parse boardID
 			input = input.substring(6);
-			if (input.startsWith("joinBoard")) {
+			if (input.startsWith("joinBoard")) { //joinBoard Message
 				joinBoard(boardID, userID);
+				//Sends server a current copy of the board's sketch
 				clientWriter.put(  "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON());
-			} else if (input.startsWith("leaveBoard")) {
-				clientWriter.put("LEAVE "+ boardID);
+			} else if (input.startsWith("leaveBoard")) { //Leave message
 				leaveBoard(boardID, userID);
-			} else if (input.startsWith("addDrawing")) {
-				String drawingJSON = input.substring("addDrawing".length() + 1);
-				connectDrawing(boardID, drawingJSON);
-				updateClientsBoards(boardID, drawingJSON);
-			} else if (input.startsWith("setBoardName")) {
+				clientWriter.put("LEAVE "+ boardID); //Sends user confirmation that they left
+			} else if (input.startsWith("addDrawing")) {//addDrawing message
+				String drawingJSON = input.substring("addDrawing".length() + 1); 
+				connectDrawing(boardID, drawingJSON);//Update internal model with drawing
+				updateClientsBoards(boardID, drawingJSON);//Send all subscribed clients to this board the same update			
+			} else if (input.startsWith("setBoardName")) {//setBoardName message
 				String newName = input.substring("setBoardName".length() + 1);
-				changeBoardName(boardID, newName);
-				updateClientsBoardList();
-			} else if(input.startsWith("clearBoard"))  {
-				boards.get(boardID).clear();
-				updateClientsBoards(boardID, "clearBoard");
-
+				changeBoardName(boardID, newName); //Updates board name
+				updateClientsBoardList(); //Sends updated board list to all users
+			} else if(input.startsWith("clearBoard"))  { //clearBoard message
+				boards.get(boardID).clear(); //Clears server's master copy of board
+				updateClientsBoards(boardID, "clearBoard");//Sends message to all subsrbied clients to clear board. 
 			}
 			else {
 				clientWriter.put( "ERROR"); // invalid request, this should cover all of 'em.
@@ -118,8 +139,7 @@ public class WhiteboardServer {
 
 
 	/**
-	 * Takes a board id and the JSON for a Stroke object to add to it, and adds it on.
-	 * Also updates all members of the board, so that it doesn't have to be done elsewhere.
+	 * Takes a board id and the JSON for a Stroke object to add to it. Updates Sketch of board.
 	 * @param boardID
 	 * @param drawingJSON
 	 */
@@ -143,7 +163,6 @@ public class WhiteboardServer {
 		synchronized (board) {
 			this.boards.get(boardID).setBoardName(newName);
 			updateClientsBoardList();
-			return;
 		}
 	}
 
@@ -168,6 +187,7 @@ public class WhiteboardServer {
 	/**
 	 * Given a board ID, sends the most current JSON of the board's state to each member
 	 * of the board.
+	 * This is done through placing the message on each clients respective BlockingQueue.
 	 * @param boardID
 	 */
 	private  void updateClientsBoards(int boardID) {
@@ -175,27 +195,32 @@ public class WhiteboardServer {
 		String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
 		for (Integer clientID : clients) {
 			Writer client = this.writerRunnables.get(clientID);
-			client.put(boardState);
+			client.put(boardState); //Puts message on blocking queue for each writer thread. 
 		}
 	}
-	
+
+	/**
+	 * Given a board ID, sends the specified message to each member of the board.
+	 * This is done through placing the message on each clients respective BlockingQueue.
+	 */
 	private void updateClientsBoards(int boardID, String message) {
 		List<Integer> clients = this.boardMembers.get(boardID);
 		String msg = "MSG " + Integer.toString(boardID) + " " + message;
 		for (Integer clientID : clients) {
 			Writer client = this.writerRunnables.get(clientID);
-			client.put(msg);
+			client.put(msg);//Puts message on blocking queue for each writer thread.
 		}		
 	}
 
 	/**
 	 * Sends an updated version of the boardsName list to all clients connected to the server. 
+	 * This is done through placing the message on each clients respective BlockingQueue.
 	 */
 	private  void updateClientsBoardList() {
 		String boardListJSON = "BLIST " + this.getBoardList();
 		for(Integer clientID: connections.keySet())  {
 			Writer client = this.writerRunnables.get(clientID);
-			client.put(boardListJSON);
+			client.put(boardListJSON); //Puts message on blocking queue for each writer thread.
 
 		}
 	}
@@ -238,6 +263,10 @@ public class WhiteboardServer {
 		return answer;
 	}
 
+	/**
+	 * Starts the server at a specific port
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		System.out.println("Server starting...");
 		try {
@@ -249,11 +278,11 @@ public class WhiteboardServer {
 	}
 
 
+	//TODO: Not sure how to close these threads. Could you make this correct? @John
 	/**
-	 * Thread class to watch a given user for input.  All input gets directed to the handleRequest
+	 * Thread class to listen a given user for input.  All input gets directed to the handleRequest
 	 * method of the main server.  Upon the client ending the connection, sockets are closed and the
 	 * class removes itself from the parent's connections map.
-	 * @author Adam/John
 	 *
 	 */
 	class Listner implements Runnable{
@@ -273,8 +302,8 @@ public class WhiteboardServer {
 				BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				try{
 					while (true)  {
-					for (String line = in.readLine(); line != null; line = in.readLine()){
-						this.parentServer.handleRequest(line, userID);
+					for (String line = in.readLine(); line != null; line = in.readLine()){ //Read from client
+						this.parentServer.handleRequest(line, userID); //Sends client request to central server
 						}						
 					}
 	
@@ -310,8 +339,8 @@ public class WhiteboardServer {
 	
 	
 	/**
-	 * Thread class to write to a given user.
-	 *  @author Adam
+	 * Runnable to write to a given user. To add messages to this runnable,
+	 * we add messages to a blocking Queue.
 	 *
 	 */
 	class Writer implements Runnable{
@@ -330,6 +359,11 @@ public class WhiteboardServer {
 			}
 		}
 		
+		/**
+		 * Add element to BlockingQueue of Writer. This will be sent to the 
+		 * client as soon as possible. 
+		 * @param message, message to client from server. 
+		 */
 		public void put(String message)  {
 			try {
 				messages.put(message);
@@ -343,7 +377,7 @@ public class WhiteboardServer {
 				try{
 					while (true)  {
 						String output = messages.take();
-						outStream.writeObject(output);
+						outStream.writeObject(output); //Send message to client
 						outStream.flush();
 					}
 				} catch (InterruptedException e) {
