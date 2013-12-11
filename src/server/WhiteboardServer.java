@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
 import gson.src.main.java.com.google.gson.Gson;
 import ADT.Drawing;
 import ADT.Stroke;
@@ -78,7 +79,7 @@ public class WhiteboardServer {
 			}
 			//Spawn new threads to read and write to/from this client
 			Thread newListner = new Thread(new Listner(socket, this, userID));
-			Writer writer = new Writer(socket);
+			Writer writer = new Writer(socket, this, userID);
 			Thread newWriter = new Thread( writer);
 			synchronized(this.connections) { //Update maps
 				this.connections.put(userID, socket);
@@ -181,7 +182,7 @@ public class WhiteboardServer {
 	 * @param userID
 	 */
 	private void leaveBoard(int boardID, int userID) {
-		this.boardMembers.get(boardID).remove(userID);
+		this.boardMembers.get(boardID).remove(new Integer(userID));
 	}
 
 	/**
@@ -278,11 +279,12 @@ public class WhiteboardServer {
 	}
 
 
-	//TODO: Not sure how to close these threads. Could you make this correct? @John
 	/**
 	 * Thread class to listen a given user for input.  All input gets directed to the handleRequest
 	 * method of the main server.  Upon the client ending the connection, sockets are closed and the
 	 * class removes itself from the parent's connections map.
+	 * 
+	 * It also closes the Writer class responsible for the User using the Writer.kill() method.
 	 *
 	 */
 	class Listner implements Runnable{
@@ -304,9 +306,10 @@ public class WhiteboardServer {
 					while (true)  {
 					for (String line = in.readLine(); line != null; line = in.readLine()){ //Read from client
 						this.parentServer.handleRequest(line, userID); //Sends client request to central server
-						}						
+						}		
 					}
-	
+				} catch (Exception e) {
+					e.printStackTrace();
 				} finally {
 					// Get the userID out of the connections listing.
 					synchronized(this.parentServer.connections) {
@@ -329,7 +332,11 @@ public class WhiteboardServer {
 
 						}
 					}
-					in.close();
+					socket.close();
+					this.parentServer.writerRunnables.get(userID).kill();
+					// The termination statement is triggered upon reading a message, so we add one final
+					// message to make sure that the thread ends.
+					this.parentServer.writerRunnables.get(userID).put("Die, thread, die!");
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -347,10 +354,12 @@ public class WhiteboardServer {
 		private final Socket socket;
 		private ObjectOutputStream outStream;
 		private BlockingQueue<String> messages;
+		private Boolean alive;
 		
-		public Writer(Socket socket) {
+		public Writer(Socket socket, WhiteboardServer parentServer, int userID) {
 			this.socket = socket;
 			messages = new ArrayBlockingQueue<String>(10000);
+			this.alive = true;
 			
 			try {
 				outStream = new ObjectOutputStream(socket.getOutputStream());
@@ -371,14 +380,23 @@ public class WhiteboardServer {
 				e.printStackTrace();
 			}
 		}
+		
+		public void kill() {
+		    this.alive = false;
+		}
 
 		public void run() {
 			try {
 				try{
 					while (true)  {
 						String output = messages.take();
-						outStream.writeObject(output); //Send message to client
-						outStream.flush();
+						if (alive) {
+        		                      outStream.writeObject(output); //Send message to client
+        		                      outStream.flush();
+						}
+		                          else {
+		                              break;
+		                          }
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -387,7 +405,7 @@ public class WhiteboardServer {
 					this.socket.close();
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				
 			}
 		}
 	}

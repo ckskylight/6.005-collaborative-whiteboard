@@ -94,19 +94,26 @@ public class MenuBar {
 			String serverRequest;
 			if (command.equals("Rename Whiteboard")) {
 				String newName = JOptionPane.showInputDialog("Enter a new name");
-				serverRequest = currentBoardID + " setBoardName ";
-				serverRequest += newName; 
-				System.out.println("REQUEST: " + serverRequest);
-				out.println(serverRequest);
+				if (newName != null) {
+					serverRequest = currentBoardID + " setBoardName ";
+					serverRequest += newName; 
+					out.println(serverRequest);
+				}
 			}
 			else if (command.equals("Create new Whiteboard")) {
 				String boardName = JOptionPane.showInputDialog("Enter a whiteboard name");
+				if (boardName.trim().equals("")) {
+					boardName = "Untitled";
+				}
+				else {
+					boardName = boardName.trim();
+				}
 				serverRequest = "createBoard";
 				serverRequest += " " + boardName;
 				out.println(serverRequest);
 			}
 			else if (command.equals("About")) {
-
+				JOptionPane.showMessageDialog(null, "Made by: \n Adam Yala, John O'Sullivan, CK Ong \n Because we're awesome", "Collaborative Whiteboard", JOptionPane.INFORMATION_MESSAGE);
 			}
 			else if (command.equals("Leave Current Whiteboard")) {
 				serverRequest = currentBoardID + " leaveBoard";
@@ -121,6 +128,7 @@ public class MenuBar {
 				}
 
 			}
+			out.flush();
 		}
 
 	}

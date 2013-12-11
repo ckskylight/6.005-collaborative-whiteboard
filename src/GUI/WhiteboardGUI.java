@@ -266,6 +266,7 @@ public class WhiteboardGUI extends JPanel {
 
 	public void requestClear() {
 			out.println(id + " clearBoard");
+			out.flush();
 	}
 
 	
