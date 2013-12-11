@@ -32,8 +32,8 @@ import ADT.Stroke;
  *   - send a message to a client containing a Map of every currently created board ID and Name
  * 
 
- *	Thread Safety Argument:
- *   s
+ *	TODO: Thread Safety Argument:
+ *
  *   
  *   REP INVARIANT:
  *   All of the key values in boardMembers are present in boards, and all of the entry values 
