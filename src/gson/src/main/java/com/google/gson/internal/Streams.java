@@ -25,6 +25,7 @@ import gson.src.main.java.com.google.gson.internal.bind.TypeAdapters;
 import gson.src.main.java.com.google.gson.stream.JsonReader;
 import gson.src.main.java.com.google.gson.stream.JsonWriter;
 import gson.src.main.java.com.google.gson.stream.MalformedJsonException;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Writer;
@@ -68,7 +69,8 @@ public final class Streams {
     TypeAdapters.JSON_ELEMENT.write(writer, element);
   }
 
-  public static Writer writerForAppendable(Appendable appendable) {
+  @SuppressWarnings("resource")
+public static Writer writerForAppendable(Appendable appendable) {
     return appendable instanceof Writer ? (Writer) appendable : new AppendableWriter(appendable);
   }
 

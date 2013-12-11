@@ -1,7 +1,5 @@
 package ADT;
 
-import gson.src.main.java.com.google.gson.Gson;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;

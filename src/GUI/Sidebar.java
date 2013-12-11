@@ -1,9 +1,6 @@
 package GUI;
 
 import java.awt.Image;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.swing.JPanel;
 
 public class Sidebar {
