@@ -4,7 +4,7 @@ import ADT.Drawing;
 import ADT.Sketch;
 
 /**
- * Represents the server model of a single  thread-safe white board.
+ * 	Represents the server model of a single  thread-safe white board.
  * Each white board has a unique, final ID, and a mutable name and drawing.
  * User's can update the drawing (a Sketch) through connectDrawing and clear.
  * 
@@ -12,7 +12,7 @@ import ADT.Sketch;
  * boardID is immutable
  * 
  * Thread Safety:
- * This class is thread-safe via the monitor pattern. The server must obtain a lock on
+ * 	This class is thread-safe via the monitor pattern. The server must obtain a lock on
  * the model in order to mutate it. Only one client can mutate the state at a time, assuring a 
  * consistent model for a all clients.
  * 

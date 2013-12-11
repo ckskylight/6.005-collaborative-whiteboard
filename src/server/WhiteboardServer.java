@@ -115,7 +115,7 @@ public class WhiteboardServer {
 	 * If appropriate, the server prompts a writing thread to return a message
 	 * to the client. 
 	 * @param input, User request
-	 * @param userID, ID of User.
+	 * @param userID, ID of User. Must be valid userID
 	 */
 	private void handleRequest(String input, int userID) {
 		Writer clientWriter = writerThreads.get(userID); //Gets writer for this client
@@ -157,8 +157,8 @@ public class WhiteboardServer {
 
 	/**
 	 * Takes a board id and the JSON for a Stroke object to add to it. Updates Sketch of board.
-	 * @param boardID
-	 * @param drawingJSON
+	 * @param boardID, must be valid boardID.
+	 * @param drawingJSON, must represent a Stroke
 	 */
 	private void connectDrawing(int boardID, String drawingJSON) {
 		Gson gson = new Gson();
@@ -169,7 +169,7 @@ public class WhiteboardServer {
 	/**
 	 * Takes a board ID and a String representing a new human-readable name for the board,
 	 * and sets the name to that value.
-	 * @param boardID
+	 * @param boardID, must be valid boardID.
 	 * @param newName
 	 */
 	private void changeBoardName(int boardID, String newName) {
@@ -179,8 +179,8 @@ public class WhiteboardServer {
 
 	/**
 	 * Takes a boardID and a userID and adds the user to the board's members.
-	 * @param boardID
-	 * @param userID
+	 * @param boardID, must be valid boardID.
+	 * @param userID, must be valid userID
 	 */
 	private void joinBoard(int boardID, int userID) {
 		this.boardMembers.get(boardID).add(userID);
@@ -188,8 +188,8 @@ public class WhiteboardServer {
 
 	/**
 	 * Given a boardID and userID, removes that user from the board's members.
-	 * @param boardID
-	 * @param userID
+	 * @param boardID, must be valid boardID.
+	 * @param userID, must be valid userID
 	 */
 	private void leaveBoard(int boardID, int userID) {
 		this.boardMembers.get(boardID).remove(new Integer(userID));
@@ -199,7 +199,7 @@ public class WhiteboardServer {
 	 * Given a board ID, sends the most current JSON of the board's state to each member
 	 * of the board.
 	 * This is done through placing the message on each clients respective BlockingQueue.
-	 * @param boardID
+	 * @param boardID, must be valid boardID
 	 */
 	private  void updateClientsBoards(int boardID) {
 		synchronized (boardMembers) {
@@ -332,10 +332,15 @@ public class WhiteboardServer {
 		private final WhiteboardServer parentServer;
 		private final int userID;
 
+		/**
+		 * @param socket, connection to client
+		 * @param parentServer
+		 * @param userID, must be user's actual unique ID
+		 */
 		public Listner(Socket socket, WhiteboardServer parentServer, int userID) {
 			this.socket = socket;
 			this.parentServer = parentServer;
-			this.userID = userID;
+			this.userID = userID; 
 
 		}
 
@@ -414,7 +419,8 @@ public class WhiteboardServer {
 		/**
 		 * Add element to BlockingQueue of Writer. This will be sent to the 
 		 * client as soon as possible. 
-		 * @param message, message to client from server. 
+		 * @param message, message to client from server. Must be a valid message
+		 * in protocol.
 		 */
 		public void put(String message)  {
 			try {
