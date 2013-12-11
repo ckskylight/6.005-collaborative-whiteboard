@@ -12,11 +12,9 @@ import javax.swing.JComponent;
 public class ColorSquare extends JComponent implements MouseListener {
 	
 	/**
-	 * 
+	 * This class represents the colored squares in the color picker interface..
 	 */
 	private static final long serialVersionUID = 1L;
-	int height = 20;
-	int width = 20;
 	Color color;
 	Brush brush;
 
@@ -34,16 +32,18 @@ public class ColorSquare extends JComponent implements MouseListener {
 	@Override
 	public void paintComponent(Graphics g) {
 		Graphics2D graphics = (Graphics2D) g;
-		Dimension arc = new Dimension((int)Math.sqrt(width), (int)Math.sqrt(height));
+		Dimension arc = new Dimension((int)Math.sqrt(GUIConstants.COLORSQUARE_WIDTH),
+				(int)Math.sqrt(GUIConstants.COLORSQUARE_HEIGHT));
 		graphics.setColor(color);
-		graphics.fillRoundRect(0, 0, width, height, arc.width, arc.height);
+		graphics.fillRoundRect(0, 0, GUIConstants.COLORSQUARE_WIDTH, GUIConstants.COLORSQUARE_HEIGHT, 
+				arc.width, arc.height);
 	}
 	
 	// ------------ SIZE INFORMATION -------------
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(height, width);
+		return new Dimension(GUIConstants.COLORSQUARE_HEIGHT, GUIConstants.COLORSQUARE_WIDTH);
 	}
 	
 	@Override

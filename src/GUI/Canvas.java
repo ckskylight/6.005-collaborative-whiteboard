@@ -19,14 +19,16 @@ import ADT.Stroke;
 
 /**
  * Canvas represents a drawing surface that allows the user to draw
- * on it freehand, with the mouse.
+ * on it freehand, with the mouse. This class writes to server Strokes
+ * as the user draws on the canvas (nothing is displayed until the server 
+ * responds).
  */
 public class Canvas extends JPanel {
 	private static final long serialVersionUID = 1L;
 	// image where the user's drawing is stored
 	private Image drawingBuffer;
 	// Instantiate the ADT
-	private Sketch whiteboard;
+	private Sketch sketch;
 	// Instantiate the brush
 	private Brush brush;
 	private Gson gson;
@@ -49,7 +51,7 @@ public class Canvas extends JPanel {
 	public Canvas(int width, int height, Brush brush, Sketch board, PrintWriter out, int id) {
 		this.brush = brush;
 		this.setPreferredSize(new Dimension(width, height));
-		this.whiteboard = board;
+		this.sketch = board;
 		this.out = out;
 		this.gson = new Gson();
 		this.id = id;
@@ -61,15 +63,17 @@ public class Canvas extends JPanel {
 
 	/**
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	 * This method is called during in all repaint calls.
+	 * Draws the image of the current sketch over a white background.
 	 */
 	@Override
 	public void paintComponent(Graphics g) {
 		makeDrawingBuffer();
-		g.drawImage(whiteboard.getImage(drawingBuffer), 0, 0, null);
+		g.drawImage(sketch.getImage(drawingBuffer), 0, 0, null);
 	}
 
-	/*
-	 * Make the drawing buffer and draw some starting content for it.
+	/**
+	 * Make the drawing buffer and fill it with white.
 	 */
 	private void makeDrawingBuffer() {
 		drawingBuffer = createImage(getWidth(), getHeight());
@@ -77,7 +81,7 @@ public class Canvas extends JPanel {
 
 	}
 
-	/*
+	/**
 	 * Make the drawing buffer entirely white.
 	 */
 	private void fillWithWhite() {
@@ -91,7 +95,7 @@ public class Canvas extends JPanel {
 	}
 
 
-	/*
+	/**
 	 * Add the mouse listener that supports the user's freehand drawing.
 	 */
 	private void addDrawingController() {
@@ -100,17 +104,24 @@ public class Canvas extends JPanel {
 		addMouseMotionListener(controller);
 	}
 
+	/**
+	 * Sets the Sketch of this canvas to  @param newSketch, and repaints
+	 */
 	public void setSketch(Sketch newSketch) {
-		whiteboard = newSketch;
+		sketch = newSketch;
 		repaint();
 	}
 	
+	/**
+	 * Clears the Sketch of this canvas.
+	 * This is called when the client receives a clearBoard message.
+	 */
 	public void clear() {
-		whiteboard.clear();
+		sketch.clear();
 		repaint();
 	}
 
-	/*
+	/**
 	 * DrawingController handles the user's freehand drawing.
 	 */
 	private class DrawingController implements MouseListener, MouseMotionListener {
@@ -126,9 +137,9 @@ public class Canvas extends JPanel {
 			lastY = e.getY();
 		}
 
-		/*
+		/**
 		 * When mouse moves while a button is pressed down,
-		 * draw a line segment.
+		 * create a Stroke and send it to the server.
 		 */
 		public void mouseDragged(MouseEvent e) {
 			
@@ -141,6 +152,7 @@ public class Canvas extends JPanel {
  				Stroke update = new Stroke(startPoint, endPoint, brush.getColor(), brush.getThickness());
 				String updateJSon = gson.toJson(update);
 				String updateString = id + " addDrawing " + updateJSon;
+				//Send this update to the server
 				out.println(updateString);
 				out.flush();
 
@@ -161,9 +173,13 @@ public class Canvas extends JPanel {
 		public void mouseExited(MouseEvent e) { }
 	}
 
+	/**
+	 * Connect @param update to the Canvas's sketch.
+	 * This represents the Server sending an update
+	 * to the Canvas.
+	 */
 	public void connectStroke(Stroke update) {
-		// TODO Auto-generated method stub
-		whiteboard.connect(update);
+		sketch.connect(update);
 	}
 
 }
