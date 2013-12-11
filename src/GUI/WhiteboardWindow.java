@@ -12,8 +12,6 @@ import gson.src.main.java.com.google.gson.JsonParseException;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -25,15 +23,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.Spring;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -42,15 +36,16 @@ import ADT.Sketch;
 import ADT.Stroke;
 
 /**
+ * WhiteboardWindow represents the client in our System. It is the top level of
+ * our GUI and is the point from which the client connects to the server.
  * 
- * @author Yala
+ * TODO: Thread Safety, Invariants, Testing, More details
+ * 
+ * 
  * 
  */
 public class WhiteboardWindow extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6651504303207410645L;
 	// Server Elements
 	private final int SERVER_PORT = 4444;
@@ -73,13 +68,20 @@ public class WhiteboardWindow extends JFrame {
 
 	// IPanel that has the background image that everything is painted on
 	JPanel mainPanel = new IPanel(backgroundImage);
-	
+
 	// Tracker for the tab being currently displayed
 	int currentBoardID;
 
 	// Menu bar
 	private final MenuBar menuBar;
 
+	/**
+	 * Upon the creating a {@link WhiteboardWindow}, the client connects to the
+	 * server, obtains the board list and creates the GUI.
+	 * 
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	@SuppressWarnings("unchecked")
 	public WhiteboardWindow() throws IOException, ClassNotFoundException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
@@ -103,15 +105,21 @@ public class WhiteboardWindow extends JFrame {
 
 		Map<Integer, String> boardList = gson.fromJson(boardListString,
 				Map.class);
-		listner = new Worker(server, in);
+		listner = new Worker(in);
 
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
-		menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards, currentBoardID);
+		menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut,
+				whiteboards, currentBoardID);
 		this.setBoardList(boardList);
 		new Thread(listner).start();
 
 	}
 
+	/**
+	 * Launches new Client (all of which connect to sever upon construction).
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -133,6 +141,13 @@ public class WhiteboardWindow extends JFrame {
 		});
 	}
 
+	/**
+	 * Loads an Image from specified file path.
+	 * 
+	 * @param filePath
+	 *            , must be valid or IOException will occur.
+	 * @return Image at file Path
+	 */
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
 		try {
@@ -157,9 +172,10 @@ public class WhiteboardWindow extends JFrame {
 		// Add the entire tabbed pane to the jframe
 		mainPanel.add(tabbedPane);
 		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		
+
 		if (tabbedPane.getComponentCount() > 0) {
-			currentBoardID = ((WhiteboardGUI) tabbedPane.getSelectedComponent()).getID();
+			currentBoardID = ((WhiteboardGUI) tabbedPane.getSelectedComponent())
+					.getID();
 		}
 
 		// Add the menu bar
@@ -189,78 +205,101 @@ public class WhiteboardWindow extends JFrame {
 	 *            , message from the server.
 	 */
 	private void parseServerMessage(String string) {
-		if (string == null || string.equals("null"))
+
+		if (string == null || string.equals("null")) // Skip invalid messages.
 			return;
+		if (string.equals("LEAVE")) {
+			assembleJFrame();
+		} else if (string.contains("BOARD ")) { // Indicates server sent a
+												// Sketch representing a
+												// whiteboard.
 
-		if (string.contains("BOARD ")) {
-
-			String boardString = string.substring("BOARD ".length()); // TODO:Magic
-																		// number
-			int id = Integer.parseInt(boardString.substring(0, 6).trim());
+			String boardString = string.substring("BOARD ".length());
+			int id = Integer.parseInt(boardString.substring(0, 6).trim()); // IDs
+																			// are
+																			// 5
+																			// digits
+																			// long
 			Integer idInteger = new Integer(id);
-
-			String sketchString = boardString.substring(6);
-			Sketch sketch = sketchgson.fromJson(sketchString, Sketch.class);
+			String sketchString = boardString.substring(6); // 6 is used to get
+															// past the ID in
+															// the string.
+			Sketch sketch = sketchgson.fromJson(sketchString, Sketch.class); // Convert
+																				// the
+																				// string
+																				// to
+																				// a
+																				// sketch
 
 			if (!this.whiteboards.containsKey(idInteger)) {
 				this.whiteboards.put(idInteger,
 						new WhiteboardGUI(serverOut, id));
 			}
-			this.whiteboards.get(idInteger).setSketch(sketch);
-			assembleJFrame();
+			this.whiteboards.get(idInteger).setSketch(sketch); // update sketch
+																// of whiteboard
+			assembleJFrame(); // Update tabs
 
-		} else if (string.contains("MSG ")) {
+		} else if (string.contains("MSG ")) { // Indicates server sent an update
+												// in the form of a Stroke or a
+												// clear message
 			String updateString = string.substring("MSG ".length());
-			int id = Integer.parseInt(updateString.substring(0, 6).trim());
+			int id = Integer.parseInt(updateString.substring(0, 6).trim()); // IDs
+																			// are
+																			// 5
+																			// digits
+																			// longs
 			Integer idInteger = new Integer(id);
-			if (string.contains("clearBoard")) {
+
+			if (string.contains("clearBoard")) { // Server sent a clear message
 				this.whiteboards.get(idInteger).clear();
-			} else {
+			} else { // Server sent a Stroke update message (Free hand drawing
+						// and erasing)
 				String sketchString = updateString.substring(6);
 				Stroke stroke = gson.fromJson(sketchString, Stroke.class);
 				this.whiteboards.get(idInteger).connectStroke(stroke);
 			}
 
-		} else {
-			if (string.contains("BLIST")) {
-				;
-				String boardListString = string.substring(6); // TODO:Magic
-																// number
-				@SuppressWarnings("unchecked")
-				Map<Integer, String> boardList = gson.fromJson(boardListString,
-						Map.class);
-				this.setBoardList(boardList);
-				assembleJFrame();
-			}
+		} else if (string.contains("BLIST ")) {// Indicates server sent a an
+												// updated Boards List (<ID,
+												// Name>)
+			String boardListString = string.substring("BLIST ".length());
+			@SuppressWarnings("unchecked")
+			Map<Integer, String> boardList = gson.fromJson(boardListString,
+					Map.class);
+			this.setBoardList(boardList);
+			assembleJFrame();
+		}
 
-			// This should take care of all cases.
-			else {
-				throw new RuntimeException("Unrecognized Server Message: "
-						+ string);
-			}
-
+		// This should take care of all cases. Should never reach here.
+		else {
+			throw new RuntimeException("Unrecognized Server Message: " + string);
 		}
 
 		this.repaint();
 
 	}
 
-	//
+	/**
+	 * This Runnable handles reading messages from the server. Once it receives
+	 * a message from the server, it pushes the processing of the response onto
+	 * the EventQueue
+	 * 
+	 * @throws IOException
+	 */
+
 	public class Worker implements Runnable {
 
-		private final Socket server;
 		private ObjectInputStream serverIn;
 
 		/**
-		 * This Swing worker handel's the receiving and processing of messages
-		 * from the server. It is always waiting for a new message from the
-		 * server. Once it processes a new message, it creates the next worker
-		 * worker to continue listening to the server.
-		 * 
-		 * @throws IOException
+		 * @param serverIn
+		 *            , {@link ObjectInputStream} used to read from the socket
+		 *            (connected to WhiteboardServer). Must be the only socket
+		 *            used to read from this socket or header data will be
+		 *            corrupted.
 		 */
-		public Worker(Socket serverConnection, ObjectInputStream serverIn) {
-			server = serverConnection;
+
+		public Worker(ObjectInputStream serverIn) {
 			this.serverIn = serverIn;
 
 		}
@@ -274,24 +313,28 @@ public class WhiteboardWindow extends JFrame {
 			while (true) {
 				String response;
 				try {
-					response = "" + (String) serverIn.readObject();
+					response = "" + (String) serverIn.readObject(); // get
+																	// server
+																	// message
 					final String message = response;
+
 					if (message != null) {
-						SwingUtilities.invokeAndWait(new Runnable() {
-							public void run() {
-								parseServerMessage(message);
-							}
-						});
-					}
+						SwingUtilities.invokeAndWait(new Runnable() { // process
+																		// in
+																		// GUI
+									public void run() {
+										parseServerMessage(message);
+									}
+								});
+
+					} // TODO: Close the the thread or something.
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -333,18 +376,54 @@ public class WhiteboardWindow extends JFrame {
 		}
 
 	}
-	
+
 	class TabListener implements ChangeListener {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			try {
-				currentBoardID = ((WhiteboardGUI) ((JTabbedPane) e.getSource()).getSelectedComponent()).getID();
+				currentBoardID = ((WhiteboardGUI) ((JTabbedPane) e.getSource())
+						.getSelectedComponent()).getID();
 				menuBar.updateCurrentBoardId(currentBoardID);
 			} catch (Exception ex) {
 			}
 		}
-		
-	}
 
+		/**
+		 * @return instance of whiteboardGUI currently selected by used via tab
+		 *         interface.
+		 */
+		public WhiteboardGUI getCurrentWhiteboard() {
+			return (WhiteboardGUI) tabbedPane.getSelectedComponent();
+		}
+
+		class SketchDeserializer implements JsonDeserializer<Sketch> {
+
+			@Override
+			public Sketch deserialize(JsonElement json,
+					java.lang.reflect.Type typeOfT,
+					JsonDeserializationContext context)
+					throws JsonParseException {
+				ArrayList<Drawing> strokeArray = new ArrayList<Drawing>();
+
+				JsonObject object = (JsonObject) json;
+				JsonArray sketchArray = object.getAsJsonArray("sketch");
+				for (JsonElement stroke : sketchArray) {
+					JsonObject strokeObject = (JsonObject) stroke;
+					Color color = gson.fromJson(strokeObject.get("color"),
+							Color.class);
+					int thickness = strokeObject.get("thickness").getAsInt();
+					Point startPoint = gson.fromJson(
+							strokeObject.get("startPoint"), Point.class);
+					Point endPoint = gson.fromJson(
+							strokeObject.get("endPoint"), Point.class);
+					strokeArray.add(new Stroke(startPoint, endPoint, color,
+							thickness));
+				}
+				return new Sketch(strokeArray);
+			}
+
+		}
+
+	}
 }

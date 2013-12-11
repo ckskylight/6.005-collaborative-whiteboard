@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -12,7 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import gson.src.main.java.com.google.gson.Gson;
 import ADT.Drawing;
 import ADT.Stroke;
@@ -27,8 +27,9 @@ import ADT.Stroke;
  *   - receive messages to set and change the user-defined name of boards
  *   - receive messages to allow users to join/leave boards
  *   - receive messages for users to create new boards
- *   - send a message to every client containing the most recent state of the board
- *   - send a message to a client containing a list of every currently created board
+ *   - send a message to a client containing the most recent state of the board
+ *   - send a message to every client containing an update to the board. 
+ *   - send a message to a client containing a Map of every currently created board ID and Name
  * 
 
  *	Thread Safety Argument:
@@ -42,7 +43,8 @@ import ADT.Stroke;
 public class WhiteboardServer {
 	private Map<Integer, WhiteboardModel> boards; 
 	private Map<Integer, Socket> connections;
-	private Map<Integer, WhiteboardUser> threads;
+	private Map<Integer, Thread> readThreads;
+	private Map<Integer, Writer> writerRunnables;
 
 	private Map<Integer, List<Integer>> boardMembers;
 	private ServerSocket serverSocket;
@@ -52,7 +54,8 @@ public class WhiteboardServer {
 		this.connections = Collections.synchronizedMap(new HashMap<Integer, Socket>());
 		this.boardMembers = Collections.synchronizedMap(new HashMap<Integer, List<Integer>>());
 		this.serverSocket = new ServerSocket(port);
-		this.threads = Collections.synchronizedMap(new HashMap<Integer, WhiteboardUser>());
+		this.readThreads = Collections.synchronizedMap(new HashMap<Integer, Thread>());
+		this.writerRunnables = Collections.synchronizedMap(new HashMap<Integer, Writer>());
 	}
 
 	public void serve() throws IOException {
@@ -62,52 +65,52 @@ public class WhiteboardServer {
 			while (this.connections.containsKey(userID)) {
 				userID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
 			}
-			WhiteboardUser newUser = new WhiteboardUser(socket, this, userID);
+			Thread newListner = new Thread(new Listner(socket, this, userID));
+			Writer writer = new Writer(socket);
+			Thread newWriter = new Thread( writer);
 			synchronized(this.connections) {
 				this.connections.put(userID, socket);
-				threads.put(userID, newUser);
+				readThreads.put(userID, newListner);
+				writerRunnables.put(userID, writer);
 			}
-			newUser.start();
+			newListner.start();
+			newWriter.start();
 			
 		}
 	}
 
-	private String handleRequest(String input, int userID) {
-
+	private void handleRequest(String input, int userID) {
+		Writer clientWriter = writerRunnables.get(userID);
 		if (input.startsWith("createBoard")) {
 			String boardName = input.substring("createBoard".length() +1 );
 			this.createBoard(userID, boardName);
 			updateClientsBoardList();
-			return "UPDATE ACK";
 		} else if (input.startsWith("getBoardList")) {
-			return "BLIST " + this.getBoardList();
+			clientWriter.put( "BLIST " + this.getBoardList());
 		} else {
 			int boardID = Integer.parseInt(input.substring(0,  5));
 			input = input.substring(6);
 			if (input.startsWith("joinBoard")) {
 				joinBoard(boardID, userID);
-				return "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
+				clientWriter.put(  "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON());
 			} else if (input.startsWith("leaveBoard")) {
+				clientWriter.put("LEAVE");
 				leaveBoard(boardID, userID);
-				return "LEAVE You left Board #" + Integer.toString(boardID); 
 			} else if (input.startsWith("addDrawing")) {
 				String drawingJSON = input.substring("addDrawing".length() + 1);
 				connectDrawing(boardID, drawingJSON);
 				updateClientsBoards(boardID, drawingJSON);
-				return "UPDATE ACK";
 			} else if (input.startsWith("setBoardName")) {
 				String newName = input.substring("setBoardName".length() + 1);
 				changeBoardName(boardID, newName);
 				updateClientsBoardList();
-				return "UPDATE ACK";
 			} else if(input.startsWith("clearBoard"))  {
 				boards.get(boardID).clear();
 				updateClientsBoards(boardID, "clearBoard");
-				return "UPDATE ACK";
 
 			}
 			else {
-				return "ERROR"; // invalid request, this should cover all of 'em.
+				clientWriter.put( "ERROR"); // invalid request, this should cover all of 'em.
 			}
 		}
 	}
@@ -171,8 +174,8 @@ public class WhiteboardServer {
 		List<Integer> clients = this.boardMembers.get(boardID);
 		String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
 		for (Integer clientID : clients) {
-			WhiteboardUser client = this.threads.get(clientID);
-			client.write(boardState);
+			Writer client = this.writerRunnables.get(clientID);
+			client.put(boardState);
 		}
 	}
 	
@@ -180,8 +183,8 @@ public class WhiteboardServer {
 		List<Integer> clients = this.boardMembers.get(boardID);
 		String msg = "MSG " + Integer.toString(boardID) + " " + message;
 		for (Integer clientID : clients) {
-			WhiteboardUser client = this.threads.get(clientID);
-			client.write(msg);
+			Writer client = this.writerRunnables.get(clientID);
+			client.put(msg);
 		}		
 	}
 
@@ -191,8 +194,8 @@ public class WhiteboardServer {
 	private  void updateClientsBoardList() {
 		String boardListJSON = "BLIST " + this.getBoardList();
 		for(Integer clientID: connections.keySet())  {
-			WhiteboardUser client = this.threads.get(clientID);
-			client.write(boardListJSON);
+			Writer client = this.writerRunnables.get(clientID);
+			client.put(boardListJSON);
 
 		}
 	}
@@ -250,33 +253,19 @@ public class WhiteboardServer {
 	 * Thread class to watch a given user for input.  All input gets directed to the handleRequest
 	 * method of the main server.  Upon the client ending the connection, sockets are closed and the
 	 * class removes itself from the parent's connections map.
-	 * @author John
+	 * @author Adam/John
 	 *
 	 */
-	class WhiteboardUser extends Thread{
+	class Listner implements Runnable{
 		private final Socket socket;
 		private final WhiteboardServer parentServer;
 		private final int userID;
-		ObjectOutputStream outStream;
 		
-		public WhiteboardUser(Socket socket, WhiteboardServer parentServer, int userID) {
+		public Listner(Socket socket, WhiteboardServer parentServer, int userID) {
 			this.socket = socket;
 			this.parentServer = parentServer;
 			this.userID = userID;
-			try {
-				outStream = new ObjectOutputStream(socket.getOutputStream());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		public void write(String message)  {
-			try {
-				outStream.writeObject(message);
-				outStream.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+
 		}
 
 		public void run() {
@@ -285,26 +274,20 @@ public class WhiteboardServer {
 				try{
 					while (true)  {
 					for (String line = in.readLine(); line != null; line = in.readLine()){
-						String output = this.parentServer.handleRequest(line, userID);
-						if (!output.equals("UPDATE ACK"))  {
-						outStream.writeObject(output);
-						outStream.flush();
-						}
-						
+						this.parentServer.handleRequest(line, userID);
+						}						
 					}
 	
-					} 
 				} finally {
-					
 					// Get the userID out of the connections listing.
 					synchronized(this.parentServer.connections) {
 						this.parentServer.connections.remove(userID);
 						try {
-							this.parentServer.threads.get(userID).join();
+							this.parentServer.readThreads.get(userID).join();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						this.parentServer.threads.remove(userID);
+						this.parentServer.readThreads.remove(userID);
 					} 
 					// gets the userID out of all the boardMembers listings.
 					synchronized(this.parentServer.boardMembers) {
@@ -317,8 +300,56 @@ public class WhiteboardServer {
 
 						}
 					}
-					outStream.close();
 					in.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
+	/**
+	 * Thread class to write to a given user.
+	 *  @author Adam
+	 *
+	 */
+	class Writer implements Runnable{
+		private final Socket socket;
+		private ObjectOutputStream outStream;
+		private BlockingQueue<String> messages;
+		
+		public Writer(Socket socket) {
+			this.socket = socket;
+			messages = new ArrayBlockingQueue<String>(10000);
+			
+			try {
+				outStream = new ObjectOutputStream(socket.getOutputStream());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		public void put(String message)  {
+			try {
+				messages.put(message);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		public void run() {
+			try {
+				try{
+					while (true)  {
+						String output = messages.take();
+						outStream.writeObject(output);
+						outStream.flush();
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} finally {
+					outStream.close();
 					this.socket.close();
 				}
 			} catch (IOException e) {
