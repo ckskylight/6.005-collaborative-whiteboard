@@ -38,12 +38,12 @@ import ADT.Stroke;
 
  *  Thread Safety Argument:
  *		We assure the assure is thread-safe through careful locking, moving blocking procedures to 
- *	dedicated threads, and through using threadSafe data-types. By locking on our maps when iterating 
- *	through them, we assure no unwanted interleaving occurs and we always iterate through all current
- *  elements in each map. By using thread-safe collections we assure no interleaving can occur in our
- *  atomic operations. This locking is used whenever the Server or a Thread iterates through a map. 
+ *	dedicated threads, and through using threadSafe data-types. By locking on our maps before iterating 
+ *	through them, we assure no unwanted interleaving occurs. By using thread-safe collections we assure 
+ *	no interleaving can occur in our atomic operations. This locking is used whenever the Server or a 
+ *  Thread iterates through a map. 
  *  
- *  By a thread-safe whiteboardModel and representation of Sketch, we assure that no-unwanted interleaving can occur in 
+ *  By using a thread-safe whiteboardModel and representation of Sketch, we assure that no-unwanted interleaving can occur in 
  *  their atomic operations.
  *  Since both whiteboardModel and sketch uses the monitor pattern, only one client may modify the board at a time, assuring a consistent
  *  view of the white board for all users. 

@@ -94,7 +94,7 @@ public class MenuBar {
 			String serverRequest;
 			if (command.equals("Rename Whiteboard")) {
 				String newName = JOptionPane.showInputDialog("Enter a new name");
-				if (newName != null) {
+				if (newName != null && whiteboards.size() >= 1) {
 					serverRequest = currentBoardID + " setBoardName ";
 					serverRequest += newName; 
 					out.println(serverRequest);
@@ -116,8 +116,10 @@ public class MenuBar {
 				JOptionPane.showMessageDialog(null, "Made by: \n Adam Yala, John O'Sullivan, CK Ong \n Because we're awesome", "Collaborative Whiteboard", JOptionPane.INFORMATION_MESSAGE);
 			}
 			else if (command.equals("Leave Current Whiteboard")) {
-				serverRequest = currentBoardID + " leaveBoard";
-				out.println(serverRequest);
+				if(whiteboards.size() >= 1)  {
+					serverRequest = currentBoardID + " leaveBoard";
+					out.println(serverRequest);
+				}
 			}
 			else /*if a whiteboard name is chosen*/ {
 				int selectedBoardID = Integer.parseInt(((JMenuItem) e.getSource()).getAccessibleContext().getAccessibleDescription());
@@ -132,4 +134,5 @@ public class MenuBar {
 		}
 
 	}
+	
 }
