@@ -12,8 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.PrintWriter;
-import java.util.Map;
-
 import javax.swing.JPanel;
 
 import ADT.Sketch;
@@ -33,10 +31,10 @@ public class Canvas extends JPanel {
 	private Brush brush;
 	private Gson gson;
 	private final int id; //ID of the white board Canvas displays.
-	
+
 	// Out to server
 	private final PrintWriter out;
-	
+
 
 
 
@@ -101,11 +99,14 @@ public class Canvas extends JPanel {
 		addMouseListener(controller);
 		addMouseMotionListener(controller);
 	}
-	
+
 	public void setSketch(Sketch newSketch) {
-		System.out.println("New sketch!");
 		whiteboard = newSketch;
-		System.out.println("BOARD SIZE " + whiteboard.getSketchSize());
+		repaint();
+	}
+	
+	public void clear() {
+		whiteboard.clear();
 		repaint();
 	}
 
@@ -136,14 +137,16 @@ public class Canvas extends JPanel {
 			// Here store info in the ADT
 			Point startPoint = new Point(lastX, lastY);
 			Point endPoint = new Point(x, y);
-			Stroke update = new Stroke(startPoint, endPoint, brush.getColor(), brush.getThickness());
-			String updateJSon = gson.toJson(update);
-			String updateString = id + " addDrawing " + updateJSon;
-			out.println(updateString);
+ 				Stroke update = new Stroke(startPoint, endPoint, brush.getColor(), brush.getThickness());
+				String updateJSon = gson.toJson(update);
+				String updateString = id + " addDrawing " + updateJSon;
+				out.println(updateString);
 
-			lastX = x;
-			lastY = y;
-			repaint();
+				lastX = x;
+				lastY = y;
+//				whiteboard.connect(update);
+				repaint();
+			
 
 
 		}
@@ -155,6 +158,11 @@ public class Canvas extends JPanel {
 		public void mouseReleased(MouseEvent e) { }
 		public void mouseEntered(MouseEvent e) { }
 		public void mouseExited(MouseEvent e) { }
+	}
+
+	public void connectStroke(Stroke update) {
+		// TODO Auto-generated method stub
+		whiteboard.connect(update);
 	}
 
 }

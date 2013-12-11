@@ -3,6 +3,7 @@ package ADT;
 import gson.src.main.java.com.google.gson.Gson;
 
 import java.awt.Image;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -21,14 +22,22 @@ import java.util.ArrayList;
  * this class is thread-safe. 
  *
  */
-public class Sketch implements Drawing {
+public class Sketch implements Drawing, Serializable {
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private ArrayList<Drawing> sketch;
 
 
 	public Sketch()  {
 		sketch = new ArrayList<Drawing>();
+	}
+	
+	public Sketch(ArrayList<Drawing> sketch) {
+		this.sketch = sketch;
 	}
 
 
@@ -111,7 +120,6 @@ public class Sketch implements Drawing {
 	}
 
 
-	@Override
 	public String getJSON() {
 		Gson gson = new Gson();
 		return gson.toJson(this) ;

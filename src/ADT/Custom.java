@@ -19,9 +19,5 @@ public class Custom implements Drawing {
 		return null;
 	}
 
-	@Override
-	public String getJSON() {
-		Gson gson = new Gson();
-		return gson.toJson(this) ;
-	}
+
 }
