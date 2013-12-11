@@ -27,8 +27,9 @@ import ADT.Stroke;
  *   - receive messages to set and change the user-defined name of boards
  *   - receive messages to allow users to join/leave boards
  *   - receive messages for users to create new boards
- *   - send a message to every client containing the most recent state of the board
- *   - send a message to a client containing a list of every currently created board
+ *   - send a message to a client containing the most recent state of the board
+ *   - send a message to every client containing an update to the board. 
+ *   - send a message to a client containing a Map of every currently created board ID and Name
  * 
 
  *	Thread Safety Argument:
@@ -93,6 +94,7 @@ public class WhiteboardServer {
 				joinBoard(boardID, userID);
 				clientWriter.put(  "BOARD "+ Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON());
 			} else if (input.startsWith("leaveBoard")) {
+				clientWriter.put("LEAVE");
 				leaveBoard(boardID, userID);
 			} else if (input.startsWith("addDrawing")) {
 				String drawingJSON = input.substring("addDrawing".length() + 1);

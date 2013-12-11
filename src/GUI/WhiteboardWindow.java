@@ -183,9 +183,10 @@ public class WhiteboardWindow extends JFrame {
 	private void parseServerMessage(String string) {
 		if (string == null || string.equals("null"))  //Skip invalid messages.
 			return;
-
-
-		if(string.contains("BOARD "))  { //Indicates server sent a Sketch representing a whiteboard.
+		if(string.equals("LEAVE"))  {
+			assembleJFrame();
+		}
+		else if(string.contains("BOARD "))  { //Indicates server sent a Sketch representing a whiteboard.
 
 			String boardString = string.substring("BOARD ".length()); 
 			int id = Integer.parseInt(boardString.substring(0, 6).trim()); //IDs are 5 digits long
