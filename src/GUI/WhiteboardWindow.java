@@ -44,9 +44,19 @@ import ADT.Stroke;
  * WhiteboardWindow represents the client in our System. It is the top level of
  * our GUI and is the point from which the client connects to the server.
  * 
- * TODO: Thread Safety, Invariants, Testing, More details
+ * TODO: MOAR MOAR DETAIL @CK
  * 
  * 
+ * Thread Safety:
+ * 	Each client, an instance of WhiteboardWindow spawns a background thread to 
+ * listen to the server. We ensure the thread-safety of our client side by never 
+ * mutating the GUI from the background thread, and using SwingUttilities.invokeAndWait
+ * to pass messages to the GUI from the Server; the thread ensures the liveness
+ * of the GUI by only doing blocking operations in the background thread. For all
+ * freehand drawing actions, clear actions or menu selections, a message is sent to
+ * the Server and the GUI is only updated after the GUI receives a response. 
+ * This assures all whiteboards and Board lists are consistent for all clients.
+ * 	
  * 
  */
 public class WhiteboardWindow extends JFrame {
