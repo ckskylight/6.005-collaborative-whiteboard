@@ -21,8 +21,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -49,7 +53,6 @@ public class WhiteboardWindow extends JFrame {
 
 	private static final long serialVersionUID = 6651504303207410645L;
 	// Server Elements
-	private final int SERVER_PORT = 4444;
 	private final Socket server;
 	private static PrintWriter serverOut;
 	private Gson gson;
@@ -84,7 +87,7 @@ public class WhiteboardWindow extends JFrame {
 	 * @throws ClassNotFoundException
 	 */
 	@SuppressWarnings("unchecked")
-	public WhiteboardWindow() throws IOException, ClassNotFoundException {
+	public WhiteboardWindow(int port) throws IOException, ClassNotFoundException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		this.setPreferredSize(GUIConstants.WINDOW_DIMENSIONS);
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -101,7 +104,7 @@ public class WhiteboardWindow extends JFrame {
 
 		// Connect to Server
 		server = new Socket();
-		server.connect(new InetSocketAddress(SERVER_PORT));
+		server.connect(new InetSocketAddress(port));
 
 		// Get boardList from server and start listening for updates
 		gson = new Gson();
@@ -127,17 +130,38 @@ public class WhiteboardWindow extends JFrame {
 	}
 
 	/**
-	 * Launches new Client (all of which connect to sever upon construction).
+	 * Starts a new Whiteboard client using the given arguments.
 	 * 
+	 * Usage: WhiteboardWindow [--port PORT]
+	 * 
+	 * PORT is an optional integer argument which starts the client listening on that port.  It must
+	 * be a value between 0 and 65535, and if it is omitted the client starts listening on port 4444.
 	 * @param args
 	 */
 	public static void main(String[] args) {
+	    final PortCarrier port = new PortCarrier();
+	    Queue<String> arguments = new LinkedList<String>(Arrays.asList(args));
+	    while (! arguments.isEmpty()) {
+	        String flag = arguments.remove();
+	        try {
+	            if (flag.equals("--port")) {
+	                port.setPort(Integer.parseInt(arguments.remove()));
+	                if (port.getPort() < 0 || port.getPort() > 65535) {
+	                    throw new IllegalArgumentException("Port not within valid range.");
+	                }
+	            } else {
+	                throw new IllegalArgumentException(flag + " is not a recognized argument.");
+	            }
+	        } catch (IllegalArgumentException e) {
+	            System.err.println(e.getMessage());
+	            e.printStackTrace();
+	        }
+	    }
 		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-
+			public void run() { 
 				WhiteboardWindow main;
 				try {
-					main = new WhiteboardWindow();
+				        main = new WhiteboardWindow(port.getPort());				        
 					main.assembleJFrame();
 
 					main.pack();
@@ -311,7 +335,7 @@ public class WhiteboardWindow extends JFrame {
 									}
 								});
 
-					} // TODO: Close the the thread or something.
+					}
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -333,6 +357,8 @@ public class WhiteboardWindow extends JFrame {
 	public WhiteboardGUI getCurrentWhiteboard() {
 		return (WhiteboardGUI) tabbedPane.getSelectedComponent();
 	}
+	
+
 
 	class SketchDeserializer implements JsonDeserializer<Sketch> {
 

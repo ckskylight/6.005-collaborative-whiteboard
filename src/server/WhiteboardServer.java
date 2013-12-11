@@ -7,10 +7,13 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -58,8 +61,8 @@ import ADT.Stroke;
 public class WhiteboardServer {
 	private Map<Integer, WhiteboardModel> boards; 
 	private Map<Integer, Socket> connections;
-	private Map<Integer, Thread> readThreads;
-	private Map<Integer, Writer> writerRunnables;
+	private Map<Integer, Thread> readerThreads;
+	private Map<Integer, Writer> writerThreads;
 
 	private Map<Integer, List<Integer>> boardMembers;
 	private ServerSocket serverSocket;
@@ -73,8 +76,8 @@ public class WhiteboardServer {
 		this.connections = Collections.synchronizedMap(new HashMap<Integer, Socket>());
 		this.boardMembers = Collections.synchronizedMap(new HashMap<Integer, List<Integer>>());
 		this.serverSocket = new ServerSocket(port);
-		this.readThreads = Collections.synchronizedMap(new HashMap<Integer, Thread>());
-		this.writerRunnables = Collections.synchronizedMap(new HashMap<Integer, Writer>());
+		this.readerThreads = Collections.synchronizedMap(new HashMap<Integer, Thread>());
+		this.writerThreads = Collections.synchronizedMap(new HashMap<Integer, Writer>());
 	}
 
 	/**
@@ -97,8 +100,8 @@ public class WhiteboardServer {
 			Thread newWriter = new Thread( writer);
 			//Update Maps
 			this.connections.put(userID, socket);
-			readThreads.put(userID, newListner);
-			writerRunnables.put(userID, writer);
+			readerThreads.put(userID, newListner);
+			writerThreads.put(userID, writer);
 
 			newListner.start();
 			newWriter.start();
@@ -115,7 +118,7 @@ public class WhiteboardServer {
 	 * @param userID, ID of User.
 	 */
 	private void handleRequest(String input, int userID) {
-		Writer clientWriter = writerRunnables.get(userID); //Gets writer for this client
+		Writer clientWriter = writerThreads.get(userID); //Gets writer for this client
 		if (input.startsWith("createBoard")) { //creatBoard Message
 			String boardName = input.substring("createBoard".length() +1 );
 			this.createBoard(userID, boardName);
@@ -203,7 +206,7 @@ public class WhiteboardServer {
 			List<Integer> clients = this.boardMembers.get(boardID);
 			String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
 			for (Integer clientID : clients) {
-				Writer client = this.writerRunnables.get(clientID);
+				Writer client = this.writerThreads.get(clientID);
 				client.put(boardState); //Puts message on blocking queue for each writer thread. 
 			}
 		}
@@ -218,7 +221,7 @@ public class WhiteboardServer {
 			List<Integer> clients = this.boardMembers.get(boardID);
 			String msg = "MSG " + Integer.toString(boardID) + " " + message;
 			for (Integer clientID : clients) {
-				Writer client = this.writerRunnables.get(clientID);
+				Writer client = this.writerThreads.get(clientID);
 				client.put(msg);//Puts message on blocking queue for each writer thread.
 			}		
 		}
@@ -232,9 +235,8 @@ public class WhiteboardServer {
 		synchronized (connections) {
 			String boardListJSON = "BLIST " + this.getBoardList();
 			for(Integer clientID: connections.keySet())  {
-				Writer client = this.writerRunnables.get(clientID);
+				Writer client = this.writerThreads.get(clientID);
 				client.put(boardListJSON); //Puts message on blocking queue for each writer thread.
-
 			}
 		}
 
@@ -277,17 +279,43 @@ public class WhiteboardServer {
 	}
 
 	/**
-	 * Starts the server at a specific port
+	 * Starts a WhiteboardServer using the given arguments.
+	 * 
+	 * Usage: WhiteboardServer [--port PORT]
+	 * 
+	 * Our only parameter is an optional integer in the range from 0 to 65535 inclusive, which specifies
+	 * the port for the server to listen on for connections.
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		System.out.println("Server starting...");
+		int port = 4444;
+		
+		Queue<String> arguments = new LinkedList<String>(Arrays.asList(args));
 		try {
-			WhiteboardServer server = new WhiteboardServer(4444);
-			server.serve();
-		} catch (IOException e) {
+		    while (! arguments.isEmpty()) {
+		        String flag = arguments.remove();
+		          if (flag.equals("--port")){
+		              port = Integer.parseInt(arguments.remove());
+		              if (port < 0 || port > 65535) {
+		                  throw new IllegalArgumentException("The port " + port + " is not between 0 and 65,535.");
+		              }
+		          } else {
+		              throw new IllegalArgumentException(flag + " is not a recognized argument.");
+		          }
+		    }
+		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
+			System.err.println(e.getMessage());
+			return;
 		}
+		    WhiteboardServer server;
+            try {
+                server = new WhiteboardServer(port);
+                server.serve();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 	}
 
 
@@ -327,11 +355,11 @@ public class WhiteboardServer {
 					synchronized(this.parentServer.connections) {
 						this.parentServer.connections.remove(userID);
 						try {
-							this.parentServer.readThreads.get(userID).join();
+							this.parentServer.readerThreads.get(userID).join();
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						this.parentServer.readThreads.remove(userID);
+						this.parentServer.readerThreads.remove(userID);
 					} 
 					// gets the userID out of all the boardMembers listings.
 					synchronized(this.parentServer.boardMembers) {
@@ -344,11 +372,14 @@ public class WhiteboardServer {
 
 						}
 					}
+					// Close the socket and terminate the Writer runnable.
 					socket.close();
-					this.parentServer.writerRunnables.get(userID).kill();
-					// The termination statement is triggered upon reading a message, so we add one final
-					// message to make sure that the thread ends.
-					this.parentServer.writerRunnables.get(userID).put("Die, thread, die!");
+					this.parentServer.writerThreads.get(userID).kill();
+					this.parentServer.writerThreads.get(userID).put("Die, thread, die!");
+					
+					// Remove the entries for this Writer and Reader from the maps on the server
+					this.parentServer.readerThreads.remove(userID);
+					this.parentServer.writerThreads.remove(userID);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
