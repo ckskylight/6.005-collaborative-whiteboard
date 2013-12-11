@@ -42,7 +42,7 @@ import ADT.Stroke;
 public class WhiteboardServer {
 	private Map<Integer, WhiteboardModel> boards; 
 	private Map<Integer, Socket> connections;
-	private Map<Integer, ObjectOutputStream> outputs;
+	private Map<Integer, WhiteboardUser> threads;
 
 	private Map<Integer, List<Integer>> boardMembers;
 	private ServerSocket serverSocket;
@@ -52,7 +52,7 @@ public class WhiteboardServer {
 		this.connections = Collections.synchronizedMap(new HashMap<Integer, Socket>());
 		this.boardMembers = Collections.synchronizedMap(new HashMap<Integer, List<Integer>>());
 		this.serverSocket = new ServerSocket(port);
-		this.outputs = Collections.synchronizedMap(new HashMap<Integer, ObjectOutputStream>());
+		this.threads = Collections.synchronizedMap(new HashMap<Integer, WhiteboardUser>());
 	}
 
 	public void serve() throws IOException {
@@ -62,12 +62,13 @@ public class WhiteboardServer {
 			while (this.connections.containsKey(userID)) {
 				userID = 10000 + (int)(Math.random() * ((99999 - 10000) - 1));
 			}
+			WhiteboardUser newUser = new WhiteboardUser(socket, this, userID);
 			synchronized(this.connections) {
 				this.connections.put(userID, socket);
-				outputs.put(userID, new ObjectOutputStream(socket.getOutputStream()));
+				threads.put(userID, newUser);
 			}
-			Thread newUser = new Thread(new WhiteboardUser(socket, this, userID));
 			newUser.start();
+			
 		}
 	}
 
@@ -92,6 +93,7 @@ public class WhiteboardServer {
 			} else if (input.startsWith("addDrawing")) {
 				String drawingJSON = input.substring("addDrawing".length() + 1);
 				connectDrawing(boardID, drawingJSON);
+				updateClientsBoards(boardID, drawingJSON);
 				return "UPDATE ACK";
 			} else if (input.startsWith("setBoardName")) {
 				String newName = input.substring("setBoardName".length() + 1);
@@ -100,7 +102,7 @@ public class WhiteboardServer {
 				return "UPDATE ACK";
 			} else if(input.startsWith("clearBoard"))  {
 				boards.get(boardID).clear();
-				updateClientsBoardList();
+				updateClientsBoards(boardID, "clearBoard");
 				return "UPDATE ACK";
 
 			}
@@ -109,6 +111,8 @@ public class WhiteboardServer {
 			}
 		}
 	}
+
+
 
 	/**
 	 * Takes a board id and the JSON for a Stroke object to add to it, and adds it on.
@@ -122,7 +126,6 @@ public class WhiteboardServer {
 			Gson gson = new Gson();
 			Drawing drawObj = gson.fromJson(drawingJSON, Stroke.class);
 			board.connectDrawing(drawObj);
-			updateClientsBoards(boardID);
 		}
 	}
 
@@ -168,14 +171,18 @@ public class WhiteboardServer {
 		List<Integer> clients = this.boardMembers.get(boardID);
 		String boardState = "BOARD " + Integer.toString(boardID) + " " + this.boards.get(boardID).getSketch().getJSON();
 		for (Integer clientID : clients) {
-			ObjectOutputStream out = this.outputs.get(clientID);
-			try{
-				out.writeObject(boardState);
-				out.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			WhiteboardUser client = this.threads.get(clientID);
+			client.write(boardState);
 		}
+	}
+	
+	private void updateClientsBoards(int boardID, String message) {
+		List<Integer> clients = this.boardMembers.get(boardID);
+		String msg = "MSG " + Integer.toString(boardID) + " " + message;
+		for (Integer clientID : clients) {
+			WhiteboardUser client = this.threads.get(clientID);
+			client.write(msg);
+		}		
 	}
 
 	/**
@@ -184,14 +191,8 @@ public class WhiteboardServer {
 	private  void updateClientsBoardList() {
 		String boardListJSON = "BLIST " + this.getBoardList();
 		for(Integer clientID: connections.keySet())  {
-			ObjectOutputStream out = this.outputs.get(clientID);
-
-			try{
-				out.writeObject(boardListJSON);
-				out.flush();
-				} catch (IOException e) {
-				e.printStackTrace();
-			}
+			WhiteboardUser client = this.threads.get(clientID);
+			client.write(boardListJSON);
 		}
 	}
 
@@ -251,7 +252,7 @@ public class WhiteboardServer {
 	 * @author John
 	 *
 	 */
-	class WhiteboardUser implements Runnable{
+	class WhiteboardUser extends Thread{
 		private final Socket socket;
 		private final WhiteboardServer parentServer;
 		private final int userID;
@@ -261,39 +262,63 @@ public class WhiteboardServer {
 			this.socket = socket;
 			this.parentServer = parentServer;
 			this.userID = userID;
-			outStream = parentServer.outputs.get(userID);
+			try {
+				outStream = new ObjectOutputStream(socket.getOutputStream());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		public void write(String message)  {
+			try {
+				outStream.writeObject(message);
+				outStream.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		public void run() {
 			try {
 				BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 				try{
+					while (true)  {
 					for (String line = in.readLine(); line != null; line = in.readLine()){
 						String output = this.parentServer.handleRequest(line, userID);
+						if (!output.equals("UPDATE ACK"))  {
 						outStream.writeObject(output);
 						outStream.flush();
+						}
+						
+					}
 	
 					} 
 				} finally {
-					out.close();
-					in.close();
-					this.socket.close();
+					
 					// Get the userID out of the connections listing.
 					synchronized(this.parentServer.connections) {
 						this.parentServer.connections.remove(userID);
+						try {
+							this.parentServer.threads.get(userID).join();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						this.parentServer.threads.remove(userID);
 					} 
 					// gets the userID out of all the boardMembers listings.
-//					synchronized(this.parentServer.boardMembers) {
-//						for(Integer boardID: this.parentServer.boardMembers.keySet())  {
-//							for(Integer userID: this.parentServer.boardMembers.get(boardID)) {
-//								if(userID.equals(new Integer(this.userID)))  {
-//									this.parentServer.boardMembers.get(boardID).remove(userID);
-//								}
-//							}
-//
-//						}
-//					}
+					synchronized(this.parentServer.boardMembers) {
+						for(Integer boardID: this.parentServer.boardMembers.keySet())  {
+							for(Integer userID: this.parentServer.boardMembers.get(boardID)) {
+								if(userID.equals(new Integer(this.userID)))  {
+									this.parentServer.boardMembers.get(boardID).remove(userID);
+								}
+							}
+
+						}
+					}
+					outStream.close();
+					in.close();
+					this.socket.close();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -1,48 +1,25 @@
 package GUI;
 
-import gson.src.main.java.com.google.gson.Gson;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
 import javax.imageio.ImageIO;
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.border.Border;
-
-import server.WhiteboardModel;
 
 import ADT.Sketch;
 import ADT.Stroke;
@@ -50,7 +27,6 @@ import GUI.Brush;
 import GUI.Canvas;
 import GUI.ColorSquare;
 import GUI.GUIConstants;
-import GUI.MenuBar;
 import GUI.Sidebar;
 
 public class WhiteboardGUI extends JPanel {
@@ -197,6 +173,10 @@ public class WhiteboardGUI extends JPanel {
 	public void setSketch(Sketch newSketch) {
 		canvas.setSketch(newSketch);
 	}
+	
+	public void connectStroke(Stroke update)  {
+		canvas.connectStroke(update);
+	}
 
 	public Image loadImage(String filePath) {
 		BufferedImage image = null;
@@ -217,7 +197,7 @@ public class WhiteboardGUI extends JPanel {
 	}
 
 	public void clear() {
-		out.println(id + " clearBoard");
+		canvas.clear();
 		repaint();
 	}
 
@@ -269,6 +249,10 @@ public class WhiteboardGUI extends JPanel {
 			}
 		}
 
+	}
+
+	public void requestClear() {
+			out.println(id + " clearBoard");
 	}
 
 	

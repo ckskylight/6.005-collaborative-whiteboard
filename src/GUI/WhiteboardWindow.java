@@ -1,7 +1,6 @@
 package GUI;
 import gson.src.main.java.com.google.gson.Gson;
 import gson.src.main.java.com.google.gson.GsonBuilder;
-import gson.src.main.java.com.google.gson.InstanceCreator;
 import gson.src.main.java.com.google.gson.JsonArray;
 import gson.src.main.java.com.google.gson.JsonDeserializationContext;
 import gson.src.main.java.com.google.gson.JsonDeserializer;
@@ -10,15 +9,11 @@ import gson.src.main.java.com.google.gson.JsonObject;
 import gson.src.main.java.com.google.gson.JsonParseException;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
@@ -46,6 +41,10 @@ import ADT.Stroke;
  */
 public class WhiteboardWindow extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6651504303207410645L;
 	//Server Elements
 	private final int SERVER_PORT = 4444;
 	private final Socket server;
@@ -57,7 +56,7 @@ public class WhiteboardWindow extends JFrame {
 	private ObjectInputStream in;
 
 	//Represents the whiteboard the user has joined. 
-	private static Map<Integer, WhiteboardGUI> whiteboards;
+	private Map<Integer, WhiteboardGUI> whiteboards;
 
 	// The tabbed pane that houses all tabs
 	private JTabbedPane tabbedPane;
@@ -72,6 +71,7 @@ public class WhiteboardWindow extends JFrame {
 	// Menu bar
 	private final MenuBar menuBar;
 
+	@SuppressWarnings("unchecked")
 	public WhiteboardWindow() throws IOException, ClassNotFoundException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		tabbedPane = new JTabbedPane();
@@ -137,7 +137,7 @@ public class WhiteboardWindow extends JFrame {
 	private void assembleJFrame() {
 		tabbedPane = new JTabbedPane();
 		for (Integer id : whiteboards.keySet()) {
-	        tabbedPane.addTab(boardNames.get(Integer.toString(id)), whiteboards.get(id));
+			tabbedPane.addTab(boardNames.get(Integer.toString(id)), whiteboards.get(id));
 		}
 
 		// Add the entire tabbed pane to the jframe
@@ -175,41 +175,50 @@ public class WhiteboardWindow extends JFrame {
 		if(string.contains("BOARD "))  {
 
 			String boardString = string.substring("BOARD ".length()); //TODO:Magic number
-			String sketchString = boardString.substring(6);
 			int id = Integer.parseInt(boardString.substring(0, 6).trim());
 			Integer idInteger = new Integer(id);
+
+			String sketchString = boardString.substring(6);
 			Sketch sketch = sketchgson.fromJson(sketchString, Sketch.class);
+
 			if(!this.whiteboards.containsKey(idInteger))  {
-				this.whiteboards.put(idInteger, new WhiteboardGUI(serverOut, id));
-				assembleJFrame();
-			}
+				this.whiteboards.put(idInteger, new WhiteboardGUI(serverOut, id));	
+				}
 			this.whiteboards.get(idInteger).setSketch(sketch);
-			
-			this.repaint();
+			assembleJFrame();
 
-
-		}else  {
-			if(string.contains("BLIST"))  {;
-				String boardListString = string.substring(6); //TODO:Magic number
-				@SuppressWarnings("unchecked")
-				Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
-				this.setBoardList(boardList);
-				
-				assembleJFrame();
-				this.repaint();
-
+		}else  if(string.contains("MSG "))  {
+			String updateString = string.substring("MSG ".length());
+			int id = Integer.parseInt(updateString.substring(0, 6).trim());
+			Integer idInteger = new Integer(id);
+			if(string.contains("clearBoard"))  {
+				this.whiteboards.get(idInteger).clear();
 			}
-			else  { //In this cases, no  changes are necessary. 
-				if(string.contains("LEAVE") || string.contains("UPDATE ACK"))  {
-					return;
-				}
-				//This should take care of all cases.
-				else  {
-					throw new RuntimeException("Unrecognized Server Message: " + string);
-				}
-
+			else  {
+				String sketchString = updateString.substring(6);
+				Stroke stroke = gson.fromJson(sketchString, Stroke.class);
+				this.whiteboards.get(idInteger).connectStroke(stroke);
 			}
+
 		}
+		else{
+			if(string.contains("BLIST"))  {;
+			String boardListString = string.substring(6); //TODO:Magic number
+			@SuppressWarnings("unchecked")
+			Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
+			this.setBoardList(boardList);
+			assembleJFrame();
+			}
+
+			//This should take care of all cases.
+			else  {
+				throw new RuntimeException("Unrecognized Server Message: " + string);
+			}
+
+		}
+
+		this.repaint();
+
 	}
 
 
@@ -218,7 +227,6 @@ public class WhiteboardWindow extends JFrame {
 	public class UpdateWerker  extends SwingWorker<String, String>{
 
 		private final Socket server;
-//		private BufferedReader serverIn;
 		private ObjectInputStream serverIn;
 		/**
 		 * This Swing worker handel's the receiving and 
@@ -230,7 +238,7 @@ public class WhiteboardWindow extends JFrame {
 		public UpdateWerker(Socket serverConnection, ObjectInputStream serverIn)  {
 			server = serverConnection;
 			this.serverIn = serverIn;
-			
+
 
 		}
 
@@ -276,7 +284,7 @@ public class WhiteboardWindow extends JFrame {
 	public WhiteboardGUI getCurrentWhiteboard() {
 		return (WhiteboardGUI) tabbedPane.getSelectedComponent();
 	}
-	
+
 	class SketchDeserializer implements JsonDeserializer<Sketch> {
 
 		@Override
@@ -284,7 +292,7 @@ public class WhiteboardWindow extends JFrame {
 				java.lang.reflect.Type typeOfT,
 				JsonDeserializationContext context) throws JsonParseException {
 			ArrayList<Drawing> strokeArray = new ArrayList<Drawing>();
-			
+
 
 			JsonObject object = (JsonObject) json;
 			JsonArray sketchArray = object.getAsJsonArray("sketch");
@@ -299,7 +307,7 @@ public class WhiteboardWindow extends JFrame {
 			//ArrayList<Drawing> sketchList = gson.fromJson(object.get("sketch"), ArrayList.class);
 			return new Sketch(strokeArray);
 		}
-		
+
 	}
 
 }

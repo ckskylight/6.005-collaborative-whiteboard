@@ -139,17 +139,16 @@ public class Canvas extends JPanel {
 			// Here store info in the ADT
 			Point startPoint = new Point(lastX, lastY);
 			Point endPoint = new Point(x, y);
-			if( startPoint.distanceSq(endPoint) > 45)  {
-				Stroke update = new Stroke(startPoint, endPoint, brush.getColor(), brush.getThickness());
+ 				Stroke update = new Stroke(startPoint, endPoint, brush.getColor(), brush.getThickness());
 				String updateJSon = gson.toJson(update);
 				String updateString = id + " addDrawing " + updateJSon;
 				out.println(updateString);
 
 				lastX = x;
 				lastY = y;
-				whiteboard.connect(update);
+//				whiteboard.connect(update);
 				repaint();
-			}
+			
 
 
 		}
@@ -161,6 +160,11 @@ public class Canvas extends JPanel {
 		public void mouseReleased(MouseEvent e) { }
 		public void mouseEntered(MouseEvent e) { }
 		public void mouseExited(MouseEvent e) { }
+	}
+
+	public void connectStroke(Stroke update) {
+		// TODO Auto-generated method stub
+		whiteboard.connect(update);
 	}
 
 }

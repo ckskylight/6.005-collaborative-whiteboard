@@ -139,7 +139,7 @@ public class CustomButton extends JComponent implements MouseListener {
 			brush.setColor( new Color(255,255,255) );
 		}
 		else if (action.equals("clear")) {
-			whiteboard.clear();
+			whiteboard.requestClear();
 		}
 		
 	}
