@@ -193,6 +193,7 @@ public class WhiteboardServer {
 		for(Integer clientID: connections.keySet())  {
 			WhiteboardUser client = this.threads.get(clientID);
 			client.write(boardListJSON);
+
 		}
 	}
 

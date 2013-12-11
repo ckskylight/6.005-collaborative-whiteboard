@@ -87,7 +87,7 @@ public class MenuBar {
 
 	public void setBoardList(Map<Integer,String> newBoardList) {
 		boardNames = newBoardList;
-		
+
 	}
 
 	public void updateCurrentBoardId(int id)  {
@@ -126,9 +126,11 @@ public class MenuBar {
 			}
 			else /*if a whiteboard name is chosen*/ {
 				int selectedBoardID = Integer.parseInt(((JMenuItem) e.getSource()).getAccessibleContext().getAccessibleDescription());
-				serverRequest = selectedBoardID + " joinBoard";
-				whiteboards.put(new Integer(selectedBoardID), new WhiteboardGUI(out, selectedBoardID));
-				out.println(serverRequest);
+				if(!whiteboards.containsKey(new Integer(selectedBoardID)))  {
+					serverRequest = selectedBoardID + " joinBoard";
+					whiteboards.put(new Integer(selectedBoardID), new WhiteboardGUI(out, selectedBoardID));
+					out.println(serverRequest);
+				}
 
 			}
 		}

@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.Spring;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
@@ -52,7 +54,7 @@ public class WhiteboardWindow extends JFrame {
 	private Gson gson;
 	private Gson sketchgson;
 	private Map<Integer, String> boardNames;
-	private UpdateWerker listner;
+	private Worker listner;
 	private ObjectInputStream in;
 
 	//Represents the whiteboard the user has joined. 
@@ -91,12 +93,12 @@ public class WhiteboardWindow extends JFrame {
 		boardListString = boardListString.substring(6);
 
 		Map<Integer, String> boardList = gson.fromJson(boardListString, Map.class);
-		listner = new UpdateWerker(server, in);
+		listner = new Worker(server, in);
 
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		menuBar = new MenuBar(GUIConstants.EMPTY_BOARDS, serverOut, whiteboards);
 		this.setBoardList(boardList);
-		listner.execute();
+		new Thread(listner).start();
 
 	}
 
@@ -183,7 +185,7 @@ public class WhiteboardWindow extends JFrame {
 
 			if(!this.whiteboards.containsKey(idInteger))  {
 				this.whiteboards.put(idInteger, new WhiteboardGUI(serverOut, id));	
-				}
+			}
 			this.whiteboards.get(idInteger).setSketch(sketch);
 			assembleJFrame();
 
@@ -224,7 +226,7 @@ public class WhiteboardWindow extends JFrame {
 
 
 	//
-	public class UpdateWerker  extends SwingWorker<String, String>{
+	public class Worker  implements Runnable{
 
 		private final Socket server;
 		private ObjectInputStream serverIn;
@@ -235,79 +237,79 @@ public class WhiteboardWindow extends JFrame {
 		 * worker to continue listening to the server. 
 		 * @throws IOException 
 		 */
-		public UpdateWerker(Socket serverConnection, ObjectInputStream serverIn)  {
+		public Worker(Socket serverConnection, ObjectInputStream serverIn)  {
 			server = serverConnection;
 			this.serverIn = serverIn;
-
 
 		}
 
 		/**
 		 * The worker blocks and wait for the server's response in background.
-		 * @return server response
-		 * @throws ClassNotFoundException 
+		 * Then tells the GUI to process the response. 
 		 */
 		@Override
-		protected String doInBackground() throws IOException, ClassNotFoundException {
-			String response =  "" + ( String) serverIn.readObject();
-			return response;
-
-		}
-
-		/**
-		 * Parses and handles server message when done and creates a new 
-		 * UpdateWerker to keep listening for updates. 
-		 */
-		@Override
-		protected void done()  {
-
-			try {
-				String message = get();
-				if(message != null){
-					parseServerMessage(message);
+		public void run(){
+			while(true)  {
+				String response;
+				try {
+					response = "" + ( String) serverIn.readObject();
+					final String message = response;
+					if(message != null){
+						SwingUtilities.invokeAndWait(new Runnable()  {
+							public void run()  {
+								parseServerMessage(message);	
+							}
+						});
+					}
+				}catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
 			}
-			UpdateWerker listner;
-			listner = new UpdateWerker(server, serverIn);
-			listner.execute();
+		
+	}
+}
 
+
+
+
+/**
+ * @return instance of whiteboardGUI currently selected by used via tab interface. 
+ */
+public WhiteboardGUI getCurrentWhiteboard() {
+	return (WhiteboardGUI) tabbedPane.getSelectedComponent();
+}
+
+class SketchDeserializer implements JsonDeserializer<Sketch> {
+
+	@Override
+	public Sketch deserialize(JsonElement json,
+			java.lang.reflect.Type typeOfT,
+			JsonDeserializationContext context) throws JsonParseException {
+		ArrayList<Drawing> strokeArray = new ArrayList<Drawing>();
+
+
+		JsonObject object = (JsonObject) json;
+		JsonArray sketchArray = object.getAsJsonArray("sketch");
+		for (JsonElement stroke : sketchArray) {
+			JsonObject strokeObject = (JsonObject) stroke;
+			Color color = gson.fromJson(strokeObject.get("color"), Color.class);
+			int thickness = strokeObject.get("thickness").getAsInt();
+			Point startPoint = gson.fromJson(strokeObject.get("startPoint"), Point.class);
+			Point endPoint = gson.fromJson(strokeObject.get("endPoint"), Point.class);
+			strokeArray.add(new Stroke(startPoint, endPoint, color, thickness));
 		}
+		//ArrayList<Drawing> sketchList = gson.fromJson(object.get("sketch"), ArrayList.class);
+		return new Sketch(strokeArray);
 	}
 
-	/**
-	 * @return instance of whiteboardGUI currently selected by used via tab interface. 
-	 */
-	public WhiteboardGUI getCurrentWhiteboard() {
-		return (WhiteboardGUI) tabbedPane.getSelectedComponent();
-	}
-
-	class SketchDeserializer implements JsonDeserializer<Sketch> {
-
-		@Override
-		public Sketch deserialize(JsonElement json,
-				java.lang.reflect.Type typeOfT,
-				JsonDeserializationContext context) throws JsonParseException {
-			ArrayList<Drawing> strokeArray = new ArrayList<Drawing>();
-
-
-			JsonObject object = (JsonObject) json;
-			JsonArray sketchArray = object.getAsJsonArray("sketch");
-			for (JsonElement stroke : sketchArray) {
-				JsonObject strokeObject = (JsonObject) stroke;
-				Color color = gson.fromJson(strokeObject.get("color"), Color.class);
-				int thickness = strokeObject.get("thickness").getAsInt();
-				Point startPoint = gson.fromJson(strokeObject.get("startPoint"), Point.class);
-				Point endPoint = gson.fromJson(strokeObject.get("endPoint"), Point.class);
-				strokeArray.add(new Stroke(startPoint, endPoint, color, thickness));
-			}
-			//ArrayList<Drawing> sketchList = gson.fromJson(object.get("sketch"), ArrayList.class);
-			return new Sketch(strokeArray);
-		}
-
-	}
+}
 
 }
