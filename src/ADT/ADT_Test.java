@@ -8,20 +8,18 @@ import org.junit.Test;
 
 public class ADT_Test {
     /**
-     * This class tests the core functionality of the Sketch and Stroke classes, with tests to be written for 
-     * Custom if there is enough time to implement it.  This requires us to test Stroke's constructor,
-     * clear, and getImage methods as they fully describe its core functionality.  This will implicitly
+     * This class tests the core functionality of the Sketch and Stroke classes.  This requires us to test Stroke's constructor and
+     * getImage methods as they fully describe its core functionality.  This will implicitly
      * tests its other setter and getter methods.  I will test creating strokes with positive, negative,
      * absolutely large, small non-zero, and zero values for thickness and x-y start/end coordinates.
-     * We also test when a Stroke's start and end points are equal.  I will also test clearing Strokes 
-     * that are or aren't already clear.  Lastly, we test drawing on a blank image and an Image that is 
+     * We also test when a Stroke's start and end points are equal.Lastly, we test drawing on a blank image and an Image that is 
      * already drawn on -- making sure to test the case where a line is drawn over a pre-existing line.
      * 
-     * Sketch requires testing the same methods in the same way, but also has a connect() method
-     * which adds new Strokes or Sketches to the sketch.  We test Sketch creation to make sure it
-     * has an empty list.  We also test connect() with Strokes and Sketches, specifically examining 
+     * Sketch requires testing the same methods in the same way, but also has a connect() and clear() method
+     * which adds new Strokes or Sketches to the sketch and removes them all respectively.  We test Sketch 
+     * creation to make sure it has an empty list.  We also test connect() with Strokes and Sketches, specifically examining 
      * the overlapping case.  Lastly, we test clearing a Sketch to make sure that all of its contained
-     * Drawings become transparent.
+     * Drawings are removed.
      */
     
     /*
@@ -82,15 +80,6 @@ public class ADT_Test {
         assert(pointStroke.getEndPoint().equals(tenPoint));
         assert(pointStroke.getColor().equals(Color.GRAY));
         assert(pointStroke.getThickness() == 10);
-    }
-    /**
-     * Tests clearing a stroke.
-     */
-    @Test
-    public void testStrokeClearing(){
-        Stroke blackStroke = makeStroke(0, 0, 100, 100, Color.BLACK, 10);
-        blackStroke.clear();
-        assert(blackStroke.getColor().equals(new Color(0, 0, 0, 0)));
     }
     
     /**

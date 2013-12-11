@@ -257,7 +257,7 @@ public class WhiteboardGUI extends JPanel {
 				brush.setColor(Color.decode(newColor));
 				currentField.setBackground(GUIConstants.HONEYDEW);
 			} catch (Exception ex) {
-				currentField.setText("Not Hex");
+				currentField.setText("Invalid");
 				currentField.setBackground(GUIConstants.MISTYROSE);
 			}
 		}

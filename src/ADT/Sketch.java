@@ -9,25 +9,18 @@ import java.util.ArrayList;
 /**
  * Sketch is represents top level of our ADT, it is a composition of 
  * other drawings. 
- * Pre-req: This class cannot not be mutated from the GUI!
  * 
  * Abstraction Function: 
- * This maps free-hand drawings and custom images to an ArrayList of Strokes and Customs.
- * 
- * Representation Invariant:
- * Drawings are never removed from a Sketch, only overwritten. 
- * 
+ * This maps free-hand drawings to an ArrayList of Drawings (in practice Strokes).
+ *  
  * Thread Safety Argument:
- * Since this class is only modified from a single thread, (Server when connect or clear is called)
- * this class is thread-safe. 
+ * This class is thread-safe through the monitor pattern. Only one thread may mutate or observe the Sketch at a time.
+ * This allows us to defend ourselves from unwanted interleaving. 
  *
  */
 public class Sketch implements Drawing, Serializable {
 
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private ArrayList<Drawing> sketch;
 
@@ -46,7 +39,7 @@ public class Sketch implements Drawing, Serializable {
 	 *   <Sketch, Drawing> --> <Sketch>
 	 *   
 	 **/ 
-	public void connect(Drawing drawing)  {
+	public synchronized void connect(Drawing drawing)  {
 		sketch.add(drawing);
 	}
 
@@ -54,16 +47,14 @@ public class Sketch implements Drawing, Serializable {
 	/**
 	 *   Erase the entire drawing.
 	 **/
-	public void clear() {
-		for (Drawing drawing: sketch)  {
-			drawing.clear();
-		}
+	public synchronized void clear() {
+		sketch.clear();
 	}
 
 	/**
 	 * @return the size of the sketch (number of strokes)
 	 */
-	public int getSketchSize() {
+	public synchronized int getSketchSize() {
 		return sketch.size();
 	}
 
@@ -72,7 +63,7 @@ public class Sketch implements Drawing, Serializable {
 	 *   Drawing.  This represents the bridge from the ADT to the GUI.
 	 *   Prerequisite: background must be a blank canvas (white canvas).
 	 **/ 
-	public Image getImage(Image background) {
+	public synchronized Image getImage(Image background) {
 		for (Drawing drawing: sketch)  {
 			drawing.getImage(background);
 		}	
@@ -84,7 +75,7 @@ public class Sketch implements Drawing, Serializable {
 	 * the same drawings. False otherwise. 
 	 */
 	@Override
-	public boolean equals(Object other)  {
+	public synchronized boolean equals(Object other)  {
 		if(!(other instanceof Sketch))  
 			return false;
 		Sketch otherSketch = (Sketch) other;
@@ -102,7 +93,7 @@ public class Sketch implements Drawing, Serializable {
 	}
 
 	@Override
-	public int hashCode()  {
+	public synchronized int hashCode()  {
 		int hash = 0;
 		for(Drawing drawing: sketch)  {
 			hash += drawing.hashCode();
@@ -115,12 +106,15 @@ public class Sketch implements Drawing, Serializable {
 	 * This returns the list Drawings that the sketch is composed of.
 	 * This is used for testing equality.  
 	 */
-	public ArrayList<Drawing> getDrawings()  {
+	public synchronized ArrayList<Drawing> getDrawings()  {
 		return this.sketch;
 	}
 
 
-	public String getJSON() {
+	/**
+	 * @return JSON String representing this instance.
+	 */
+	public synchronized String getJSON() {
 		Gson gson = new Gson();
 		return gson.toJson(this) ;
 	}
