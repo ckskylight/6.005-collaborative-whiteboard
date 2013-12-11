@@ -28,6 +28,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -85,9 +86,18 @@ public class WhiteboardWindow extends JFrame {
 	@SuppressWarnings("unchecked")
 	public WhiteboardWindow() throws IOException, ClassNotFoundException {
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
+		this.setPreferredSize(GUIConstants.WINDOW_DIMENSIONS);
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		this.setTitle("Collaborative Whiteboardzz");
+		
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addChangeListener(new TabListener());
-		this.setPreferredSize(GUIConstants.WINDOW_DIMENSIONS);
+		
+		// Add the entire tabbed pane to the jframe
+		mainPanel.add(tabbedPane);
+		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		
+		this.add(mainPanel);
 
 		// Connect to Server
 		server = new Socket();
@@ -99,6 +109,7 @@ public class WhiteboardWindow extends JFrame {
 				new SketchDeserializer()).create();
 		serverOut = new PrintWriter(server.getOutputStream(), true);
 		serverOut.println("getBoardList");
+		serverOut.flush();
 		in = new ObjectInputStream(server.getInputStream());
 		String boardListString = (String) in.readObject();
 		boardListString = boardListString.substring(6);
@@ -162,26 +173,17 @@ public class WhiteboardWindow extends JFrame {
 	 * This helper sets up the subelements of this GUI.
 	 */
 	private void assembleJFrame() {
-		tabbedPane = new JTabbedPane();
-		tabbedPane.addChangeListener(new TabListener());
+		if (tabbedPane.getComponentCount() > 0) {
+			tabbedPane.removeAll();
+		}
 		for (Integer id : whiteboards.keySet()) {
 			tabbedPane.addTab(boardNames.get(Integer.toString(id)),
 					whiteboards.get(id));
 		}
-
-		// Add the entire tabbed pane to the jframe
-		mainPanel.add(tabbedPane);
-		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-
-		if (tabbedPane.getComponentCount() > 0) {
-			currentBoardID = ((WhiteboardGUI) tabbedPane.getSelectedComponent())
-					.getID();
-		}
-
+		
 		// Add the menu bar
-
-		this.add(mainPanel);
 		this.setJMenuBar(menuBar.createMenuBar());
+		
 	}
 
 	/**
@@ -213,6 +215,7 @@ public class WhiteboardWindow extends JFrame {
 			int id = Integer.parseInt(idString); // IDs are 5 digits long
 			whiteboards.remove(id);
 			assembleJFrame();
+
 		} else if (string.contains("BOARD ")) { // Indicates server sent a Sketch representing a whiteboard.
 			String boardString = string.substring("BOARD ".length());
 			int id = Integer.parseInt(boardString.substring(0, 6).trim()); // IDs are 5 digits long
@@ -230,6 +233,7 @@ public class WhiteboardWindow extends JFrame {
 		} else if (string.contains("MSG ")) { // Indicates server sent an update in the form of a Stroke or a clear message
 
 			String updateString = string.substring("MSG ".length());
+			
 			int id = Integer.parseInt(updateString.substring(0, 6).trim()); // IDs are 5 digits long
 			Integer idInteger = new Integer(id);
 

@@ -1,7 +1,6 @@
 package server;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
@@ -15,8 +14,6 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import server.WhiteboardServer.Listner;
-import server.WhiteboardServer.Writer;
 import gson.src.main.java.com.google.gson.Gson;
 import ADT.Drawing;
 import ADT.Stroke;
@@ -185,7 +182,7 @@ public class WhiteboardServer {
 	 * @param userID
 	 */
 	private void leaveBoard(int boardID, int userID) {
-		this.boardMembers.get(boardID).remove(userID);
+		this.boardMembers.get(boardID).remove(new Integer(userID));
 	}
 
 	/**
@@ -310,8 +307,9 @@ public class WhiteboardServer {
 					for (String line = in.readLine(); line != null; line = in.readLine()){ //Read from client
 						this.parentServer.handleRequest(line, userID); //Sends client request to central server
 						}		
-					break;
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				} finally {
 					// Get the userID out of the connections listing.
 					synchronized(this.parentServer.connections) {
@@ -407,7 +405,7 @@ public class WhiteboardServer {
 					this.socket.close();
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				
 			}
 		}
 	}

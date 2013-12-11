@@ -131,6 +131,7 @@ public class Canvas extends JPanel {
 		 * draw a line segment.
 		 */
 		public void mouseDragged(MouseEvent e) {
+			
 			int x = e.getX();
 			int y = e.getY();
 
@@ -141,10 +142,10 @@ public class Canvas extends JPanel {
 				String updateJSon = gson.toJson(update);
 				String updateString = id + " addDrawing " + updateJSon;
 				out.println(updateString);
+				out.flush();
 
 				lastX = x;
 				lastY = y;
-//				whiteboard.connect(update);
 				repaint();
 			
 
