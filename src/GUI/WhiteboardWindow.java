@@ -44,10 +44,162 @@ import ADT.Stroke;
  * WhiteboardWindow represents the client in our System. It is the top level of
  * our GUI and is the point from which the client connects to the server.
  * 
- * TODO: MOAR MOAR DETAIL @CK
+ * Whiteboard window is a class that extends JFrame, and this creates the window
+ * that all the other components of the GUI depend upon. A new class WhiteboardWindow
+ * had to be created instead of using a regular JFrame because the main window needs 
+ * to handle the different tabs corresponding to the different whiteboards that can
+ * be created. 
+ * 
+ * The main representation of these tabs are in the Maps named boardNames
+ * and whiteboards. boardNames is a map of all the boards on the server represented by
+ * their ID's and their assigned names. whiteboards is a map that contains the whiteboards
+ * that the user is connected to (as WhiteboardGUI instances) as well as their ID's. 
+ * This allows the WhiteboardWindow to instantiate these instances of WhiteboardGUI 
+ * within the tabs, represented by the Swing class JTabbedPane. 
+ * 
+ * The JTabbedPane is contained within an IPanel (Image Panel), which was a class created
+ * to extend a JPanel that has a background image. In this way, by default, when there 
+ * are no tabs (no connected whiteboards) the background image / welcome message
+ * appears on the screen.
+ * 
+ * Since WhiteboardWindow is the top class that all the other GUI classes depend on
+ * and/or are spawned from, it contains the methods that read the server responses
+ * and make changes to the GUI based on how the server responded.
  * 
  * 
- * Thread Safety:
+ * 
+ * ======================== TESTING STRATEGY ============================
+ * assembleJFrame
+ * setBoardList
+ * parseServerMessage
+ * getCurrentWhiteboard
+ * 
+ * In testing the GUI, our approach was to list all the features and capabilities
+ * of the GUI and test all permutations of input to test the response of the window.
+ * These features and tests are listed below:
+ * 
+ * Create new whiteboard
+ * 	- Pass in:
+ *		- Empty name
+ *		- Name with only letters
+ *		- Name with letters and spaces
+ *		- Name with other characters (numbers,punctuation,etc)
+ *		- Name with other characters with spaces
+ *		- Name with letters, other chars and spaces
+ *	Here we are looking for the GUI to create a new tab with the name of the 
+ *	whiteboard specified by the user. We are also looking for the GUI to still
+ *	be functioning as expected after the creation of the new whiteboard.
+ * 
+ * Rename current whiteboard
+ * 	- Pass in:
+ *		- Empty name
+ *		- Name with only letters
+ *		- Name with letters and spaces
+ *		- Name with other characters (numbers,punctuation,etc)
+ *		- Name with other characters with spaces
+ *		- Name with letters, other chars and spaces
+ *	For all of these, the name of the whiteboard in the tab should change to
+ *	what the user specified, including if it's an empty string.
+ *	- Pass in a name when not connected to any whiteboards
+ *	This should effectively not do anything on the whiteboard. The GUI should
+ *	send nothing to the server and the state of the GUI would remain the same.
+ * 
+ * Leave current whiteboard
+ * 	- Situations to leave whiteboard:
+ * 		- No connected boards
+ * 		- One connected board
+ * 		- More than one connected board
+ * 	When there are no connected boards, clicking on leave will do nothing. 
+ * 	When there is one connected board, clicking on leave should close the tab
+ * 		and return you to the welcome screen
+ * 	When there is more than one connected board, exit the current board and 
+ * 		enter one of the other boards that the user is connected to
+ * 
+ * Join whiteboard
+ * 	- Situations:
+ * 		- Connected to no whiteboards
+ * 		- Connected to 1 or more whiteboards
+ * 		- Join a board that you just left
+ * 		- Join a board already joined
+ * 	When joining a whiteboard that's not currently joined, the GUI would add 
+ * 		a new tab corresponding to the joined whiteboard.
+ * 	When joining a whiteboard that's already joined (perhaps by accident) the 
+ * 		GUI should do nothing and continue to work as expected.
+ * 
+ * Switching whiteboards (between tabs)
+ * 	- Situations:
+ * 		- One tab
+ * 		- More than one tab
+ * 	When there is one tab and that tab is clicked, the GUI should do nothing
+ * 		and continue working as expected. When more than one tab is open, when
+ * 		user clicks on the tab he is on, nothing should happen. When clicking on 
+ * 		another tab, the GUI should switch to the whiteboard corresponding to 
+ * 		the name on the tab. 
+ * 
+ * Draw
+ * 	- Situations:
+ * 		- Draw is active
+ * 		- Erase is active
+ * 		- Clear just clicked
+ * 	When Draw is active, the icon background is green. On mousedown, this turns
+ * 		dark blue. On mouseup, Draw remains active (green). The user should still
+ * 		be able to draw on the whiteboard.
+ * 	When Erase is active (and Draw is inactive - light blue), the icon still 
+ * 		turns dark blue on mousedown but Draw becomes active (green) on mouseup.
+ * 		The user should now be able to draw (turn off erase)
+ * 	Clear being clicked should not affect anything since Clear is not a toggle 
+ * 		button.
+ * 
+ * Erase
+ * 	The tests for erase mimic those of Draw, except replace Draw with Erase
+ * 	and vice versa.
+ * 
+ * Clear
+ * 	- Clear clicked, nothing on board
+ * 	- Clear clicked, drawing on board
+ * 	When clear is clicked, whether or not there is something on the board,
+ * 		the board should become or remain empty (white).
+ * 
+ * Change stroke weight
+ * 	Changing the weight to any number from the dropdown should change the thickness
+ * 	of any line drawn. The color of the line should remain the same.
+ * 
+ * Change stroke color (hex/decimal box)
+ * 	- Input:
+ * 		- Standard hex
+ * 		- Standard decimal
+ * 		- Non-standard numerical value
+ * 		- Letters and/or spaces
+ * 	Entering a standard numerical value for a color should change the color of the brush
+ * 		and is evident when using the brush. If previous value was invalid, the color of
+ * 		the box should turn light green. 
+ * 	Entering a non-standard numerical value or letters/spaces would print "Invalid" 
+ * 		inside the box and change the box fill color to light red to indicate an error.
+ * 
+ * Change stroke color (color palate)
+ * 	- Situations:
+ * 		- Click the same color as current color
+ * 		- Click a different color
+ * 	The brush color should change to the color of the clicked button. If it's the same
+ * 		as the current color that means the color should stay the same.
+ * 
+ * Multiple clients
+ * 		- Create a board on one, join on the other
+ * 		- Join the same board that is already on the server
+ * 		- Create boards with the same time on both (should act as different boards)
+ * 		- Use different brush colors
+ * 		- Use different brush weights
+ * 		- One draws and one erases
+ * 		- One draws and one clears the board
+ * 
+ * Mouseover (change cursor)
+ * 	- Mouse over draw, erase, clear
+ * 	- Mouse over color palate buttons
+ * 	On mouseover all these buttons, the cursor should change from an arrow to the standard
+ * 		hand that appears when a button is to be clicked in most operating systems.
+ * 
+ * 
+ * ========================== THREAD SAFETY =============================
  * 	Each client, an instance of WhiteboardWindow spawns a background thread to 
  * listen to the server. We ensure the thread-safety of our client side by never 
  * mutating the GUI from the background thread, and using SwingUttilities.invokeAndWait
