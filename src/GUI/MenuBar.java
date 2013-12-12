@@ -12,6 +12,13 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+/**
+ * 
+ * MenuBar represents the menus on top of the window. It allows the user
+ * to perform actions that affect the whole GUI system and not just the
+ * current whiteboard he/she is on.
+ *
+ */
 public class MenuBar {
 
 	Map<Integer,String> boardNames;
@@ -25,7 +32,13 @@ public class MenuBar {
 		this.whiteboards = whiteboards;
 		this.currentBoardID = currentBoardID;
 	}
-
+	
+	/**
+	 * Create an instance of JMenuBar to be used in the WhiteboardWindow. 
+	 * Called from WhiteboardWindow.
+	 * 
+	 * @return a menu bar that could be attached to a JFrame
+	 */
 	public JMenuBar createMenuBar() {
 		JMenuBar menuBar;
 		JMenu menu, submenu;
@@ -74,18 +87,31 @@ public class MenuBar {
 
 		return menuBar;
 	}
-
+	
+	/**
+	 * Updates the instance of boardNames using information from the server
+	 * @param newBoardList a map of board ID's to their names
+	 */
 	public void setBoardList(Map<Integer,String> newBoardList) {
 		boardNames = newBoardList;
 
 	}
-
+	
+	/**
+	 * Tracks which board tab the user is currently on
+	 * 
+	 * @param id a 5-digit integer representing a board ID
+	 */
 	public void updateCurrentBoardId(int id)  {
 		this.currentBoardID = id;
 	}
 
 
-
+	/**
+	 * This listener monitors the menu bar and takes action based on the
+	 * menu item the user chooses. Sends data to the server when necessary.
+	 * 
+	 */
 	class MenuListener implements ActionListener {
 
 		@Override

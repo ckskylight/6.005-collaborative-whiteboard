@@ -3,6 +3,13 @@ package GUI;
 import java.awt.Image;
 import javax.swing.JPanel;
 
+/**
+ * 
+ * Sidebar is a class that is the home of the three buttons: clear, erase and draw.
+ * It allows for the GUI to inactivate Draw when Erase is activated and vice versa
+ * and serves to make the system more modular.
+ *
+ */
 public class Sidebar {
 	CustomButton[] buttons;
 	WhiteboardGUI whiteboard;

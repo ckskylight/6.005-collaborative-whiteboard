@@ -13,6 +13,14 @@ import java.util.ArrayList;
 
 import javax.swing.JComponent;
 
+/**
+ * 
+ * CustomButton is a type of JComponent that takes in an image in order to 
+ * create a button with a customized look. This CustomButton allows the GUI to change
+ * the button between active, inactive and clicked states that are needed for 
+ * toggle buttons such as those present in the sidebar of our GUI. 
+ *
+ */
 public class CustomButton extends JComponent implements MouseListener {
 
 	private static final long serialVersionUID = 1L;
@@ -115,6 +123,9 @@ public class CustomButton extends JComponent implements MouseListener {
         listeners.add(listener);
     }
 	
+	// Change the status of the button when mouse is clicked,
+	// pressed or released in order to change its icon
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (action.equals("draw")) {
@@ -129,7 +140,6 @@ public class CustomButton extends JComponent implements MouseListener {
 		
 	}
 	
-	//Ignore all other mouse events
 	@Override
 	public void mousePressed(MouseEvent e) {
 		isMouseDown = true;
@@ -149,7 +159,8 @@ public class CustomButton extends JComponent implements MouseListener {
 		this.repaint();
 	}
 
-
+	
+	//Ignore all other mouse events
 	@Override
 	public void mouseEntered(MouseEvent e) {}
 	@Override

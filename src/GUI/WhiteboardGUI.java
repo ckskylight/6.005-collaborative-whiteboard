@@ -30,6 +30,14 @@ import GUI.ColorSquare;
 import GUI.GUIConstants;
 import GUI.Sidebar;
 
+/**
+ * 
+ * The WhiteboardGUI class takes care of each of the individual whiteboards
+ * present in the main window. Each tab is an instance of WhiteboardGUI that 
+ * houses a different board. The WhiteboardGUI also contains the interfaces
+ * for drawing, erasing, choosing weight and color. 
+ *
+ */
 public class WhiteboardGUI extends JPanel {
 	
 	// ----- OBJECTS TO BE USED IN THE GUI -----

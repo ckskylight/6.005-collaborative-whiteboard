@@ -9,6 +9,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.JComponent;
 
+/**
+ * 
+ * ColorSquare is a custom JComponent which is a rounded square button for use
+ * in the color palate on the bottom of the screen. Contains a listener that
+ * changes the color of the passed in brush to the color of the square.
+ *
+ */
 public class ColorSquare extends JComponent implements MouseListener {
 	
 	/**
@@ -31,6 +38,7 @@ public class ColorSquare extends JComponent implements MouseListener {
 	
 	@Override
 	public void paintComponent(Graphics g) {
+		// Paint a rounded rectangle that will be how the button is going to look
 		Graphics2D graphics = (Graphics2D) g;
 		Dimension arc = new Dimension((int)Math.sqrt(GUIConstants.COLORSQUARE_WIDTH),
 				(int)Math.sqrt(GUIConstants.COLORSQUARE_HEIGHT));
