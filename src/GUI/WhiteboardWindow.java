@@ -69,10 +69,6 @@ import ADT.Stroke;
  * 
  * 
  * ======================== TESTING STRATEGY ============================
- * assembleJFrame
- * setBoardList
- * parseServerMessage
- * getCurrentWhiteboard
  * 
  * In testing the GUI, our approach was to list all the features and capabilities
  * of the GUI and test all permutations of input to test the response of the window.
