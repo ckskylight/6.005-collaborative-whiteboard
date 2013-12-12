@@ -246,11 +246,14 @@ public class WhiteboardWindow extends JFrame {
 	 */
 	@SuppressWarnings("unchecked")
 	public WhiteboardWindow(int port) throws IOException, ClassNotFoundException {
+		
+		// Set all the different properties of the JFrame
 		this.whiteboards = new HashMap<Integer, WhiteboardGUI>();
 		this.setPreferredSize(GUIConstants.WINDOW_DIMENSIONS);
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.setTitle("Collaborative Whiteboardzz");
 		
+		// Generate the TabbedPane that will house the whiteboards
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addChangeListener(new TabListener());
 		
@@ -517,7 +520,14 @@ public class WhiteboardWindow extends JFrame {
 	}
 	
 
-
+	/**
+	 * 
+	 * This class is used by gson in order to parse the sketch object that 
+	 * comes through JSON from the server. It does this by taking what's in
+	 * the JSON and plugging those values into constrtuctors for the different
+	 * classes needed to create a Sketch
+	 *
+	 */
 	class SketchDeserializer implements JsonDeserializer<Sketch> {
 
 		@Override
@@ -545,6 +555,13 @@ public class WhiteboardWindow extends JFrame {
 
 	}
 
+	/**
+	 * 
+	 * This listener is responsible for watching which tab the user is currently on.
+	 * This enables us to perform actions like leave the current board
+	 * or rename the current board.
+	 *
+	 */
 	class TabListener implements ChangeListener {
 
 		@Override
@@ -563,34 +580,6 @@ public class WhiteboardWindow extends JFrame {
 		 */
 		public WhiteboardGUI getCurrentWhiteboard() {
 			return (WhiteboardGUI) tabbedPane.getSelectedComponent();
-		}
-
-		class SketchDeserializer implements JsonDeserializer<Sketch> {
-
-			@Override
-			public Sketch deserialize(JsonElement json,
-					java.lang.reflect.Type typeOfT,
-					JsonDeserializationContext context)
-					throws JsonParseException {
-				ArrayList<Drawing> strokeArray = new ArrayList<Drawing>();
-
-				JsonObject object = (JsonObject) json;
-				JsonArray sketchArray = object.getAsJsonArray("sketch");
-				for (JsonElement stroke : sketchArray) {
-					JsonObject strokeObject = (JsonObject) stroke;
-					Color color = gson.fromJson(strokeObject.get("color"),
-							Color.class);
-					int thickness = strokeObject.get("thickness").getAsInt();
-					Point startPoint = gson.fromJson(
-							strokeObject.get("startPoint"), Point.class);
-					Point endPoint = gson.fromJson(
-							strokeObject.get("endPoint"), Point.class);
-					strokeArray.add(new Stroke(startPoint, endPoint, color,
-							thickness));
-				}
-				return new Sketch(strokeArray);
-			}
-
 		}
 
 	}
